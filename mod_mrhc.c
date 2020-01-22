@@ -50,8 +50,10 @@ static int mrhc_handler(request_rec *r)
     }
     r->content_type = "text/html";      
 
-    if (!r->header_only)
-        ap_rputs("The sample page from mod_mrhc.c\n", r);
+    if (!r->header_only) {
+        apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+        return HTTP_UNAUTHORIZED;
+    }
     return OK;
 }
 
