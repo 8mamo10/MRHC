@@ -1,0 +1,11 @@
+.libs/
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+apr-1.7.0
+httpd-2.4.41
+mod_mrhc.la
+mod_mrhc.lo
+mod_mrhc.o
+mod_mrhc.slo
