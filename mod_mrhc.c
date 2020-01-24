@@ -50,10 +50,26 @@ static int mrhc_handler(request_rec *r)
     }
     r->content_type = "text/html";      
 
-    if (!r->header_only) {
+    if (r->header_only) {
+        return DECLINED;
+    }
+    const char *username;
+    const char *password;
+    apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
+    if (ret == APR_EINVAL) {
         apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
         return HTTP_UNAUTHORIZED;
     }
+    if (ret == APR_SUCCESS) {
+        char str[256];
+        sprintf(str, "username: %s", username);
+        ap_rputs(str, r);
+        ap_rputs("<br/>", r);
+        sprintf(str, "password: %s", password);
+        ap_rputs(str, r);
+        return OK;
+    }
+    ap_rputs("not reach here\n", r);
     return OK;
 }
 
@@ -64,7 +80,7 @@ static void mrhc_register_hooks(apr_pool_t *p)
 
 /* Dispatch list for API hooks */
 module AP_MODULE_DECLARE_DATA mrhc_module = {
-    STANDARD20_MODULE_STUFF, 
+    STANDARD20_MODULE_STUFF,
     NULL,                  /* create per-dir    config structures */
     NULL,                  /* merge  per-dir    config structures */
     NULL,                  /* create per-server config structures */
