@@ -26,7 +26,6 @@ $ /usr/local/apache2/bin/httpd -v
 Server version: Apache/2.4.41 (Unix)
 Server built:   Jan 19 2020 20:20:22
 $ sudo /usr/local/apache2/bin/httpd -k start
-
 ```
 
 ## init apache module
