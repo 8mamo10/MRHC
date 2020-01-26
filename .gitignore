@@ -10,3 +10,4 @@ mod_mrhc.la
 mod_mrhc.lo
 mod_mrhc.o
 mod_mrhc.slo
+mod_mrhc.so
