@@ -4,6 +4,7 @@ GRTAGS
 GSYMS
 GTAGS
 apr-1.7.0
+apr-util-1.6.1
 httpd-2.4.41
 mod_mrhc.la
 mod_mrhc.lo

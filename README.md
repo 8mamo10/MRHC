@@ -8,13 +8,14 @@ Linux ubuntu-xenial 4.4.0-166-generic #195-Ubuntu SMP Tue Oct 1 09:35:25 UTC 201
 
 ## build environment
 ```
-$ sudo apt install libaprutil1-dev
 $ sudo apt install libpcre3-dev
 $ sudo apt install build-essential
 ```
 
 ## build apache
 ```
+$ tar xavf httpd-2.4.41.tar.gz
+$ cd httpd-2.4.41
 $ CFLAGS="-g" ./configure # add -g option for gdb debug
 $ make
 $ sudo make install
@@ -26,6 +27,25 @@ $ /usr/local/apache2/bin/httpd -v
 Server version: Apache/2.4.41 (Unix)
 Server built:   Jan 19 2020 20:20:22
 $ sudo /usr/local/apache2/bin/httpd -k start
+```
+
+## build apr
+```
+$ tar xavf apr-1.7.0.tar.gz
+$ cd apr-1.7.0
+$ CFLAGS="-g" ./configure
+$ make
+$ sudo make install
+```
+
+## build apr-util
+```
+$ tar xzvf apr-util-1.6.1.tar.gz
+$ cd apr-util-1.6.1
+$ CFLAGS="-g" ./configure --with-apr=/usr/local/apr
+$ make
+$ sudo make install
+$ sudo ln -s /usr/local/apr/bin/apu-1-config /usr/bin/apu-1-config
 ```
 
 ## init apache module
