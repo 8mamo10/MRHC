@@ -16,6 +16,8 @@ APACHECTL=apachectl
 #INCLUDES=-Imy/include/dir
 #LIBS=-Lmy/lib/dir -lmylib
 
+INCLUDES=-I/usr/local/apr/include/apr-1
+
 #   the default target
 all: local-shared-build
 
