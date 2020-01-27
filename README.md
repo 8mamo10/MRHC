@@ -14,7 +14,7 @@ $ sudo apt install build-essential
 
 ## build apache
 ```
-$ tar xavf httpd-2.4.41.tar.gz
+$ tar xzvf httpd-2.4.41.tar.gz
 $ cd httpd-2.4.41
 $ CFLAGS="-g" ./configure # add -g option for gdb debug
 $ make
@@ -31,7 +31,7 @@ $ sudo /usr/local/apache2/bin/httpd -k start
 
 ## build apr
 ```
-$ tar xavf apr-1.7.0.tar.gz
+$ tar xzvf apr-1.7.0.tar.gz
 $ cd apr-1.7.0
 $ CFLAGS="-g" ./configure
 $ make
