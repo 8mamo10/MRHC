@@ -42,10 +42,10 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
-#include <string>
+#include <bits/stdc++.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
@@ -96,7 +96,8 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("<br/>", r);
         ap_rputs(output.substr(0, recv_len).c_str(), r);
         ap_rputs("<br/>", r);
-        //
+
+        close(sockfd);
         return OK;
     }
     ap_rputs("not reach here\n", r);
