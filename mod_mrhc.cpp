@@ -43,6 +43,9 @@
 #include "ap_config.h"
 
 #include <string>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
@@ -75,6 +78,25 @@ static int mrhc_handler(request_rec *r)
         std::string hoge = "test string";
         ap_rputs(hoge.c_str(), r);
         ap_rputs("<br/>", r);
+
+        // socket test
+        int sockfd;
+        struct sockaddr_in addr;
+        if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+            ap_rputs("failed to open socket", r);
+            return OK;
+        }
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(5900);
+        addr.sin_addr.s_addr = inet_addr("192.168.1.14");
+        connect(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+        char recv_str[1024];
+        int recv_len = recv(sockfd, recv_str, 1024, 0);
+        std::string output = recv_str;
+        ap_rputs("<br/>", r);
+        ap_rputs(output.substr(0, recv_len).c_str(), r);
+        ap_rputs("<br/>", r);
+        //
         return OK;
     }
     ap_rputs("not reach here\n", r);
