@@ -87,7 +87,7 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
         addr.sin_family = AF_INET;
-        addr.sin_port = htons(5900);
+        addr.sin_port = htons(6624);
         addr.sin_addr.s_addr = inet_addr("192.168.1.14");
         connect(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
         char recv_str[1024];
