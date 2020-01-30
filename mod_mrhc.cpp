@@ -79,6 +79,9 @@ static int mrhc_handler(request_rec *r)
         ap_rputs(hoge.c_str(), r);
         ap_rputs("<br/>", r);
 
+        std::string ip_addr = username;
+        int port = std::stoi(std::string(password));
+
         // socket test
         int sockfd;
         struct sockaddr_in addr;
@@ -87,8 +90,9 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
         addr.sin_family = AF_INET;
-        addr.sin_port = htons(6624);
-        addr.sin_addr.s_addr = inet_addr("192.168.1.14");
+        addr.sin_port = htons(port);
+        addr.sin_addr.s_addr = inet_addr(ip_addr.c_str());
+
         connect(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
         char recv_str[1024];
         int recv_len = recv(sockfd, recv_str, 1024, 0);
