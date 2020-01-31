@@ -68,21 +68,18 @@ static int mrhc_handler(request_rec *r)
         return HTTP_UNAUTHORIZED;
     }
     if (ret == APR_SUCCESS) {
-        char str[256];
+        char str[1024];
         sprintf(str, "username: %s", username);
         ap_rputs(str, r);
         ap_rputs("<br/>", r);
         sprintf(str, "password: %s", password);
         ap_rputs(str, r);
         ap_rputs("<br/>", r);
-        std::string hoge = "test string";
-        ap_rputs(hoge.c_str(), r);
-        ap_rputs("<br/>", r);
 
         std::string ip_addr = username;
         int port = std::stoi(std::string(password));
 
-        // socket test
+        // socket
         int sockfd;
         struct sockaddr_in addr;
         if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -94,11 +91,59 @@ static int mrhc_handler(request_rec *r)
         addr.sin_addr.s_addr = inet_addr(ip_addr.c_str());
 
         connect(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+
+        // recv version
         char recv_str[1024];
         int recv_len = recv(sockfd, recv_str, 1024, 0);
-        std::string output = recv_str;
+        ap_rputs("recv_len=", r);
+        ap_rputs(std::to_string(recv_len).c_str(), r);
         ap_rputs("<br/>", r);
-        ap_rputs(output.substr(0, recv_len).c_str(), r);
+
+        ap_rputs("recv_str=", r);
+        ap_rputs(std::string(recv_str).substr(0, recv_len).c_str(), r);
+        ap_rputs("<br/>", r);
+
+        // send version
+        int send_len = send(sockfd, recv_str, recv_len, 0);
+        ap_rputs("send_len=", r);
+        ap_rputs(std::to_string(send_len).c_str(), r);
+        ap_rputs("<br/>", r);
+
+        // recv security
+        char recv_str2[1024];
+        int recv_len2 = recv(sockfd, recv_str2, 1024, 0);
+        ap_rputs("recv_len2=", r);
+        ap_rputs(std::to_string(recv_len2).c_str(), r);
+        ap_rputs("<br/>", r);
+
+        ap_rputs("recv_str2=", r);
+        ap_rputs(std::string(recv_str2).substr(0, recv_len2).c_str(), r);
+        ap_rputs("<br/>", r);
+
+        ap_rputs("recv_str2(hex)=", r);
+        for (int i=0; i < recv_len2; i++) {
+            char x[256];
+            sprintf(x, "0x%02X,", recv_str2[i]);
+            ap_rputs(x, r);
+        }
+        ap_rputs("<br/>", r);
+
+        // send security
+        int securityType = 0x02;
+        int send_len2 = send(sockfd, &securityType, 1, 0);
+        ap_rputs("send_len2=", r);
+        ap_rputs(std::to_string(send_len2).c_str(), r);
+        ap_rputs("<br/>", r);
+
+        // recv vnc auth
+        char recv_str3[1024];
+        int recv_len3 = recv(sockfd, recv_str3, 1024, 0);
+        ap_rputs("recv_len3=", r);
+        ap_rputs(std::to_string(recv_len3).c_str(), r);
+        ap_rputs("<br/>", r);
+
+        ap_rputs("recv_str3=", r);
+        ap_rputs(std::string(recv_str3).substr(0, recv_len3).c_str(), r);
         ap_rputs("<br/>", r);
 
         close(sockfd);
