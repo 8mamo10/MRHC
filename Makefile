@@ -22,9 +22,13 @@ all: mod_mrhc.so
 mod_mrhc.o: mod_mrhc.cpp
 	g++ -std=c++0x -c -fPIC -I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0/ -I/usr/local/apr/include/apr-1 $(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -o $@ $<
 
+vnc_client.o: vnc/vnc_client.cpp
+	g++ -std=c++0x -c -fPIC -I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0/ -I/usr/local/apr/include/apr-1 $(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -o $@ $<
+
 # link
-mod_mrhc.so: mod_mrhc.o
-	g++ -fPIC -shared -o $@ $< $(APXS_LIBS_SHLIB)
+mod_mrhc.so: mod_mrhc.o vnc_client.o
+	g++ -fPIC -shared -o $@ $^ $(APXS_LIBS_SHLIB)
+#	g++ -fPIC -shared -o $@ $< $(APXS_LIBS_SHLIB)
 
 # install the shared object file into Apache
 install: all

@@ -11,3 +11,4 @@ mod_mrhc.lo
 mod_mrhc.o
 mod_mrhc.slo
 mod_mrhc.so
+vnc_client.o

@@ -47,6 +47,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "vnc/vnc_client.h"
+
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
 /* The sample content handler */
@@ -60,6 +62,10 @@ static int mrhc_handler(request_rec *r)
     if (r->header_only) {
         return DECLINED;
     }
+
+    VncClient *client = new VncClient();
+    client->getValue();
+
     const char *username;
     const char *password;
     apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
