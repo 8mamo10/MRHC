@@ -1,9 +1,6 @@
-APXS=apxs
-APACHECTL=apachectl
-
 # the used tools
 APXS=/usr/local/apache2/bin/apxs
-APACHECTL=apachectl
+APACHECTL=/usr/local/apache2/bin/apachectl
 
 # apxs's internal values.
 APXS_CC=`$(APXS) -q CC`
