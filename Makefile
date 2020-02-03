@@ -15,26 +15,24 @@ APXS_LDFLAGS_SHLIB=`$(APXS) -q LDFLAGS_SHLIB`
 APXS_SYSCONFDIR=`$(APXS) -q SYSCONFDIR`
 APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 
-
+# Macro
 PROGRAM=mod_mrhc.so
 OBJS=mod_mrhc.o vnc_client.o
 CC=g++
 INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0/ -I/usr/local/apr/include/apr-1
 CFLAGS=$(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -O2
 
+.SUFFIXES: .cpp .o
+
+.cpp.o:
+	$(CC) -std=c++0x -c -fPIC $(INCLUDES) $(CFLAGS) $<
+
 # the default target
 all: mod_mrhc.so
 
 # link
-mod_mrhc.so: $(OBJS)
+$(PROGRAM): $(OBJS)
 	$(CC) -fPIC -shared -o $@ $^ $(APXS_LIBS_SHLIB)
-
-# compile
-mod_mrhc.o: mod_mrhc.cpp
-	$(CC) -std=c++0x -c -fPIC $(INCLUDES) $(CFLAGS) $<
-
-vnc_client.o: vnc/vnc_client.cpp
-	$(CC) -std=c++0x -c -fPIC $(INCLUDES) $(CFLAGS) $<
 
 # install the shared object file into Apache
 install: all

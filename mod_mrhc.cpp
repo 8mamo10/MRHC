@@ -47,7 +47,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include "vnc/vnc_client.h"
+#include "vnc_client.h"
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
