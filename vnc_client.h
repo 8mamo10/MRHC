@@ -1,13 +1,17 @@
 #ifndef __VNC_CLIENT_H__
 #define __VNC_CLIENT_H__
 
+#include <bits/stdc++.h>
+
 class VncClient
 {
  private:
-    int value;
+    std::string host;
+    std::string password;
  public:
     VncClient();
-    int getValue();
+    void setConnectionInfo(std::string host, std::string password);
+    bool connect();
 };
 
 #endif

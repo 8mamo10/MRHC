@@ -37,15 +37,15 @@
 **    The sample page from mod_mrhc.c
 */ 
 
-#include "httpd.h"
-#include "http_config.h"
-#include "http_protocol.h"
-#include "ap_config.h"
-
 #include <bits/stdc++.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+
+#include "httpd.h"
+#include "http_config.h"
+#include "http_protocol.h"
+#include "ap_config.h"
 
 #include "vnc_client.h"
 
@@ -63,9 +63,6 @@ static int mrhc_handler(request_rec *r)
         return DECLINED;
     }
 
-    VncClient *client = new VncClient();
-    client->getValue();
-
     const char *username;
     const char *password;
     apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
@@ -74,6 +71,11 @@ static int mrhc_handler(request_rec *r)
         return HTTP_UNAUTHORIZED;
     }
     if (ret == APR_SUCCESS) {
+
+        VncClient *client = new VncClient();
+        client->setConnectionInfo(username, password);
+        client->connect();
+
         char str[1024];
         sprintf(str, "username: %s", username);
         ap_rputs(str, r);

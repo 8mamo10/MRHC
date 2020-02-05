@@ -2,10 +2,14 @@
 
 VncClient::VncClient()
 {
-    value = 100;
 }
 
-int VncClient::getValue()
+void VncClient::setConnectionInfo(std::string host, std::string password)
 {
-    return value;
+    this->host = host;
+    this->password = password;
+}
+bool VncClient::connect()
+{
+    return true;
 }
