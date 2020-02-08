@@ -41,6 +41,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <vector>
 
 #include "httpd.h"
 #include "http_config.h"
@@ -50,6 +51,11 @@
 #include "vnc_client.h"
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
+
+using namespace std;
+
+static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password);
+static vector<string> split_string(string s, string delim);
 
 /* The sample content handler */
 static int mrhc_handler(request_rec *r)
@@ -63,19 +69,33 @@ static int mrhc_handler(request_rec *r)
         return DECLINED;
     }
 
-    const char *username;
+    const char *host;
+    int port = 0;
     const char *password;
-    apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
+    //apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
+    apr_status_t ret = ap_get_vnc_param_by_basic_auth_components(r, &host, &port, &password);
     if (ret == APR_EINVAL) {
         apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
         return HTTP_UNAUTHORIZED;
     }
     if (ret == APR_SUCCESS) {
 
-        VncClient *client = new VncClient();
-        client->setConnectionInfo(username, password);
-        client->connect();
+        // VncClient *client = new VncClient();
+        // client->setConnectionInfo(username, password);
+        // client->connect();
 
+        ap_rputs(host, r);
+        ap_rputs("<br/>", r);
+        ap_rputs(to_string(port).c_str(), r);
+        ap_rputs("<br/>", r);
+        ap_rputs(password, r);
+        ap_rputs("<br/>", r);
+
+        //ap_rputs(password, r);
+        // ap_rputs(client->parseHost().c_str(), r);
+        // ap_rputs("<br/>", r);
+        // ap_rputs(client->parsePort().c_str(), r);
+        /*
         char str[1024];
         sprintf(str, "username: %s", username);
         ap_rputs(str, r);
@@ -84,8 +104,8 @@ static int mrhc_handler(request_rec *r)
         ap_rputs(str, r);
         ap_rputs("<br/>", r);
 
-        std::string ip_addr = username;
-        int port = std::stoi(std::string(password));
+        string ip_addr = username;
+        int port = stoi(string(password));
 
         // socket
         int sockfd;
@@ -104,28 +124,28 @@ static int mrhc_handler(request_rec *r)
         char recv_str[1024];
         int recv_len = recv(sockfd, recv_str, 1024, 0);
         ap_rputs("recv_len=", r);
-        ap_rputs(std::to_string(recv_len).c_str(), r);
+        ap_rputs(to_string(recv_len).c_str(), r);
         ap_rputs("<br/>", r);
 
         ap_rputs("recv_str=", r);
-        ap_rputs(std::string(recv_str).substr(0, recv_len).c_str(), r);
+        ap_rputs(string(recv_str).substr(0, recv_len).c_str(), r);
         ap_rputs("<br/>", r);
 
         // send version
         int send_len = send(sockfd, recv_str, recv_len, 0);
         ap_rputs("send_len=", r);
-        ap_rputs(std::to_string(send_len).c_str(), r);
+        ap_rputs(to_string(send_len).c_str(), r);
         ap_rputs("<br/>", r);
 
         // recv security
         char recv_str2[1024];
         int recv_len2 = recv(sockfd, recv_str2, 1024, 0);
         ap_rputs("recv_len2=", r);
-        ap_rputs(std::to_string(recv_len2).c_str(), r);
+        ap_rputs(to_string(recv_len2).c_str(), r);
         ap_rputs("<br/>", r);
 
         ap_rputs("recv_str2=", r);
-        ap_rputs(std::string(recv_str2).substr(0, recv_len2).c_str(), r);
+        ap_rputs(string(recv_str2).substr(0, recv_len2).c_str(), r);
         ap_rputs("<br/>", r);
 
         ap_rputs("recv_str2(hex)=", r);
@@ -140,25 +160,94 @@ static int mrhc_handler(request_rec *r)
         int securityType = 0x02;
         int send_len2 = send(sockfd, &securityType, 1, 0);
         ap_rputs("send_len2=", r);
-        ap_rputs(std::to_string(send_len2).c_str(), r);
+        ap_rputs(to_string(send_len2).c_str(), r);
         ap_rputs("<br/>", r);
 
         // recv vnc auth
         char recv_str3[1024];
         int recv_len3 = recv(sockfd, recv_str3, 1024, 0);
         ap_rputs("recv_len3=", r);
-        ap_rputs(std::to_string(recv_len3).c_str(), r);
+        ap_rputs(to_string(recv_len3).c_str(), r);
         ap_rputs("<br/>", r);
 
         ap_rputs("recv_str3=", r);
-        ap_rputs(std::string(recv_str3).substr(0, recv_len3).c_str(), r);
+        ap_rputs(string(recv_str3).substr(0, recv_len3).c_str(), r);
         ap_rputs("<br/>", r);
 
         close(sockfd);
+        */
         return OK;
     }
     ap_rputs("not reach here\n", r);
     return OK;
+}
+
+// see: httpd-2.4.41/server/protocol.c
+static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password)
+{
+    const char *auth_header;
+    const char *credentials;
+    const char *decoded;
+    //const char *user;
+
+    auth_header = (PROXYREQ_PROXY == r->proxyreq) ? "Proxy-Authorization"
+                                                  : "Authorization";
+    credentials = apr_table_get(r->headers_in, auth_header);
+
+    if (!credentials) {
+        /* No auth header. */
+        return APR_EINVAL;
+    }
+
+    if (ap_cstr_casecmp(ap_getword(r->pool, &credentials, ' '), "Basic")) {
+        /* These aren't Basic credentials. */
+        return APR_EINVAL;
+    }
+
+    while (*credentials == ' ' || *credentials == '\t') {
+        credentials++;
+    }
+
+    /* XXX Our base64 decoding functions don't actually error out if the string
+     * we give it isn't base64; they'll just silently stop and hand us whatever
+     * they've parsed up to that point.
+     *
+     * Since this function is supposed to be a drop-in replacement for the
+     * deprecated ap_get_basic_auth_pw(), don't fix this for 2.4.x.
+     */
+    decoded = ap_pbase64decode(r->pool, credentials);
+
+    // vnc host is to be like 192.168.1.10:5900.
+    //user = ap_getword_nulls(r->pool, &decoded, ':');
+    vector<string> vnc_params = split_string(decoded, ":");
+
+    if (host) {
+        *host = vnc_params[0].c_str();
+    }
+    if (port) {
+        *port = stoi(vnc_params[1]);
+    }
+    if (password) {
+        *password = vnc_params[2].c_str();
+    }
+
+    return APR_SUCCESS;
+}
+
+static vector<string> split_string(string s, string delim)
+{
+    vector<string> v;
+    while (true) {
+        size_t i = s.find_first_of(delim);
+        if (i == string::npos) {
+            v.push_back(s);
+            break;
+        }
+        string item = s.substr(0, i);
+        v.push_back(item);
+        s = s.substr(i+1, s.size());
+    }
+    return v;
 }
 
 static void mrhc_register_hooks(apr_pool_t *p)
