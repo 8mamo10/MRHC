@@ -38,9 +38,6 @@
 */ 
 
 #include <bits/stdc++.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
 #include <vector>
 
 #include "httpd.h"
@@ -81,7 +78,10 @@ static int mrhc_handler(request_rec *r)
     if (ret == APR_SUCCESS) {
 
         VncClient *client = new VncClient(host, port, password);
-        client->connect();
+        if (!client->connectToServer()) {
+            ap_rputs("Failed to connect", r);
+            return OK;
+        }
 
         ap_rputs(host, r);
         ap_rputs("<br/>", r);

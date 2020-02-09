@@ -12,7 +12,7 @@ class VncClient
 
  public:
     VncClient(std::string host, int port, std::string password);
-    bool connect();
+    bool connectToServer();
 };
 
 #endif
