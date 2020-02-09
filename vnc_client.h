@@ -7,11 +7,11 @@ class VncClient
 {
  private:
     std::string host;
+    int port;
     std::string password;
 
  public:
-    VncClient();
-    void setConnectionInfo(std::string host, std::string password);
+    VncClient(std::string host, int port, std::string password);
     bool connect();
 };
 

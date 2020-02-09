@@ -1,13 +1,8 @@
 #include "vnc_client.h"
 
-VncClient::VncClient()
+VncClient::VncClient(std::string host, int port, std::string password)
+    : host(host), port(port), password(password)
 {
-}
-
-void VncClient::setConnectionInfo(std::string host, std::string password)
-{
-    this->host = host;
-    this->password = password;
 }
 
 bool VncClient::connect()

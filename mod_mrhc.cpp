@@ -80,9 +80,8 @@ static int mrhc_handler(request_rec *r)
     }
     if (ret == APR_SUCCESS) {
 
-        // VncClient *client = new VncClient();
-        // client->setConnectionInfo(username, password);
-        // client->connect();
+        VncClient *client = new VncClient(host, port, password);
+        client->connect();
 
         ap_rputs(host, r);
         ap_rputs("<br/>", r);
