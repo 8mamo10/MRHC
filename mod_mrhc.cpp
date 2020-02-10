@@ -90,10 +90,6 @@ static int mrhc_handler(request_rec *r)
         ap_rputs(password, r);
         ap_rputs("<br/>", r);
 
-        //ap_rputs(password, r);
-        // ap_rputs(client->parseHost().c_str(), r);
-        // ap_rputs("<br/>", r);
-        // ap_rputs(client->parsePort().c_str(), r);
         /*
         char str[1024];
         sprintf(str, "username: %s", username);
@@ -181,6 +177,7 @@ static int mrhc_handler(request_rec *r)
     return OK;
 }
 
+// Since I want to use `:` as a part of username of basic auth, I reinvent a function.
 // see: httpd-2.4.41/server/protocol.c
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password)
 {
