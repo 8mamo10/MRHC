@@ -1,4 +1,5 @@
 # mrhc
+Module of Remote Host Computing
 
 ## os
 ```
@@ -130,4 +131,18 @@ Thread 3 "httpd" hit Breakpoint 1, mrhc_handler (r=0x7ffff7ef70a0) at mod_mrhc.c
 48          if (strcmp(r->handler, "mrhc")) {
 (gdb)
 (gdb) set print pretty on
+```
+
+## how to use mrhc
+```
+$ cd mrhc
+$ make
+$ sudo make install
+$ sudo /usr/local/apache2/bin/httpd -k graceful
+```
+
+or
+
+```
+$ sudo make reload
 ```
