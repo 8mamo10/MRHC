@@ -133,7 +133,7 @@ Thread 3 "httpd" hit Breakpoint 1, mrhc_handler (r=0x7ffff7ef70a0) at mod_mrhc.c
 (gdb) set print pretty on
 ```
 
-## how to use mrhc
+## how to mrhc
 ```
 $ cd mrhc
 $ make
