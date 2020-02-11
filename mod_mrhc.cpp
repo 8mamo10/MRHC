@@ -77,12 +77,8 @@ static int mrhc_handler(request_rec *r)
     }
     if (ret == APR_SUCCESS) {
 
-        VncClient *client = new VncClient(host, port, password);
-        if (!client->connectToServer()) {
-            ap_rputs("Failed to connect", r);
-            return OK;
-        }
-
+        ap_rputs("---Start VNC Client", r);
+        ap_rputs("<br/>", r);
         ap_rputs(host, r);
         ap_rputs("<br/>", r);
         ap_rputs(to_string(port).c_str(), r);
@@ -90,47 +86,23 @@ static int mrhc_handler(request_rec *r)
         ap_rputs(password, r);
         ap_rputs("<br/>", r);
 
-        /*
-        char str[1024];
-        sprintf(str, "username: %s", username);
-        ap_rputs(str, r);
-        ap_rputs("<br/>", r);
-        sprintf(str, "password: %s", password);
-        ap_rputs(str, r);
-        ap_rputs("<br/>", r);
-
-        string ip_addr = username;
-        int port = stoi(string(password));
-
-        // socket
-        int sockfd;
-        struct sockaddr_in addr;
-        if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-            ap_rputs("failed to open socket", r);
+        VncClient *client = new VncClient(host, port, password);
+        if (!client->connectToServer()) {
+            ap_rputs("Failed to connectToServer.", r);
             return OK;
         }
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(port);
-        addr.sin_addr.s_addr = inet_addr(ip_addr.c_str());
 
-        connect(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-
-        // recv version
-        char recv_str[1024];
-        int recv_len = recv(sockfd, recv_str, 1024, 0);
-        ap_rputs("recv_len=", r);
-        ap_rputs(to_string(recv_len).c_str(), r);
+        ap_rputs("---Connected", r);
         ap_rputs("<br/>", r);
 
-        ap_rputs("recv_str=", r);
-        ap_rputs(string(recv_str).substr(0, recv_len).c_str(), r);
-        ap_rputs("<br/>", r);
+        if (!client->exchangeVersion()) {
+            ap_rputs("Failed to exchangeVersion.", r);
+            return OK;
+        }
 
-        // send version
-        int send_len = send(sockfd, recv_str, recv_len, 0);
-        ap_rputs("send_len=", r);
-        ap_rputs(to_string(send_len).c_str(), r);
+        ap_rputs("---Exchanged version", r);
         ap_rputs("<br/>", r);
+        /*
 
         // recv security
         char recv_str2[1024];

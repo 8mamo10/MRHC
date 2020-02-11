@@ -3,16 +3,24 @@
 
 #include <bits/stdc++.h>
 
+using namespace std;
+
 class VncClient
 {
  private:
-    std::string host;
+
+    static const int BUF_SIZE = 1024;
+
+    int sockfd;
+
+    string host;
     int port;
-    std::string password;
+    string password;
 
  public:
-    VncClient(std::string host, int port, std::string password);
+    VncClient(string host, int port, string password);
     bool connectToServer();
+    bool exchangeVersion();
 };
 
 #endif
