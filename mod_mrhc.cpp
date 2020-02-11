@@ -95,12 +95,12 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("---Connected", r);
         ap_rputs("<br/>", r);
 
-        if (!client->exchangeVersion()) {
-            ap_rputs("Failed to exchangeVersion.", r);
+        if (!client->exchangeProtocolVersion()) {
+            ap_rputs("Failed to exchangeProtocolVersion.", r);
             return OK;
         }
 
-        ap_rputs("---Exchanged version", r);
+        ap_rputs("---Exchanged protocol version", r);
         ap_rputs("<br/>", r);
         /*
 

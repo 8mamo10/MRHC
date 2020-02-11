@@ -27,7 +27,7 @@ bool VncClient::connectToServer()
     return true;
 }
 
-bool VncClient::exchangeVersion()
+bool VncClient::exchangeProtocolVersion()
 {
     char buf[VncClient::BUF_SIZE];
     int len = recv(this->sockfd, buf, sizeof(buf), 0);

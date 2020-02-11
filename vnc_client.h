@@ -20,7 +20,7 @@ class VncClient
  public:
     VncClient(string host, int port, string password);
     bool connectToServer();
-    bool exchangeVersion();
+    bool exchangeProtocolVersion();
 };
 
 #endif
