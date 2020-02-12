@@ -102,8 +102,16 @@ static int mrhc_handler(request_rec *r)
 
         ap_rputs("---Exchanged protocol version", r);
         ap_rputs("<br/>", r);
-        /*
 
+        if (!client->exchangeSecurityType()) {
+            ap_rputs("Failed to exchangeSecurityType.", r);
+            return OK;
+        }
+
+        ap_rputs("---Exchanged security type", r);
+        ap_rputs("<br/>", r);
+
+        /*
         // recv security
         char recv_str2[1024];
         int recv_len2 = recv(sockfd, recv_str2, 1024, 0);

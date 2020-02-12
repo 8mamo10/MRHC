@@ -29,10 +29,35 @@ bool VncClient::connectToServer()
 
 bool VncClient::exchangeProtocolVersion()
 {
-    char buf[VncClient::BUF_SIZE];
-    int len = recv(this->sockfd, buf, sizeof(buf), 0);
+    char buf[VncClient::BUF_SIZE] = {};
+    int len = 0;
 
-    // Send back the same version string
+    len = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (len < 0) {
+        return false;
+    }
+    // send back the same version string
     len = send(this->sockfd, buf, len, 0);
+    if (len < 0) {
+        return false;
+    }
+    return true;
+}
+
+bool VncClient::exchangeSecurityType()
+{
+    char buf[VncClient::BUF_SIZE] = {};
+    int len = 0;
+
+    len = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (len < 0) {
+        return false;
+    }
+    // specify VNC Authentication
+    char securityType = VncClient::SECURITY_TYPE_VNC_AUTH;
+    len = send(this->sockfd, &securityType, sizeof(securityType), 0);
+    if (len < 0) {
+        return false;
+    }
     return true;
 }
