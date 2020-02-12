@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "mrhc_common.h"
 #include "vnc_client.h"
 
 VncClient::VncClient(string host, int port, string password)
@@ -29,7 +30,7 @@ bool VncClient::connectToServer()
 
 bool VncClient::exchangeProtocolVersion()
 {
-    char buf[VncClient::BUF_SIZE] = {};
+    char buf[BUF_SIZE] = {};
     int len = 0;
 
     len = recv(this->sockfd, buf, sizeof(buf), 0);
@@ -46,7 +47,7 @@ bool VncClient::exchangeProtocolVersion()
 
 bool VncClient::exchangeSecurityType()
 {
-    char buf[VncClient::BUF_SIZE] = {};
+    char buf[BUF_SIZE] = {};
     int len = 0;
 
     len = recv(this->sockfd, buf, sizeof(buf), 0);

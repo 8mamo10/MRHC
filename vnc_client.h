@@ -9,7 +9,6 @@ class VncClient
 {
  private:
 
-    static const int BUF_SIZE = 1024;
     static const char SECURITY_TYPE_VNC_AUTH = 0x02;
 
     int sockfd;
