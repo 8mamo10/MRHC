@@ -16,13 +16,13 @@ using namespace std;
 // I saw the httpd.conf and count the order of `LoadModule mrhc_module`
 #define MODULE_INDEX 25
 
-/* #define Logger(msg) \ */
-/*     cerr << __FILE__ << ":" << __LINE__ << " --- " << msg << endl; */
-
 #define log_access(msg) \
     apr_table_set(r->notes, "mrhc_log", ("[" + string(__FILE__) + ":" + to_string(__LINE__) + "] " + string(msg)).c_str());
 
 #define log_error(msg) \
     ap_log_rerror(__FILE__, __LINE__, MODULE_INDEX, APLOG_NOTICE, OK, r, "[%s:%d] %s", __FILE__, __LINE__, msg);
+
+#define log_debug(msg) \
+    cerr << "[" << __FILE__ << ":" << __LINE__ << "] " << msg << endl;
 
 #endif
