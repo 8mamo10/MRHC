@@ -40,11 +40,9 @@
 #include <bits/stdc++.h>
 #include <vector>
 
-#include "httpd.h"
-#include "http_config.h"
-#include "http_protocol.h"
 #include "ap_config.h"
 
+#include "mrhc_common.h"
 #include "vnc_client.h"
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
@@ -57,6 +55,8 @@ static vector<string> split_string(string s, string delim);
 /* The sample content handler */
 static int mrhc_handler(request_rec *r)
 {
+    ap_log_rerror(__FILE__, __LINE__, MODULE_INDEX, APLOG_NOTICE, OK, r, "mrhc_handler called.");
+
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;
     }
