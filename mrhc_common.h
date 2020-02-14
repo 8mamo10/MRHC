@@ -1,5 +1,8 @@
+
 #ifndef __MRHC_COMMON_H__
 #define __MRHC_COMMON_H__
+
+#include <bits/stdc++.h>
 
 #include "httpd.h"
 #include "http_config.h"
@@ -10,5 +13,10 @@
 // I'm not sure hot to know the index of the module.
 // I saw the httpd.conf and count the order of `LoadModule mrhc_module`
 #define MODULE_INDEX 25
+
+#define Logger(msg) \
+    cerr << __FILE__ << ":" << __LINE__ << " --- " << msg << endl;
+
+using namespace std;
 
 #endif

@@ -1,10 +1,6 @@
 #ifndef __VNC_CLIENT_H__
 #define __VNC_CLIENT_H__
 
-#include <bits/stdc++.h>
-
-using namespace std;
-
 class VncClient
 {
  private:

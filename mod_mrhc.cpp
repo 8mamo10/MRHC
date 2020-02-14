@@ -37,7 +37,6 @@
 **    The sample page from mod_mrhc.c
 */ 
 
-#include <bits/stdc++.h>
 #include <vector>
 
 #include "ap_config.h"
@@ -47,8 +46,6 @@
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
-using namespace std;
-
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password);
 static vector<string> split_string(string s, string delim);
 
@@ -56,6 +53,7 @@ static vector<string> split_string(string s, string delim);
 static int mrhc_handler(request_rec *r)
 {
     ap_log_rerror(__FILE__, __LINE__, MODULE_INDEX, APLOG_NOTICE, OK, r, "mrhc_handler called.");
+    Logger("mrhc_handler called.");
 
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;
