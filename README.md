@@ -3,6 +3,11 @@ Module of Remote Host Computing
 
 ## os
 ```
+$ cat /etc/lsb-release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=16.04
+DISTRIB_CODENAME=xenial
+DISTRIB_DESCRIPTION="Ubuntu 16.04.6 LTS"
 $ uname -a
 Linux ubuntu-xenial 4.4.0-166-generic #195-Ubuntu SMP Tue Oct 1 09:35:25 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
 ```
@@ -147,4 +152,22 @@ or
 
 ```
 $ sudo make reload
+```
+
+## vnc server
+```
+$ sudo apt install ubuntu-desktop
+$ sudo apt install vnc4server
+$ vncpasswd
+Password:
+Verify:
+$ vncserver :1 -rfbport 6624
+$ vncserver -kill :1
+```
+
+In some circumstances, the desktop screen may be gray.
+Add settings for that situation.
+# see: https://askubuntu.com/questions/800302/vncserver-grey-screen-ubuntu-16-04-lts
+```
+$ echo -e "gnome-panel &\ngnome-settings-daemon &\nmetacity &\nnautilus &" >> ~/.vnc/xstartup
 ```
