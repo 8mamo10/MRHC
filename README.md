@@ -64,10 +64,12 @@ $ sudo vi /usr/local/apache2/conf/httpd.conf
 
 ```
 LoadModule hoge_module        modules/mod_mrhc.so
-
-<Location /mrhc>
-  SetHandler mrhc
-</Location>
+<IfModule mrhc_module>
+  LogFormat "%h %l %u %t \"%r\" %>s %b \"%{mrhc_log}n\"" common
+  <Location /mrhc>
+    SetHandler mrhc
+  </Location>
+</IfModule>
 ```
 
 ```
