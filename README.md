@@ -167,7 +167,7 @@ $ vncserver -kill :1
 
 In some circumstances, the desktop screen may be gray.
 Add settings for that situation.
-# see: https://askubuntu.com/questions/800302/vncserver-grey-screen-ubuntu-16-04-lts
+(see: https://askubuntu.com/questions/800302/vncserver-grey-screen-ubuntu-16-04-lts)
 ```
 $ echo -e "gnome-panel &\ngnome-settings-daemon &\nmetacity &\nnautilus &" >> ~/.vnc/xstartup
 ```
