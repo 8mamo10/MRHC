@@ -52,8 +52,9 @@ static vector<string> split_string(string s, string delim);
 /* The sample content handler */
 static int mrhc_handler(request_rec *r)
 {
-    log_access("mrhc_handler called");
-    log_error("mrhc_handler called");
+    log_access("called");
+    log_error("called");
+    log_debug("called");
 
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;

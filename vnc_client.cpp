@@ -37,6 +37,8 @@ bool VncClient::exchangeProtocolVersion()
     if (len < 0) {
         return false;
     }
+    log_debug(buf);
+
     // send back the same version string
     len = send(this->sockfd, buf, len, 0);
     if (len < 0) {
@@ -54,6 +56,8 @@ bool VncClient::exchangeSecurityType()
     if (len < 0) {
         return false;
     }
+    log_debug(buf);
+
     // specify VNC Authentication
     char securityType = VncClient::SECURITY_TYPE_VNC_AUTH;
     len = send(this->sockfd, &securityType, sizeof(securityType), 0);
