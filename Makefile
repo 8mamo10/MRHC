@@ -16,27 +16,31 @@ APXS_SYSCONFDIR=`$(APXS) -q SYSCONFDIR`
 APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 
 # Macro
-PROGRAM=mod_mrhc.so
-OBJS=mod_mrhc.o vnc_client.o
+PROG=mod_mrhc.so
+SRCS=mod_mrhc.cpp vnc_client.cpp
+OBJS=$(SRCS:%.cpp=%.o)
+DEPS=$(SRCS:%.cpp=%.d)
+
 CC=g++
 INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0/ -I/usr/local/apr/include/apr-1
 CFLAGS=$(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -O2
 
-.SUFFIXES: .cpp .o
-
-.cpp.o:
-	$(CC) -std=c++0x -c -fPIC $(INCLUDES) $(CFLAGS) $<
-
 # the default target
-all: mod_mrhc.so
+all: $(PROG)
 
 # link
-$(PROGRAM): $(OBJS)
+$(PROG): $(OBJS)
 	$(CC) -fPIC -shared -o $@ $^ $(APXS_LIBS_SHLIB)
+
+%.o: %.cpp
+	$(CC) $(INCLUDES) $(CFLAGS) $< -MM -MP -MF $*.d
+	$(CC) -std=c++0x -c -fPIC $(INCLUDES) $(CFLAGS) $<
+
+include $(shell ls $(DEPS) 2>/dev/null)
 
 # install the shared object file into Apache
 install: all
-	$(APXS) -i -a -n 'mrhc' mod_mrhc.so
+	$(APXS) -i -a -n 'mrhc' $(PROG)
 
 # display the apxs variables
 check_apxs_vars:
@@ -54,7 +58,7 @@ check_apxs_vars:
 
 #   cleanup
 clean:
-	-rm -f *.so *.o *~
+	$(RM) $(PROG) $(OBJS) $(DEPS)
 
 #   install and activate shared object by reloading Apache to
 #   force a reload of the shared object file
