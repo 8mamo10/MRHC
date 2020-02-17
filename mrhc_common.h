@@ -25,4 +25,11 @@ using namespace std;
 #define log_debug(msg) \
     cerr << "[" << __FILE__ << ":" << __LINE__ << "] [" << __FUNCTION__ << "] " << msg << endl;
 
+#define log_ldebug(msg, len)        \
+    string log = "";                \
+    for (int i = 0; i < len; i++) { \
+        log += buf[i];              \
+    }                               \
+    log_debug(log);
+
 #endif
