@@ -43,7 +43,7 @@ bool VncClient::exchangeProtocolVersion()
         return false;
     }
     log_debug("recv:" + to_string(len));
-    log_ldebug(buf);
+    log_ldebug(buf, len);
 
     if (buf == PROTOCOL_VERSION_3_3) {
         version = PROTOCOL_VERSION_3_3;
@@ -76,7 +76,7 @@ bool VncClient::exchangeSecurityType()
         return false;
     }
     log_debug("recv:" + to_string(len));
-    log_ldebug(buf);
+    log_xdebug(buf, len);
 
     // specify VNC Authentication
     char securityType = SECURITY_TYPE_VNC_AUTH;

@@ -32,4 +32,13 @@ using namespace std;
     }                               \
     log_debug(log);
 
+#define log_xdebug(msg, len)                    \
+    string log = "";                            \
+    for (int i = 0; i < len; i++) {             \
+        char aznable[BUF_SIZE];                 \
+        sprintf(aznable, "0x%02X ", msg[i]);    \
+        log += aznable;                         \
+    }                                           \
+    log_debug(log);
+
 #endif
