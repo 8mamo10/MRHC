@@ -25,20 +25,20 @@ using namespace std;
 #define log_debug(msg) \
     cerr << "[" << __FILE__ << ":" << __LINE__ << "] [" << __FUNCTION__ << "] " << msg << endl;
 
-#define log_ldebug(msg, len)        \
-    string log = "";                \
+#define log_ldebug(msg, len)                 \
+    string log = "";                         \
     for (int i = 0; i < len; i++) { \
-        log += buf[i];              \
-    }                               \
+        log += buf[i];                       \
+    }                                        \
     log_debug(log);
 
-#define log_xdebug(msg, len)                    \
-    string log = "";                            \
+#define log_xdebug(msg, len)                             \
+    string log = "";                                     \
     for (int i = 0; i < len; i++) {             \
-        char aznable[BUF_SIZE];                 \
-        sprintf(aznable, "0x%02X ", msg[i]);    \
-        log += aznable;                         \
-    }                                           \
+        char aznable[BUF_SIZE];                          \
+        sprintf(aznable, "0x%02X ", msg[i]);             \
+        log += aznable;                                  \
+    }                                                    \
     log_debug(log);
 
 #endif

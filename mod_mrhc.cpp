@@ -77,6 +77,7 @@ static int mrhc_handler(request_rec *r)
     if (ret == APR_SUCCESS) {
 
         ap_rputs("---Start VNC Client", r);
+
         ap_rputs("<br/>", r);
         ap_rputs(host, r);
         ap_rputs("<br/>", r);
@@ -110,46 +111,14 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("---Exchanged security type", r);
         ap_rputs("<br/>", r);
 
-        /*
-        // recv security
-        char recv_str2[1024];
-        int recv_len2 = recv(sockfd, recv_str2, 1024, 0);
-        ap_rputs("recv_len2=", r);
-        ap_rputs(to_string(recv_len2).c_str(), r);
-        ap_rputs("<br/>", r);
-
-        ap_rputs("recv_str2=", r);
-        ap_rputs(string(recv_str2).substr(0, recv_len2).c_str(), r);
-        ap_rputs("<br/>", r);
-
-        ap_rputs("recv_str2(hex)=", r);
-        for (int i=0; i < recv_len2; i++) {
-            char x[256];
-            sprintf(x, "0x%02X,", recv_str2[i]);
-            ap_rputs(x, r);
+        if (!client->vncAuthentication()) {
+            ap_rputs("Failed to vncAuthentication.", r);
+            return OK;
         }
+
+        ap_rputs("---VNC authenticated", r);
         ap_rputs("<br/>", r);
 
-        // send security
-        int securityType = 0x02;
-        int send_len2 = send(sockfd, &securityType, 1, 0);
-        ap_rputs("send_len2=", r);
-        ap_rputs(to_string(send_len2).c_str(), r);
-        ap_rputs("<br/>", r);
-
-        // recv vnc auth
-        char recv_str3[1024];
-        int recv_len3 = recv(sockfd, recv_str3, 1024, 0);
-        ap_rputs("recv_len3=", r);
-        ap_rputs(to_string(recv_len3).c_str(), r);
-        ap_rputs("<br/>", r);
-
-        ap_rputs("recv_str3=", r);
-        ap_rputs(string(recv_str3).substr(0, recv_len3).c_str(), r);
-        ap_rputs("<br/>", r);
-
-        close(sockfd);
-        */
         return OK;
     }
     ap_rputs("not reach here\n", r);

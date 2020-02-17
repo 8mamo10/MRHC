@@ -9,6 +9,9 @@ class VncClient
     static const string PROTOCOL_VERSION_3_7;
     static const string PROTOCOL_VERSION_3_8;
     static const char SECURITY_TYPE_VNC_AUTH;
+    static const int VNC_AUTH_PASSWORD_LENGTH;
+    static const int VNC_AUTH_RESULT_OK;
+    static const int VNC_AUTH_RESULT_FAILED;
 
     int sockfd;
 
@@ -20,9 +23,11 @@ class VncClient
 
  public:
     VncClient(string host, int port, string password);
+    ~VncClient();
     bool connectToServer();
     bool exchangeProtocolVersion();
     bool exchangeSecurityType();
+    bool vncAuthentication();
 };
 
 #endif

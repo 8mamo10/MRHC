@@ -17,7 +17,7 @@ APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 
 # Macro
 PROG=mod_mrhc.so
-SRCS=mod_mrhc.cpp vnc_client.cpp
+SRCS=mod_mrhc.cpp vnc_client.cpp d3des.cpp
 OBJS=$(SRCS:%.cpp=%.o)
 DEPS=$(SRCS:%.cpp=%.d)
 

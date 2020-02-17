@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "d3des.h"
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
@@ -9,11 +10,19 @@ const string VncClient::PROTOCOL_VERSION_3_3 = "RFB 003.003\n";
 const string VncClient::PROTOCOL_VERSION_3_7 = "RFB 003.007\n";
 const string VncClient::PROTOCOL_VERSION_3_8 = "RFB 003.008\n";
 const char VncClient::SECURITY_TYPE_VNC_AUTH = 0x02;
+const int VncClient::VNC_AUTH_PASSWORD_LENGTH = 16;
+const int VncClient::VNC_AUTH_RESULT_OK = 0x00;
+const int VncClient::VNC_AUTH_RESULT_FAILED = 0x01;
 
 VncClient::VncClient(string host, int port, string password)
     : host(host), port(port), password(password)
 {
     this->sockfd = 0;
+}
+
+VncClient::~VncClient()
+{
+    close(this->sockfd);
 }
 
 bool VncClient::connectToServer()
@@ -76,7 +85,8 @@ bool VncClient::exchangeSecurityType()
         return false;
     }
     log_debug("recv:" + to_string(len));
-    log_xdebug(buf, len);
+    //log_xdebug(buf, len);
+    log_ldebug(buf, len);
 
     // specify VNC Authentication
     char securityType = SECURITY_TYPE_VNC_AUTH;
@@ -85,4 +95,52 @@ bool VncClient::exchangeSecurityType()
         return false;
     }
     return true;
+}
+
+bool VncClient::vncAuthentication()
+{
+    char buf[BUF_SIZE] = {};
+    int len = 0;
+
+    len = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("recv:" + to_string(len));
+    //log_xdebug(buf, len);
+
+    // DES
+    unsigned char challenge[VNC_AUTH_PASSWORD_LENGTH];
+    memmove(challenge, buf, VNC_AUTH_PASSWORD_LENGTH);
+    deskey((unsigned char*)this->password.c_str(), EN0);
+    for (int j = 0; j < VNC_AUTH_PASSWORD_LENGTH; j += 8) {
+        des(challenge+j, challenge+j);
+    }
+    //log_xdebug(challenge, VNC_AUTH_PASSWORD_LENGTH);
+    len = send(this->sockfd, challenge, VNC_AUTH_PASSWORD_LENGTH, 0);
+    if (len < 0) {
+        return false;
+    }
+
+    // Security result
+    memset(buf, 0, BUF_SIZE);
+    len = 0;
+    len = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("recv:" + to_string(len));
+    //log_ldebug(buf, len);
+    log_xdebug(buf, len);
+
+    int securityResult = 0;
+    memmove(&securityResult, buf, len);
+    log_debug("securityResult:" + to_string(securityResult));
+    if (securityResult == VNC_AUTH_RESULT_OK) {
+        log_debug("VNC Authentication ok");
+        return true;
+    } else {
+        log_debug("VNC Authentication failed");
+        return false;
+    }
 }
