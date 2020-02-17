@@ -5,6 +5,11 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
+const string VncClient::PROTOCOL_VERSION_3_3 = "RFB 003.003\n";
+const string VncClient::PROTOCOL_VERSION_3_7 = "RFB 003.007\n";
+const string VncClient::PROTOCOL_VERSION_3_8 = "RFB 003.008\n";
+const char VncClient::SECURITY_TYPE_VNC_AUTH = 0x02;
+
 VncClient::VncClient(string host, int port, string password)
     : host(host), port(port), password(password)
 {
@@ -39,6 +44,19 @@ bool VncClient::exchangeProtocolVersion()
     }
     log_debug(buf);
 
+    if (buf == PROTOCOL_VERSION_3_3) {
+        version = PROTOCOL_VERSION_3_3;
+        log_debug("RFB Version 3.3");
+    } else if (buf == PROTOCOL_VERSION_3_7) {
+        version = PROTOCOL_VERSION_3_7;
+        log_debug("RFB Version 3.7");
+    } else if (buf == PROTOCOL_VERSION_3_8) {
+        version = PROTOCOL_VERSION_3_8;
+        log_debug("RFB Version 3.8");
+    } else {
+        log_debug("Invalid RFB Version");
+        return false;
+    }
     // send back the same version string
     len = send(this->sockfd, buf, len, 0);
     if (len < 0) {
@@ -59,7 +77,7 @@ bool VncClient::exchangeSecurityType()
     log_debug(buf);
 
     // specify VNC Authentication
-    char securityType = VncClient::SECURITY_TYPE_VNC_AUTH;
+    char securityType = SECURITY_TYPE_VNC_AUTH;
     len = send(this->sockfd, &securityType, sizeof(securityType), 0);
     if (len < 0) {
         return false;

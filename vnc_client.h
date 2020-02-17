@@ -5,13 +5,18 @@ class VncClient
 {
  private:
 
-    static const char SECURITY_TYPE_VNC_AUTH = 0x02;
+    static const string PROTOCOL_VERSION_3_3;
+    static const string PROTOCOL_VERSION_3_7;
+    static const string PROTOCOL_VERSION_3_8;
+    static const char SECURITY_TYPE_VNC_AUTH;
 
     int sockfd;
 
     string host;
     int port;
     string password;
+
+    string version;
 
  public:
     VncClient(string host, int port, string password);
