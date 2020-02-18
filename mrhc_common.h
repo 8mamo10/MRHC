@@ -26,19 +26,19 @@ using namespace std;
     cerr << "[" << __FILE__ << ":" << __LINE__ << "] [" << __FUNCTION__ << "] " << msg << endl;
 
 #define log_ldebug(msg, len)                 \
-    string log = "";                         \
-    for (int i = 0; i < len; i++) { \
-        log += buf[i];                       \
+    mrhc_log = "";                           \
+    for (int i = 0; i < len; i++) {          \
+        mrhc_log += msg[i];                  \
     }                                        \
-    log_debug(log);
+    log_debug(mrhc_log);
 
 #define log_xdebug(msg, len)                             \
-    string log = "";                                     \
-    for (int i = 0; i < len; i++) {             \
+    mrhc_log = "";                                       \
+    for (int i = 0; i < len; i++) {                      \
         char aznable[BUF_SIZE];                          \
         sprintf(aznable, "0x%02X ", msg[i]);             \
-        log += aznable;                                  \
+        mrhc_log += aznable;                             \
     }                                                    \
-    log_debug(log);
+    log_debug(mrhc_log);
 
 #endif
