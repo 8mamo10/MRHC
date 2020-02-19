@@ -13,6 +13,8 @@ const char VncClient::SECURITY_TYPE_VNC_AUTH = 0x02;
 const int VncClient::VNC_AUTH_PASSWORD_LENGTH = 16;
 const int VncClient::VNC_AUTH_RESULT_OK = 0x00;
 const int VncClient::VNC_AUTH_RESULT_FAILED = 0x01;
+const char VncClient::VNC_SHARED_FLAG_ON = 0x01;
+const char VncClient::VNC_SHARED_FLAG_OFF = 0x00;
 
 // for log container
 string mrhc_log = "";
@@ -99,8 +101,8 @@ bool VncClient::exchangeSecurityType()
     if (len < 0) {
         return false;
     }
-    log_debug("recv:" + to_string(len));
-    log_xdebug(to_string(securityType), len);
+    log_debug("send:" + to_string(len));
+    log_ldebug(to_string(securityType), len);
     return true;
 }
 
@@ -148,5 +150,27 @@ bool VncClient::vncAuthentication()
         return false;
     }
     log_debug("VNC Authentication ok");
+    return true;
+}
+
+bool VncClient::exchangeInit()
+{
+   char buf[BUF_SIZE] = {};
+    int len = 0;
+
+    len = send(this->sockfd, &VNC_SHARED_FLAG_ON, sizeof(VNC_SHARED_FLAG_ON), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("send:" + to_string(len));
+    log_ldebug(to_string(VNC_SHARED_FLAG_ON), len);
+
+    len = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("recv:" + to_string(len));
+    log_xdebug(buf, len);
+
     return true;
 }

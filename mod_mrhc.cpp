@@ -119,6 +119,14 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("---VNC authenticated", r);
         ap_rputs("<br/>", r);
 
+        if (!client->exchangeInit()) {
+            ap_rputs("Failed to exchange init.", r);
+            return OK;
+        }
+
+        ap_rputs("---Exchanged Client/Server Init", r);
+        ap_rputs("<br/>", r);
+
         return OK;
     }
     ap_rputs("not reach here\n", r);

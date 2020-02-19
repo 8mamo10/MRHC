@@ -12,6 +12,8 @@ class VncClient
     static const int VNC_AUTH_PASSWORD_LENGTH;
     static const int VNC_AUTH_RESULT_OK;
     static const int VNC_AUTH_RESULT_FAILED;
+    static const char VNC_SHARED_FLAG_ON;
+    static const char VNC_SHARED_FLAG_OFF;
 
     int sockfd;
 
@@ -28,6 +30,7 @@ class VncClient
     bool exchangeProtocolVersion();
     bool exchangeSecurityType();
     bool vncAuthentication();
+    bool exchangeInit();
 };
 
 #endif
