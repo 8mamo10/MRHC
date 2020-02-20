@@ -20,7 +20,7 @@ typedef struct server_init {
     uint16_t frame_buffer_height;
     pixel_format_t pixel_format;
     uint32_t name_length;
-    uint8_t name_string[];
+    uint8_t name_string[BUF_SIZE];
 } server_init_t;
 
 #endif

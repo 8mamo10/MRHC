@@ -155,7 +155,7 @@ bool vnc_client::vnc_authentication()
 
 bool vnc_client::exchange_init()
 {
-   char buf[BUF_SIZE] = {};
+    char buf[BUF_SIZE] = {};
     int len = 0;
 
     len = send(this->sockfd, &VNC_SHARED_FLAG_ON, sizeof(VNC_SHARED_FLAG_ON), 0);
@@ -172,5 +172,8 @@ bool vnc_client::exchange_init()
     log_debug("recv:" + std::to_string(len));
     log_xdebug(buf, len);
 
+    server_init_t server_init = {};
+    memmove(&server_init, buf, len);
+    log_ldebug(server_init.name_string, (int)sizeof(server_init.name_string));
     return true;
 }
