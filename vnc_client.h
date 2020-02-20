@@ -1,6 +1,8 @@
 #ifndef __VNC_CLIENT_H__
 #define __VNC_CLIENT_H__
 
+#include "rfb_protocol.h"
+
 class VncClient
 {
  private:
