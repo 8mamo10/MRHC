@@ -86,41 +86,41 @@ static int mrhc_handler(request_rec *r)
         ap_rputs(password, r);
         ap_rputs("<br/>", r);
 
-        VncClient *client = new VncClient(host, port, password);
-        if (!client->connectToServer()) {
-            ap_rputs("Failed to connectToServer.", r);
+        vnc_client *client = new vnc_client(host, port, password);
+        if (!client->connect_to_server()) {
+            ap_rputs("Failed to connect_to_server.", r);
             return OK;
         }
 
         ap_rputs("---Connected", r);
         ap_rputs("<br/>", r);
 
-        if (!client->exchangeProtocolVersion()) {
-            ap_rputs("Failed to exchangeProtocolVersion.", r);
+        if (!client->exchange_protocol_version()) {
+            ap_rputs("Failed to exchange_protocol_version.", r);
             return OK;
         }
 
         ap_rputs("---Exchanged protocol version", r);
         ap_rputs("<br/>", r);
 
-        if (!client->exchangeSecurityType()) {
-            ap_rputs("Failed to exchangeSecurityType.", r);
+        if (!client->exchange_security_type()) {
+            ap_rputs("Failed to exchange_security_type.", r);
             return OK;
         }
 
         ap_rputs("---Exchanged security type", r);
         ap_rputs("<br/>", r);
 
-        if (!client->vncAuthentication()) {
-            ap_rputs("Failed to vncAuthentication.", r);
+        if (!client->vnc_authentication()) {
+            ap_rputs("Failed to vnc_authentication.", r);
             return OK;
         }
 
         ap_rputs("---VNC authenticated", r);
         ap_rputs("<br/>", r);
 
-        if (!client->exchangeInit()) {
-            ap_rputs("Failed to exchange init.", r);
+        if (!client->exchange_init()) {
+            ap_rputs("Failed to exchange_init.", r);
             return OK;
         }
 

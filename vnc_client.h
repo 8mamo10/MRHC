@@ -3,7 +3,7 @@
 
 #include "rfb_protocol.h"
 
-class VncClient
+class vnc_client
 {
  private:
 
@@ -26,13 +26,13 @@ class VncClient
     std::string version;
 
  public:
-    VncClient(std::string host, int port, std::string password);
-    ~VncClient();
-    bool connectToServer();
-    bool exchangeProtocolVersion();
-    bool exchangeSecurityType();
-    bool vncAuthentication();
-    bool exchangeInit();
+    vnc_client(std::string host, int port, std::string password);
+    ~vnc_client();
+    bool connect_to_server();
+    bool exchange_protocol_version();
+    bool exchange_security_type();
+    bool vnc_authentication();
+    bool exchange_init();
 };
 
 #endif

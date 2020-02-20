@@ -6,31 +6,31 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
-const std::string VncClient::PROTOCOL_VERSION_3_3 = "RFB 003.003\n";
-const std::string VncClient::PROTOCOL_VERSION_3_7 = "RFB 003.007\n";
-const std::string VncClient::PROTOCOL_VERSION_3_8 = "RFB 003.008\n";
-const char VncClient::SECURITY_TYPE_VNC_AUTH = 0x02;
-const int VncClient::VNC_AUTH_PASSWORD_LENGTH = 16;
-const int VncClient::VNC_AUTH_RESULT_OK = 0x00;
-const int VncClient::VNC_AUTH_RESULT_FAILED = 0x01;
-const char VncClient::VNC_SHARED_FLAG_ON = 0x01;
-const char VncClient::VNC_SHARED_FLAG_OFF = 0x00;
+const std::string vnc_client::PROTOCOL_VERSION_3_3 = "RFB 003.003\n";
+const std::string vnc_client::PROTOCOL_VERSION_3_7 = "RFB 003.007\n";
+const std::string vnc_client::PROTOCOL_VERSION_3_8 = "RFB 003.008\n";
+const char vnc_client::SECURITY_TYPE_VNC_AUTH = 0x02;
+const int vnc_client::VNC_AUTH_PASSWORD_LENGTH = 16;
+const int vnc_client::VNC_AUTH_RESULT_OK = 0x00;
+const int vnc_client::VNC_AUTH_RESULT_FAILED = 0x01;
+const char vnc_client::VNC_SHARED_FLAG_ON = 0x01;
+const char vnc_client::VNC_SHARED_FLAG_OFF = 0x00;
 
 // for log container
 std::string mrhc_log = "";
 
-VncClient::VncClient(std::string host, int port, std::string password)
+vnc_client::vnc_client(std::string host, int port, std::string password)
     : host(host), port(port), password(password)
 {
     this->sockfd = 0;
 }
 
-VncClient::~VncClient()
+vnc_client::~vnc_client()
 {
     close(this->sockfd);
 }
 
-bool VncClient::connectToServer()
+bool vnc_client::connect_to_server()
 {
     if ((this->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         return false;
@@ -47,7 +47,7 @@ bool VncClient::connectToServer()
     return true;
 }
 
-bool VncClient::exchangeProtocolVersion()
+bool vnc_client::exchange_protocol_version()
 {
     char buf[BUF_SIZE] = {};
     int len = 0;
@@ -83,7 +83,7 @@ bool VncClient::exchangeProtocolVersion()
     return true;
 }
 
-bool VncClient::exchangeSecurityType()
+bool vnc_client::exchange_security_type()
 {
     char buf[BUF_SIZE] = {};
     int len = 0;
@@ -96,17 +96,17 @@ bool VncClient::exchangeSecurityType()
     log_xdebug(buf, len);
 
     // specify VNC Authentication
-    char securityType = SECURITY_TYPE_VNC_AUTH;
-    len = send(this->sockfd, &securityType, sizeof(securityType), 0);
+    char security_type = SECURITY_TYPE_VNC_AUTH;
+    len = send(this->sockfd, &security_type, sizeof(security_type), 0);
     if (len < 0) {
         return false;
     }
     log_debug("send:" + std::to_string(len));
-    log_ldebug(std::to_string(securityType), len);
+    log_ldebug(std::to_string(security_type), len);
     return true;
 }
 
-bool VncClient::vncAuthentication()
+bool vnc_client::vnc_authentication()
 {
     char buf[BUF_SIZE] = {};
     int len = 0;
@@ -142,10 +142,10 @@ bool VncClient::vncAuthentication()
     log_debug("recv:" + std::to_string(len));
     log_xdebug(buf, len);
 
-    int securityResult = 0;
-    memmove(&securityResult, buf, len);
-    log_debug("securityResult:" + std::to_string(securityResult));
-    if (securityResult != VNC_AUTH_RESULT_OK) {
+    int security_result = 0;
+    memmove(&security_result, buf, len);
+    log_debug("securityResult:" + std::to_string(security_result));
+    if (security_result != VNC_AUTH_RESULT_OK) {
         log_debug("VNC Authentication failed");
         return false;
     }
@@ -153,7 +153,7 @@ bool VncClient::vncAuthentication()
     return true;
 }
 
-bool VncClient::exchangeInit()
+bool vnc_client::exchange_init()
 {
    char buf[BUF_SIZE] = {};
     int len = 0;
