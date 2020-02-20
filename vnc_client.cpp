@@ -6,9 +6,9 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
-const string VncClient::PROTOCOL_VERSION_3_3 = "RFB 003.003\n";
-const string VncClient::PROTOCOL_VERSION_3_7 = "RFB 003.007\n";
-const string VncClient::PROTOCOL_VERSION_3_8 = "RFB 003.008\n";
+const std::string VncClient::PROTOCOL_VERSION_3_3 = "RFB 003.003\n";
+const std::string VncClient::PROTOCOL_VERSION_3_7 = "RFB 003.007\n";
+const std::string VncClient::PROTOCOL_VERSION_3_8 = "RFB 003.008\n";
 const char VncClient::SECURITY_TYPE_VNC_AUTH = 0x02;
 const int VncClient::VNC_AUTH_PASSWORD_LENGTH = 16;
 const int VncClient::VNC_AUTH_RESULT_OK = 0x00;
@@ -17,9 +17,9 @@ const char VncClient::VNC_SHARED_FLAG_ON = 0x01;
 const char VncClient::VNC_SHARED_FLAG_OFF = 0x00;
 
 // for log container
-string mrhc_log = "";
+std::string mrhc_log = "";
 
-VncClient::VncClient(string host, int port, string password)
+VncClient::VncClient(std::string host, int port, std::string password)
     : host(host), port(port), password(password)
 {
     this->sockfd = 0;
@@ -56,7 +56,7 @@ bool VncClient::exchangeProtocolVersion()
     if (len < 0) {
         return false;
     }
-    log_debug("recv:" + to_string(len));
+    log_debug("recv:" + std::to_string(len));
     log_ldebug(buf, len);
 
     if (buf == PROTOCOL_VERSION_3_3) {
@@ -77,7 +77,7 @@ bool VncClient::exchangeProtocolVersion()
     if (len < 0) {
         return false;
     }
-    log_debug("send:" + to_string(len));
+    log_debug("send:" + std::to_string(len));
     log_ldebug(buf, len);
 
     return true;
@@ -92,7 +92,7 @@ bool VncClient::exchangeSecurityType()
     if (len < 0) {
         return false;
     }
-    log_debug("recv:" + to_string(len));
+    log_debug("recv:" + std::to_string(len));
     log_xdebug(buf, len);
 
     // specify VNC Authentication
@@ -101,8 +101,8 @@ bool VncClient::exchangeSecurityType()
     if (len < 0) {
         return false;
     }
-    log_debug("send:" + to_string(len));
-    log_ldebug(to_string(securityType), len);
+    log_debug("send:" + std::to_string(len));
+    log_ldebug(std::to_string(securityType), len);
     return true;
 }
 
@@ -115,7 +115,7 @@ bool VncClient::vncAuthentication()
     if (len < 0) {
         return false;
     }
-    log_debug("recv:" + to_string(len));
+    log_debug("recv:" + std::to_string(len));
     log_xdebug(buf, len);
 
     // DES
@@ -129,7 +129,7 @@ bool VncClient::vncAuthentication()
     if (len < 0) {
         return false;
     }
-    log_debug("send:" + to_string(len));
+    log_debug("send:" + std::to_string(len));
     log_xdebug(challenge, len);
 
     // Security result
@@ -139,12 +139,12 @@ bool VncClient::vncAuthentication()
     if (len < 0) {
         return false;
     }
-    log_debug("recv:" + to_string(len));
+    log_debug("recv:" + std::to_string(len));
     log_xdebug(buf, len);
 
     int securityResult = 0;
     memmove(&securityResult, buf, len);
-    log_debug("securityResult:" + to_string(securityResult));
+    log_debug("securityResult:" + std::to_string(securityResult));
     if (securityResult != VNC_AUTH_RESULT_OK) {
         log_debug("VNC Authentication failed");
         return false;
@@ -162,14 +162,14 @@ bool VncClient::exchangeInit()
     if (len < 0) {
         return false;
     }
-    log_debug("send:" + to_string(len));
-    log_ldebug(to_string(VNC_SHARED_FLAG_ON), len);
+    log_debug("send:" + std::to_string(len));
+    log_ldebug(std::to_string(VNC_SHARED_FLAG_ON), len);
 
     len = recv(this->sockfd, buf, sizeof(buf), 0);
     if (len < 0) {
         return false;
     }
-    log_debug("recv:" + to_string(len));
+    log_debug("recv:" + std::to_string(len));
     log_xdebug(buf, len);
 
     return true;

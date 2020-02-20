@@ -47,7 +47,7 @@
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password);
-static vector<string> split_string(string s, string delim);
+static std::vector<std::string> split_string(std::string s, std::string delim);
 
 /* The sample content handler */
 static int mrhc_handler(request_rec *r)
@@ -81,7 +81,7 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("<br/>", r);
         ap_rputs(host, r);
         ap_rputs("<br/>", r);
-        ap_rputs(to_string(port).c_str(), r);
+        ap_rputs(std::to_string(port).c_str(), r);
         ap_rputs("<br/>", r);
         ap_rputs(password, r);
         ap_rputs("<br/>", r);
@@ -171,7 +171,7 @@ static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec 
 
     // vnc host is to be like 192.168.1.10:5900.
     //user = ap_getword_nulls(r->pool, &decoded, ':');
-    vector<string> vnc_params = split_string(decoded, ":");
+    std::vector<std::string> vnc_params = split_string(decoded, ":");
 
     if (host) {
         *host = vnc_params[0].c_str();
@@ -186,16 +186,16 @@ static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec 
     return APR_SUCCESS;
 }
 
-static vector<string> split_string(string s, string delim)
+static std::vector<std::string> split_string(std::string s, std::string delim)
 {
-    vector<string> v;
+    std::vector<std::string> v;
     while (true) {
         size_t i = s.find_first_of(delim);
-        if (i == string::npos) {
+        if (i == std::string::npos) {
             v.push_back(s);
             break;
         }
-        string item = s.substr(0, i);
+        std::string item = s.substr(0, i);
         v.push_back(item);
         s = s.substr(i+1, s.size());
     }
