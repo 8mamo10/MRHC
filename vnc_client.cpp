@@ -144,6 +144,7 @@ bool vnc_client::vnc_authentication()
 
     int security_result = 0;
     memmove(&security_result, buf, len);
+    security_result = ntohl(security_result);
     log_debug("securityResult:" + std::to_string(security_result));
     if (security_result != VNC_AUTH_RESULT_OK) {
         log_debug("VNC Authentication failed");
@@ -174,6 +175,8 @@ bool vnc_client::exchange_init()
 
     server_init_t server_init = {};
     memmove(&server_init, buf, len);
+    log_debug("frame_buffer_width:" + std::to_string(ntohs(server_init.frame_buffer_width)));
+    log_debug("frame_buffer_height:" + std::to_string(ntohs(server_init.frame_buffer_height)));
     log_ldebug(server_init.name_string, (int)sizeof(server_init.name_string));
     return true;
 }
