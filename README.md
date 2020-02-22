@@ -84,22 +84,6 @@ Syntax OK
 $ sudo /usr/local/apache2/bin/httpd -k graceful
 ```
 
-## build opencv
-```
-$ sudo apt install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-$ cd opencv
-$ mkdir build
-$ cd build
-$ cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local
-$ make
-$ sudo make install
-```
-
-```
-$ sudo mkdir /usr/local/lib/pkgconfig
-$ sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
-```
-
 ## gdb
 ```
 $ sudo gdb /usr/local/apache2/bin/httpd
@@ -153,6 +137,22 @@ Thread 3 "httpd" hit Breakpoint 1, mrhc_handler (r=0x7ffff7ef70a0) at mod_mrhc.c
 48          if (strcmp(r->handler, "mrhc")) {
 (gdb)
 (gdb) set print pretty on
+```
+
+## build opencv
+```
+$ sudo apt install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+$ cd opencv
+$ mkdir build
+$ cd build
+$ cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local
+$ make
+$ sudo make install
+```
+
+```
+$ sudo mkdir /usr/local/lib/pkgconfig
+$ sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
 ```
 
 ## how to mrhc
