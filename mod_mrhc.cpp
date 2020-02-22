@@ -59,7 +59,7 @@ static int mrhc_handler(request_rec *r)
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;
     }
-    r->content_type = "text/html";      
+    r->content_type = "text/html";
 
     if (r->header_only) {
         return DECLINED;
@@ -76,61 +76,71 @@ static int mrhc_handler(request_rec *r)
     }
     if (ret == APR_SUCCESS) {
 
-        ap_rputs("---Start VNC Client", r);
+        //ap_rputs("---Start VNC Client", r);
 
-        ap_rputs("<br/>", r);
-        ap_rputs(host, r);
-        ap_rputs("<br/>", r);
-        ap_rputs(std::to_string(port).c_str(), r);
-        ap_rputs("<br/>", r);
-        ap_rputs(password, r);
-        ap_rputs("<br/>", r);
+        //ap_rputs("<br/>", r);
+        //ap_rputs(host, r);
+        //ap_rputs("<br/>", r);
+        //ap_rputs(std::to_string(port).c_str(), r);
+        //ap_rputs("<br/>", r);
+        //ap_rputs(password, r);
+        //ap_rputs("<br/>", r);
 
         vnc_client *client = new vnc_client(host, port, password);
         if (!client->connect_to_server()) {
-            ap_rputs("Failed to connect_to_server.", r);
+            //ap_rputs("Failed to connect_to_server.", r);
             return OK;
         }
 
-        ap_rputs("---Connected", r);
-        ap_rputs("<br/>", r);
+        //ap_rputs("---Connected", r);
+        //ap_rputs("<br/>", r);
 
         if (!client->exchange_protocol_version()) {
-            ap_rputs("Failed to exchange_protocol_version.", r);
+            //ap_rputs("Failed to exchange_protocol_version.", r);
             return OK;
         }
 
-        ap_rputs("---Exchanged protocol version", r);
-        ap_rputs("<br/>", r);
+        //ap_rputs("---Exchanged protocol version", r);
+        //ap_rputs("<br/>", r);
 
         if (!client->exchange_security_type()) {
-            ap_rputs("Failed to exchange_security_type.", r);
+            //ap_rputs("Failed to exchange_security_type.", r);
             return OK;
         }
 
-        ap_rputs("---Exchanged security type", r);
-        ap_rputs("<br/>", r);
+        //ap_rputs("---Exchanged security type", r);
+        //ap_rputs("<br/>", r);
 
         if (!client->vnc_authentication()) {
-            ap_rputs("Failed to vnc_authentication.", r);
+            //ap_rputs("Failed to vnc_authentication.", r);
             return OK;
         }
 
-        ap_rputs("---VNC authenticated", r);
-        ap_rputs("<br/>", r);
+        //ap_rputs("---VNC authenticated", r);
+        //ap_rputs("<br/>", r);
 
         if (!client->exchange_init()) {
-            ap_rputs("Failed to exchange_init.", r);
+            //ap_rputs("Failed to exchange_init.", r);
             return OK;
         }
 
-        ap_rputs("---Exchanged Client/Server Init", r);
-        ap_rputs("<br/>", r);
+        //ap_rputs("---Exchanged Client/Server Init", r);
+        //ap_rputs("<br/>", r);
 
         if (!client->frame_buffer_update()) {
-            ap_rputs("Failed to frame_buffer_update.", r);
+            //ap_rputs("Failed to frame_buffer_update.", r);
             return OK;
         }
+        std::vector<uint8_t> image_buf = client->get_image_buf();
+        //ap_rputs("size of image_buf=", r);
+        //ap_rputs(std::to_string(image_buf.size()).c_str(), r);
+        //ap_rputs("\n", r);
+        r->content_type = "image/jpeg";
+        char jpeg[1024*768] = {};
+        for (unsigned int i = 0; i < image_buf.size(); i++) {
+            jpeg[i] = image_buf[i];
+        }
+        ap_rwrite(jpeg, image_buf.size(), r);
         return OK;
     }
     ap_rputs("not reach here\n", r);

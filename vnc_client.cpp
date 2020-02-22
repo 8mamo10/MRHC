@@ -2,6 +2,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "opencv2/opencv.hpp"
+
 #include "d3des.h"
 #include "mrhc_common.h"
 #include "vnc_client.h"
@@ -201,5 +203,18 @@ bool vnc_client::frame_buffer_update()
     log_debug("recv:" + std::to_string(len));
     //log_xdebug(buf, len);
 
+    // sample drawing
+    cv::Mat image = cv::Mat(768, 1024, CV_8UC3, cv::Scalar(0, 0, 0));
+    rectangle(image, cv::Point(10, 10), cv::Point(100, 100), cv::Scalar(128, 0, 0), -1, cv::LINE_AA);
+    rectangle(image, cv::Point(200, 200), cv::Point(300, 300), cv::Scalar(0, 128, 0), -1, cv::LINE_AA);
+    rectangle(image, cv::Point(500, 500), cv::Point(700, 700), cv::Scalar(0, 0, 128), -1, cv::LINE_AA);
+    //cv::format(image, "C")
+    //imwrite("/usr/local/apache2/htdocs/hoge.jpg", image);
+    cv::imencode(".jpg", image, this->image_buf);
     return true;
+}
+
+std::vector<uint8_t> vnc_client::get_image_buf()
+{
+    return this->image_buf;
 }

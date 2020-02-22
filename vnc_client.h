@@ -16,6 +16,7 @@ class vnc_client
     std::string version;
     server_init_t server_init;
 
+    std::vector<uint8_t> image_buf;
  public:
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();
@@ -25,6 +26,8 @@ class vnc_client
     bool vnc_authentication();
     bool exchange_init();
     bool frame_buffer_update();
+
+    std::vector<uint8_t> get_image_buf();
 };
 
 #endif

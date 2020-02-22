@@ -21,4 +21,4 @@ int main(int argc, char** argv)
     imwrite(argv[2], image);
     return 0;
 }
-// g++ opencv.cpp  -std=c++0x `pkg-config --cflags --libs opencv4`
+// g++ opencv.cpp  -std=c++11 `pkg-config --cflags --libs opencv4`

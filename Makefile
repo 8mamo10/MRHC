@@ -22,19 +22,20 @@ OBJS=$(SRCS:%.cpp=%.o)
 DEPS=$(SRCS:%.cpp=%.d)
 
 CC=g++
-INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0/ -I/usr/local/apr/include/apr-1
+INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0/ -I/usr/local/apr/include/apr-1 `pkg-config --cflags opencv4`
 CFLAGS=$(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -O2
+LIBS=`pkg-config --libs opencv4`
 
 # the default target
 all: $(PROG)
 
 # link
 $(PROG): $(OBJS)
-	$(CC) -fPIC -shared -o $@ $^ $(APXS_LIBS_SHLIB)
+	$(CC) -fPIC -shared -o $@ $^ $(APXS_LIBS_SHLIB) $(LIBS)
 
 %.o: %.cpp
-	$(CC) $(INCLUDES) $(CFLAGS) $< -MM -MP -MF $*.d
-	$(CC) -std=c++0x -c -fPIC $(INCLUDES) $(CFLAGS) $<
+	$(CC) -std=c++11 $(INCLUDES) $(CFLAGS) $< -MM -MP -MF $*.d
+	$(CC) -std=c++11 -c -fPIC $(INCLUDES) $(CFLAGS) $<
 
 include $(shell ls $(DEPS) 2>/dev/null)
 
