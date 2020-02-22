@@ -7,23 +7,14 @@ class vnc_client
 {
  private:
 
-    static const std::string PROTOCOL_VERSION_3_3;
-    static const std::string PROTOCOL_VERSION_3_7;
-    static const std::string PROTOCOL_VERSION_3_8;
-    static const char SECURITY_TYPE_VNC_AUTH;
-    static const int VNC_AUTH_PASSWORD_LENGTH;
-    static const int VNC_AUTH_RESULT_OK;
-    static const int VNC_AUTH_RESULT_FAILED;
-    static const char VNC_SHARED_FLAG_ON;
-    static const char VNC_SHARED_FLAG_OFF;
-
-    int sockfd;
-
     std::string host;
     int port;
     std::string password;
 
+    int sockfd;
+
     std::string version;
+    server_init_t server_init;
 
  public:
     vnc_client(std::string host, int port, std::string password);
@@ -33,6 +24,7 @@ class vnc_client
     bool exchange_security_type();
     bool vnc_authentication();
     bool exchange_init();
+    bool frame_buffer_update();
 };
 
 #endif

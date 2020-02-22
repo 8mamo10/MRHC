@@ -6,16 +6,6 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
-const std::string vnc_client::PROTOCOL_VERSION_3_3 = "RFB 003.003\n";
-const std::string vnc_client::PROTOCOL_VERSION_3_7 = "RFB 003.007\n";
-const std::string vnc_client::PROTOCOL_VERSION_3_8 = "RFB 003.008\n";
-const char vnc_client::SECURITY_TYPE_VNC_AUTH = 0x02;
-const int vnc_client::VNC_AUTH_PASSWORD_LENGTH = 16;
-const int vnc_client::VNC_AUTH_RESULT_OK = 0x00;
-const int vnc_client::VNC_AUTH_RESULT_FAILED = 0x01;
-const char vnc_client::VNC_SHARED_FLAG_ON = 0x01;
-const char vnc_client::VNC_SHARED_FLAG_OFF = 0x00;
-
 // for log container
 std::string mrhc_log = "";
 
@@ -23,6 +13,8 @@ vnc_client::vnc_client(std::string host, int port, std::string password)
     : host(host), port(port), password(password)
 {
     this->sockfd = 0;
+    this->version = "";
+    this->server_init = {};
 }
 
 vnc_client::~vnc_client()
@@ -59,14 +51,15 @@ bool vnc_client::exchange_protocol_version()
     log_debug("recv:" + std::to_string(len));
     log_ldebug(buf, len);
 
-    if (buf == PROTOCOL_VERSION_3_3) {
-        version = PROTOCOL_VERSION_3_3;
+    if (memcmp(buf, RFB_PROTOCOL_VERSION_3_3, sizeof(RFB_PROTOCOL_VERSION_3_3))) {
+        this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_3);
         log_debug("RFB Version 3.3");
-    } else if (buf == PROTOCOL_VERSION_3_7) {
-        version = PROTOCOL_VERSION_3_7;
+
+    } else if (memcmp(buf, RFB_PROTOCOL_VERSION_3_7, sizeof(RFB_PROTOCOL_VERSION_3_7))) {
+        this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_7);
         log_debug("RFB Version 3.7");
-    } else if (buf == PROTOCOL_VERSION_3_8) {
-        version = PROTOCOL_VERSION_3_8;
+    } else if (memcmp(buf, RFB_PROTOCOL_VERSION_3_8, sizeof(RFB_PROTOCOL_VERSION_3_8))) {
+        this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_8);
         log_debug("RFB Version 3.8");
     } else {
         log_debug("Invalid RFB Version");
@@ -96,7 +89,7 @@ bool vnc_client::exchange_security_type()
     log_xdebug(buf, len);
 
     // specify VNC Authentication
-    char security_type = SECURITY_TYPE_VNC_AUTH;
+    char security_type = RFB_SECURITY_TYPE_VNC_AUTH;
     len = send(this->sockfd, &security_type, sizeof(security_type), 0);
     if (len < 0) {
         return false;
@@ -119,13 +112,13 @@ bool vnc_client::vnc_authentication()
     log_xdebug(buf, len);
 
     // DES
-    unsigned char challenge[VNC_AUTH_PASSWORD_LENGTH];
-    memmove(challenge, buf, VNC_AUTH_PASSWORD_LENGTH);
+    unsigned char challenge[RFB_VNC_AUTH_CHALLENGE_LENGTH];
+    memmove(challenge, buf, RFB_VNC_AUTH_CHALLENGE_LENGTH);
     deskey((unsigned char*)this->password.c_str(), EN0);
-    for (int j = 0; j < VNC_AUTH_PASSWORD_LENGTH; j += 8) {
+    for (int j = 0; j < RFB_VNC_AUTH_CHALLENGE_LENGTH; j += 8) {
         des(challenge+j, challenge+j);
     }
-    len = send(this->sockfd, challenge, VNC_AUTH_PASSWORD_LENGTH, 0);
+    len = send(this->sockfd, challenge, RFB_VNC_AUTH_CHALLENGE_LENGTH, 0);
     if (len < 0) {
         return false;
     }
@@ -146,7 +139,7 @@ bool vnc_client::vnc_authentication()
     memmove(&security_result, buf, len);
     security_result = ntohl(security_result);
     log_debug("securityResult:" + std::to_string(security_result));
-    if (security_result != VNC_AUTH_RESULT_OK) {
+    if (security_result != RFB_AUTH_RESULT_OK) {
         log_debug("VNC Authentication failed");
         return false;
     }
@@ -159,12 +152,12 @@ bool vnc_client::exchange_init()
     char buf[BUF_SIZE] = {};
     int len = 0;
 
-    len = send(this->sockfd, &VNC_SHARED_FLAG_ON, sizeof(VNC_SHARED_FLAG_ON), 0);
+    len = send(this->sockfd, &RFB_SHARED_FLAG_ON, sizeof(RFB_SHARED_FLAG_ON), 0);
     if (len < 0) {
         return false;
     }
     log_debug("send:" + std::to_string(len));
-    log_ldebug(std::to_string(VNC_SHARED_FLAG_ON), len);
+    log_ldebug(std::to_string(RFB_SHARED_FLAG_ON), len);
 
     len = recv(this->sockfd, buf, sizeof(buf), 0);
     if (len < 0) {
@@ -178,5 +171,35 @@ bool vnc_client::exchange_init()
     log_debug("frame_buffer_width:" + std::to_string(ntohs(server_init.frame_buffer_width)));
     log_debug("frame_buffer_height:" + std::to_string(ntohs(server_init.frame_buffer_height)));
     log_ldebug(server_init.name_string, (int)sizeof(server_init.name_string));
+    this->server_init = server_init;
+    return true;
+}
+
+bool vnc_client::frame_buffer_update()
+{
+    char buf[BUF_SIZE*BUF_SIZE] = {};
+    int len = 0;
+
+    frame_buffer_update_request_t r = {};
+    r.message_type = 3;
+    r.incremental = 0;
+    r.x_position = htons(0);
+    r.y_position = htons(0);
+    r.width = htons(1024);
+    r.height = htons(768);
+
+    len = send(this->sockfd, &r, sizeof(r), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("send:" + std::to_string(len));
+
+    len = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("recv:" + std::to_string(len));
+    //log_xdebug(buf, len);
+
     return true;
 }

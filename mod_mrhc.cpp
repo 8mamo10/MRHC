@@ -127,6 +127,10 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("---Exchanged Client/Server Init", r);
         ap_rputs("<br/>", r);
 
+        if (!client->frame_buffer_update()) {
+            ap_rputs("Failed to frame_buffer_update.", r);
+            return OK;
+        }
         return OK;
     }
     ap_rputs("not reach here\n", r);
