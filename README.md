@@ -87,6 +87,8 @@ $ sudo /usr/local/apache2/bin/httpd -k graceful
 ## oepncv
 ```
 $ sudo apt install libopencv-dev
+$ pkg-config --modversion opencv
+2.4.9.1
 ```
 
 ## gdb
