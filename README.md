@@ -18,23 +18,6 @@ $ sudo apt install libpcre3-dev
 $ sudo apt install build-essential
 ```
 
-## build apache
-```
-$ tar xzvf httpd-2.4.41.tar.gz
-$ cd httpd-2.4.41
-$ CFLAGS="-g" ./configure # add -g option for gdb debug
-$ make
-$ sudo make install
-```
-
-## run apache
-```
-$ /usr/local/apache2/bin/httpd -v
-Server version: Apache/2.4.41 (Unix)
-Server built:   Jan 19 2020 20:20:22
-$ sudo /usr/local/apache2/bin/httpd -k start
-```
-
 ## build apr
 ```
 $ tar xzvf apr-1.7.0.tar.gz
@@ -52,6 +35,23 @@ $ CFLAGS="-g" ./configure --with-apr=/usr/local/apr
 $ make
 $ sudo make install
 $ sudo ln -s /usr/local/apr/bin/apu-1-config /usr/bin/apu-1-config
+```
+
+## build apache
+```
+$ tar xzvf httpd-2.4.41.tar.gz
+$ cd httpd-2.4.41
+$ CFLAGS="-g" ./configure # add -g option for gdb debug
+$ make
+$ sudo make install
+```
+
+## run apache
+```
+$ /usr/local/apache2/bin/httpd -v
+Server version: Apache/2.4.41 (Unix)
+Server built:   Jan 19 2020 20:20:22
+$ sudo /usr/local/apache2/bin/httpd -k start
 ```
 
 ## init apache module
@@ -84,16 +84,24 @@ Syntax OK
 $ sudo /usr/local/apache2/bin/httpd -k graceful
 ```
 
-## oepncv
+## build opencv
 ```
-$ sudo apt install libopencv-dev
-$ pkg-config --modversion opencv
-2.4.9.1
+$ sudo apt install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+$ cd opencv
+$ mkdir build
+$ cd build
+$ cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local
+$ make
+$ sudo make install
+```
+
+```
+$ sudo mkdir /usr/local/lib/pkgconfig
+$ sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
 ```
 
 ## gdb
-``
-`
+```
 $ sudo gdb /usr/local/apache2/bin/httpd
 (gdb) b mrhc_handler
 Function "mrhc_handler" not defined.
