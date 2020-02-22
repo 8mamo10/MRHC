@@ -153,6 +153,7 @@ $ sudo make install
 ```
 $ sudo mkdir /usr/local/lib/pkgconfig
 $ sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
+$ echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig" >> ~/.zshrc
 ```
 
 ## how to mrhc
