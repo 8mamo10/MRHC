@@ -6,10 +6,13 @@ const uint8_t RFB_PROTOCOL_VERSION_3_7[] = "RFB 003.007\n";
 const uint8_t RFB_PROTOCOL_VERSION_3_8[] = "RFB 003.008\n";
 const uint8_t RFB_SECURITY_TYPE_VNC_AUTH     = 0x02;
 const uint16_t RFB_VNC_AUTH_CHALLENGE_LENGTH = 16;
-const uint8_t  RFB_AUTH_RESULT_OK            = 0x00;
-const uint8_t  RFB_AUTH_RESULT_FAILED        = 0x01;
-const uint8_t  RFB_SHARED_FLAG_ON            = 0x01;
-const uint8_t  RFB_SHARED_FLAG_OFF           = 0x00;
+const uint8_t RFB_AUTH_RESULT_OK            = 0x00;
+const uint8_t RFB_AUTH_RESULT_FAILED        = 0x01;
+const uint8_t RFB_SHARED_FLAG_ON            = 0x01;
+const uint8_t RFB_SHARED_FLAG_OFF           = 0x00;
+const uint8_t RFB_INCREMENTAL_OFF           = 0x00;
+const uint8_t RFB_INCREMENTAL_ON            = 0x01;
+const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
 
 typedef struct pixel_format {
     uint8_t bits_per_pixel;

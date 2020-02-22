@@ -183,12 +183,12 @@ bool vnc_client::frame_buffer_update()
     int len = 0;
 
     frame_buffer_update_request_t r = {};
-    r.message_type = 3;
-    r.incremental = 0;
+    r.message_type = RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST;
+    r.incremental = RFB_INCREMENTAL_OFF;
     r.x_position = htons(0);
     r.y_position = htons(0);
-    r.width = htons(1024);
-    r.height = htons(768);
+    r.width = htons(this->server_init.frame_buffer_width);
+    r.height = htons(this->server_init.frame_buffer_height);
 
     len = send(this->sockfd, &r, sizeof(r), 0);
     if (len < 0) {
