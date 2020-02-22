@@ -84,9 +84,14 @@ Syntax OK
 $ sudo /usr/local/apache2/bin/httpd -k graceful
 ```
 
-## gdb
+## oepncv
 ```
-$ sudo apt install gdb
+$ sudo apt install libopencv-dev
+```
+
+## gdb
+``
+`
 $ sudo gdb /usr/local/apache2/bin/httpd
 (gdb) b mrhc_handler
 Function "mrhc_handler" not defined.
