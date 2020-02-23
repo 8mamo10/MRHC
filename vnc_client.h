@@ -17,6 +17,8 @@ class vnc_client
     server_init_t server_init;
 
     std::vector<uint8_t> image_buf;
+
+    bool drawImage();
  public:
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();

@@ -6,13 +6,15 @@ const uint8_t RFB_PROTOCOL_VERSION_3_7[] = "RFB 003.007\n";
 const uint8_t RFB_PROTOCOL_VERSION_3_8[] = "RFB 003.008\n";
 const uint8_t RFB_SECURITY_TYPE_VNC_AUTH     = 0x02;
 const uint16_t RFB_VNC_AUTH_CHALLENGE_LENGTH = 16;
-const uint8_t RFB_AUTH_RESULT_OK            = 0x00;
-const uint8_t RFB_AUTH_RESULT_FAILED        = 0x01;
-const uint8_t RFB_SHARED_FLAG_ON            = 0x01;
-const uint8_t RFB_SHARED_FLAG_OFF           = 0x00;
-const uint8_t RFB_INCREMENTAL_OFF           = 0x00;
-const uint8_t RFB_INCREMENTAL_ON            = 0x01;
+const uint8_t RFB_AUTH_RESULT_OK             = 0x00;
+const uint8_t RFB_AUTH_RESULT_FAILED         = 0x01;
+const uint8_t RFB_SHARED_FLAG_ON             = 0x01;
+const uint8_t RFB_SHARED_FLAG_OFF            = 0x00;
+const uint8_t RFB_INCREMENTAL_OFF            = 0x00;
+const uint8_t RFB_INCREMENTAL_ON             = 0x01;
+const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE = 0x00;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
+const uint8_t RFB_ENCODING_RAW = 0x00;
 
 typedef struct pixel_format {
     uint8_t bits_per_pixel;
@@ -27,6 +29,15 @@ typedef struct pixel_format {
     uint8_t blue_shift;
     uint8_t padding[3];
 } pixel_format_t;
+
+typedef struct pixel_data {
+    uint16_t x_position;
+    uint16_t y_position;
+    uint16_t width;
+    uint16_t height;
+    int32_t encoding_type;
+    //uint8_t pixels[]; // currently only support raw encoding
+} pixel_data_t;
 
 typedef struct server_init {
     uint16_t frame_buffer_width;
@@ -44,5 +55,12 @@ typedef struct frame_buffer_update_request {
     uint16_t width;
     uint16_t height;
 } frame_buffer_update_request_t;
+
+typedef struct frame_buffer_update {
+    uint8_t message_type;
+    uint8_t padding;
+    uint16_t number_of_rectangles;
+    //pixel_data_t pixel_datas[];
+} frame_buffer_update_t;
 
 #endif
