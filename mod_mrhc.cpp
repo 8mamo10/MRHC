@@ -116,13 +116,14 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
 
-        std::vector<uint8_t> image_buf = client->get_image_buf();
-        char jpeg[1024*768] = {};
-        for (unsigned int i = 0; i < image_buf.size(); i++) {
-            jpeg[i] = image_buf[i];
+        std::vector<uint8_t> jpeg_buf = client->get_jpeg_buf();
+        log_debug("jpeg size:" + std::to_string(jpeg_buf.size()));
+        char jpeg[jpeg_buf.size()] = {};
+        for (unsigned int i = 0; i < jpeg_buf.size(); i++) {
+            jpeg[i] = jpeg_buf[i];
         }
         r->content_type = "image/jpeg";
-        ap_rwrite(jpeg, image_buf.size(), r);
+        ap_rwrite(jpeg, jpeg_buf.size(), r);
         return OK;
     }
     ap_rputs("not reach here", r);

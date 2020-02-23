@@ -236,8 +236,60 @@ bool vnc_client::frame_buffer_update()
         return false;
     }
     // pixels
-    int total_pixel_bytes = width * height * (this->server_init.pixel_format.bits_per_pixel / 8);
+    uint8_t bits_per_pixel   = this->server_init.pixel_format.bits_per_pixel;
+    uint8_t depth            = this->server_init.pixel_format.depth;
+    uint8_t big_endian_flag  = this->server_init.pixel_format.big_endian_flag;
+    uint8_t true_colour_flag = this->server_init.pixel_format.true_colour_flag;
+    uint16_t red_max         = ntohs(this->server_init.pixel_format.red_max);
+    uint16_t green_max       = ntohs(this->server_init.pixel_format.green_max);
+    uint16_t blue_max        = ntohs(this->server_init.pixel_format.blue_max);
+    uint8_t red_shift        = this->server_init.pixel_format.red_shift;
+    uint8_t green_shift      = this->server_init.pixel_format.green_shift;
+    uint8_t blue_shift       = this->server_init.pixel_format.blue_shift;
+
+    log_debug("---pixel_format---");
+    log_debug("bits_per_pixel:"   + std::to_string(bits_per_pixel));
+    log_debug("depth:"            + std::to_string(depth));
+    log_debug("big_endian_flag:"  + std::to_string(big_endian_flag));
+    log_debug("true_colour_flag:" + std::to_string(true_colour_flag));
+    log_debug("red_max:"          + std::to_string(red_max));
+    log_debug("green_max:"        + std::to_string(green_max));
+    log_debug("blue_max:"         + std::to_string(blue_max));
+    log_debug("red_shift:"        + std::to_string(red_shift));
+    log_debug("green_shift:"      + std::to_string(green_shift));
+    log_debug("blue_shift:"       + std::to_string(blue_shift));
+    log_debug("------------------");
+
+    int total_pixel_count = width * height;
+    int total_pixel_bytes = total_pixel_count * bits_per_pixel / 8;
+    log_debug("total_pixel_count:" + std::to_string(total_pixel_count));
     log_debug("expected total_pixel_bytes:" + std::to_string(total_pixel_bytes));
+
+    int total_recv = 0;
+    memset(buf, 0, sizeof(buf));
+    while ((len = recv(this->sockfd, buf, sizeof(buf), 0)) > 0) {
+        log_debug("recv:" + std::to_string(len));
+        total_recv += len;
+        for (int i = 0; i < len; i+=2) {
+            uint16_t pixel = 0;
+            memmove(&pixel, &buf[i], sizeof(pixel));
+            pixel = ntohs(pixel);
+            this->image_buf.push_back(pixel);
+            // uint8_t red = (pixel >> red_shift) & red_max;
+            // uint8_t green = (pixel >> green_shift) & green_max;
+            // uint8_t blue = (pixel >> blue_shift) & blue_max;
+            // log_debug("(R,G,B)=(" + std::to_string(red) +
+            //           "," + std::to_string(green) +
+            //           "," + std::to_string(blue) + ")");
+            // this->image_buf.push_back(cv::Scalar(blue, green, red));
+        }
+        memset(buf, 0, sizeof(buf));
+        if (total_recv >= total_pixel_bytes) {
+            log_debug("total_recv exceeds total_bytes:" + std::to_string(total_recv));
+            break;
+        }
+    }
+    log_debug("image_buf size:" + std::to_string(this->image_buf.size()));
 
     if (!this->drawImage()) {
         return false;
@@ -245,23 +297,60 @@ bool vnc_client::frame_buffer_update()
     return true;
 }
 
-std::vector<uint8_t> vnc_client::get_image_buf()
+std::vector<uint8_t> vnc_client::get_jpeg_buf()
 {
-    return this->image_buf;
+    return this->jpeg_buf;
 }
 
 //bool vnc_client::drawImage(const char recv_buf[], const int recv_len)
 bool vnc_client::drawImage()
 {
+    uint16_t width = ntohs(this->server_init.frame_buffer_width);
+    uint16_t height = ntohs(this->server_init.frame_buffer_height);
+    uint8_t bits_per_pixel   = this->server_init.pixel_format.bits_per_pixel;
+    uint8_t depth            = this->server_init.pixel_format.depth;
+    uint8_t big_endian_flag  = this->server_init.pixel_format.big_endian_flag;
+    uint8_t true_colour_flag = this->server_init.pixel_format.true_colour_flag;
+    uint16_t red_max         = ntohs(this->server_init.pixel_format.red_max);
+    uint16_t green_max       = ntohs(this->server_init.pixel_format.green_max);
+    uint16_t blue_max        = ntohs(this->server_init.pixel_format.blue_max);
+    uint8_t red_shift        = this->server_init.pixel_format.red_shift;
+    uint8_t green_shift      = this->server_init.pixel_format.green_shift;
+    uint8_t blue_shift       = this->server_init.pixel_format.blue_shift;
+
+    log_debug("---pixel_format---");
+    log_debug("bits_per_pixel:"   + std::to_string(bits_per_pixel));
+    log_debug("depth:"            + std::to_string(depth));
+    log_debug("big_endian_flag:"  + std::to_string(big_endian_flag));
+    log_debug("true_colour_flag:" + std::to_string(true_colour_flag));
+    log_debug("red_max:"          + std::to_string(red_max));
+    log_debug("green_max:"        + std::to_string(green_max));
+    log_debug("blue_max:"         + std::to_string(blue_max));
+    log_debug("red_shift:"        + std::to_string(red_shift));
+    log_debug("green_shift:"      + std::to_string(green_shift));
+    log_debug("blue_shift:"       + std::to_string(blue_shift));
+    log_debug("------------------");
+
     // sample drawing
-    cv::Mat image = cv::Mat(ntohs(this->server_init.frame_buffer_height),
-                            ntohs(this->server_init.frame_buffer_width),
-                            CV_8UC3, cv::Scalar(0, 0, 0));
+    cv::Mat image = cv::Mat(height, width, CV_8UC3, cv::Scalar(0, 0, 0));
     // rectangle(image, cv::Point(10, 10), cv::Point(100, 100), cv::Scalar(128, 0, 0), -1, cv::LINE_AA);
     // rectangle(image, cv::Point(200, 200), cv::Point(300, 300), cv::Scalar(0, 128, 0), -1, cv::LINE_AA);
     // rectangle(image, cv::Point(500, 500), cv::Point(700, 700), cv::Scalar(0, 0, 128), -1, cv::LINE_AA);
     // cv::imencode(".jpeg", image, this->image_buf);
 
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            uint16_t pixel = this->image_buf[width * y + x];
+            uint8_t red = (pixel >> red_shift) & red_max;
+            uint8_t green = (pixel >> green_shift) & green_max;
+            uint8_t blue = (pixel >> blue_shift) & blue_max;
+            // log_debug("(R,G,B)=(" + std::to_string(red) +
+            //           "," + std::to_string(green) +
+            //           "," + std::to_string(blue) + ")");
+            rectangle(image, cv::Point(x, y), cv::Point(x+1, y+1), cv::Scalar(blue, green, red), -1, cv::LINE_AA);
+        }
+    }
+    /*
     for (int w = 0; w < image.size().width; w++) {
         for (int h = 0; h < image.size().height; h++) {
             cv::Scalar color = cv::Scalar(0, 0, 0);
@@ -282,6 +371,7 @@ bool vnc_client::drawImage()
             rectangle(image, cv::Point(w, h), cv::Point(w+1, h+1), color, -1, cv::LINE_AA);
         }
     }
-    cv::imencode(".jpeg", image, this->image_buf);
+    */
+    cv::imencode(".jpeg", image, this->jpeg_buf);
     return true;
 }

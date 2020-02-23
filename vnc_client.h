@@ -16,7 +16,8 @@ class vnc_client
     std::string version;
     server_init_t server_init;
 
-    std::vector<uint8_t> image_buf;
+    std::vector<uint16_t> image_buf;
+    std::vector<uint8_t> jpeg_buf;
 
     bool drawImage();
  public:
@@ -29,7 +30,7 @@ class vnc_client
     bool exchange_init();
     bool frame_buffer_update();
 
-    std::vector<uint8_t> get_image_buf();
+    std::vector<uint8_t> get_jpeg_buf();
 };
 
 #endif
