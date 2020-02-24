@@ -340,9 +340,10 @@ bool vnc_client::drawImage()
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             uint16_t pixel = this->image_buf[width * y + x];
-            uint8_t red = (pixel >> red_shift) & red_max;
-            uint8_t green = (pixel >> green_shift) & green_max;
-            uint8_t blue = (pixel >> blue_shift) & blue_max;
+            // try to (R,G,B)=(5,6,5) -> (8,8,8), but maybe wrong...
+            uint8_t red = ((pixel >> red_shift) & red_max) * 8;
+            uint8_t green = ((pixel >> green_shift) & green_max) * 4;
+            uint8_t blue = ((pixel >> blue_shift) & blue_max) * 8;
             // log_debug("(R,G,B)=(" + std::to_string(red) +
             //           "," + std::to_string(green) +
             //           "," + std::to_string(blue) + ")");
