@@ -12,7 +12,8 @@ const uint8_t RFB_SHARED_FLAG_ON             = 0x01;
 const uint8_t RFB_SHARED_FLAG_OFF            = 0x00;
 const uint8_t RFB_INCREMENTAL_OFF            = 0x00;
 const uint8_t RFB_INCREMENTAL_ON             = 0x01;
-const uint8_t RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT = 0x00;
+const uint8_t RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT            = 0x00;
+const uint8_t RFB_MESSAGE_TYPE_SET_ENCODINGS               = 0x02;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE = 0x00;
 const uint8_t RFB_ENCODING_RAW = 0x00;
@@ -49,15 +50,21 @@ typedef struct server_init {
 } server_init_t;
 
 // client to server messages
-
 typedef struct set_pixel_format {
-    uint8_t message_type;
+    uint8_t message_type = RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT;
     uint8_t padding[3];
     pixel_format_t pixel_format;
 } set_pixel_format_t;
 
+typedef struct set_encodings {
+    uint8_t message_type = RFB_MESSAGE_TYPE_SET_ENCODINGS;
+    uint8_t padding;
+    uint16_t number_of_encodings;
+    int32_t encoding_type; // temporary only 1 slot
+} set_encodings_t;
+
 typedef struct frame_buffer_update_request {
-    uint8_t message_type;
+    uint8_t message_type = RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST;
     uint8_t incremental;
     uint16_t x_position;
     uint16_t y_position;
@@ -66,9 +73,8 @@ typedef struct frame_buffer_update_request {
 } frame_buffer_update_request_t;
 
 // server to client messages
-
 typedef struct frame_buffer_update {
-    uint8_t message_type;
+    uint8_t message_type = RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE;
     uint8_t padding;
     uint16_t number_of_rectangles;
     //pixel_data_t pixel_datas[];

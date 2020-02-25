@@ -183,7 +183,6 @@ bool vnc_client::frame_buffer_update()
 
     // set_pixel_format
     set_pixel_format_t set_pixel_format = {};
-    set_pixel_format.message_type = RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT;
     pixel_format_t pixel_format = {};
     pixel_format.bits_per_pixel = 0x20;
     pixel_format.depth = 0x20;
@@ -205,37 +204,49 @@ bool vnc_client::frame_buffer_update()
     log_debug("send:" + std::to_string(len));
     log_xdebug(((char*)&set_pixel_format), len);
 
-    frame_buffer_update_request_t r = {};
-    r.message_type = RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST;
-    r.incremental = RFB_INCREMENTAL_OFF;
-    r.x_position = htons(0);
-    r.y_position = htons(0);
-    r.width = this->server_init.frame_buffer_width;
-    r.height = this->server_init.frame_buffer_height;
+    // set_encodings
+    set_encodings_t set_encodings = {};
+    set_encodings.number_of_encodings = htons(1);
+    set_encodings.encoding_type = htonl(RFB_ENCODING_RAW);
 
-    len = send(this->sockfd, &r, sizeof(r), 0);
+    len = send(this->sockfd, &set_encodings, sizeof(set_encodings), 0);
     if (len < 0) {
         return false;
     }
     log_debug("send:" + std::to_string(len));
-    log_xdebug(((char*)&r), len);
+    log_xdebug(((char*)&set_encodings), len);
+
+    // frame_buffer_update_request
+    frame_buffer_update_request_t frame_buffer_update_request = {};
+    frame_buffer_update_request.incremental = RFB_INCREMENTAL_OFF;
+    frame_buffer_update_request.x_position = htons(0);
+    frame_buffer_update_request.y_position = htons(0);
+    frame_buffer_update_request.width = this->server_init.frame_buffer_width;
+    frame_buffer_update_request.height = this->server_init.frame_buffer_height;
+
+    len = send(this->sockfd, &frame_buffer_update_request, sizeof(frame_buffer_update_request), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("send:" + std::to_string(len));
+    log_xdebug(((char*)&frame_buffer_update_request), len);
 
     // frame_buffer_update
-    frame_buffer_update_t update = {};
-    len = recv(this->sockfd, buf, sizeof(update), 0);
+    frame_buffer_update_t frame_buffer_update = {};
+    len = recv(this->sockfd, buf, sizeof(frame_buffer_update), 0);
     if (len < 0) {
         return false;
     }
     log_debug("recv:" + std::to_string(len));
     log_xdebug(buf, len);
 
-    memmove(&update, buf, sizeof(update));
-    uint8_t message_type = update.message_type;
+    memmove(&frame_buffer_update, buf, sizeof(frame_buffer_update));
+    uint8_t message_type = frame_buffer_update.message_type;
     if (message_type != RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE) {
         log_debug("unexpected message_type:" + std::to_string(message_type));
         return false;
     }
-    uint16_t number_of_rectangles = ntohs(update.number_of_rectangles);
+    uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
     log_debug("number_of_rectangles:" + std::to_string(number_of_rectangles));
 
     // pixel_data
