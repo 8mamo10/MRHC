@@ -181,6 +181,30 @@ bool vnc_client::frame_buffer_update()
     char buf[BUF_SIZE*BUF_SIZE] = {};
     int len = 0;
 
+    // set_pixel_format
+    set_pixel_format_t set_pixel_format = {};
+    set_pixel_format.message_type = RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT;
+    pixel_format_t pixel_format = {};
+    pixel_format.bits_per_pixel = 0x20;
+    pixel_format.depth = 0x20;
+    pixel_format.big_endian_flag = 0x00;
+    pixel_format.true_colour_flag = 0x01;
+    pixel_format.red_max = htons(0x00ff);
+    pixel_format.green_max = htons(0x00ff);
+    pixel_format.blue_max = htons(0x00ff);
+    pixel_format.red_shift = 0x10;
+    pixel_format.green_shift = 0x08;
+    pixel_format.blue_shift = 0x00;
+    set_pixel_format.pixel_format = pixel_format;
+    this->server_init.pixel_format = pixel_format;
+
+    len = send(this->sockfd, &set_pixel_format, sizeof(set_pixel_format), 0);
+    if (len < 0) {
+        return false;
+    }
+    log_debug("send:" + std::to_string(len));
+    log_xdebug(((char*)&set_pixel_format), len);
+
     frame_buffer_update_request_t r = {};
     r.message_type = RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST;
     r.incremental = RFB_INCREMENTAL_OFF;
@@ -327,8 +351,6 @@ bool vnc_client::drawImage()
     log_debug("blue_shift:"       + std::to_string(blue_shift));
     log_debug("------------------");
 
-
-
     // sample drawing
     // cv::Mat image = cv::Mat(height, width, CV_8UC3, cv::Scalar(0, 0, 0));
     // rectangle(image, cv::Point(10, 10), cv::Point(100, 100), cv::Scalar(128, 0, 0), -1, cv::LINE_AA);
@@ -340,38 +362,15 @@ bool vnc_client::drawImage()
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             uint16_t pixel = this->image_buf[width * y + x];
-            // try to (R,G,B)=(5,6,5) -> (8,8,8), but maybe wrong...
-            uint8_t red = ((pixel >> red_shift) & red_max) * 8;
-            uint8_t green = ((pixel >> green_shift) & green_max) * 4;
-            uint8_t blue = ((pixel >> blue_shift) & blue_max) * 8;
+            uint8_t red = ((pixel >> red_shift) & red_max);
+            uint8_t green = ((pixel >> green_shift) & green_max);
+            uint8_t blue = ((pixel >> blue_shift) & blue_max);
             // log_debug("(R,G,B)=(" + std::to_string(red) +
             //           "," + std::to_string(green) +
             //           "," + std::to_string(blue) + ")");
             rectangle(image, cv::Point(x, y), cv::Point(x+1, y+1), cv::Scalar(blue, green, red), -1, cv::LINE_AA);
         }
     }
-    /*
-    for (int w = 0; w < image.size().width; w++) {
-        for (int h = 0; h < image.size().height; h++) {
-            cv::Scalar color = cv::Scalar(0, 0, 0);
-            if (w < 400) {
-                if (h < 300) {
-                    color = cv::Scalar(255, 0, 0);
-                } else {
-                    color = cv::Scalar(0, 255, 0);
-                }
-            } else {
-                if (h < 300) {
-                    color = cv::Scalar(0, 0, 255);
-                } else {
-                    color = cv::Scalar(255, 255, 255);
-                }
-            }
-            //rectangle(image, cv::Point(w, h), cv::Point(w+1, h+1), cv::Scalar(128, 0, 0), -1, cv::LINE_AA);
-            rectangle(image, cv::Point(w, h), cv::Point(w+1, h+1), color, -1, cv::LINE_AA);
-        }
-    }
-    */
     cv::imencode(".jpeg", image, this->jpeg_buf);
     return true;
 }

@@ -12,8 +12,9 @@ const uint8_t RFB_SHARED_FLAG_ON             = 0x01;
 const uint8_t RFB_SHARED_FLAG_OFF            = 0x00;
 const uint8_t RFB_INCREMENTAL_OFF            = 0x00;
 const uint8_t RFB_INCREMENTAL_ON             = 0x01;
-const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE = 0x00;
+const uint8_t RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT = 0x00;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
+const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE = 0x00;
 const uint8_t RFB_ENCODING_RAW = 0x00;
 
 typedef struct pixel_format {
@@ -47,6 +48,14 @@ typedef struct server_init {
     uint8_t name_string[BUF_SIZE];
 } server_init_t;
 
+// client to server messages
+
+typedef struct set_pixel_format {
+    uint8_t message_type;
+    uint8_t padding[3];
+    pixel_format_t pixel_format;
+} set_pixel_format_t;
+
 typedef struct frame_buffer_update_request {
     uint8_t message_type;
     uint8_t incremental;
@@ -55,6 +64,8 @@ typedef struct frame_buffer_update_request {
     uint16_t width;
     uint16_t height;
 } frame_buffer_update_request_t;
+
+// server to client messages
 
 typedef struct frame_buffer_update {
     uint8_t message_type;
