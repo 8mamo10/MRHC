@@ -308,8 +308,8 @@ bool vnc_client::frame_buffer_update()
     while ((len = recv(this->sockfd, buf, sizeof(buf), 0)) > 0) {
         log_debug("recv:" + std::to_string(len));
         total_recv += len;
-        for (int i = 0; i < len; i+=2) {
-            uint16_t pixel = 0;
+        for (int i = 0; i < len; i+=4) {
+            uint32_t pixel = 0;
             memmove(&pixel, &buf[i], sizeof(pixel));
             pixel = ntohs(pixel);
             this->image_buf.push_back(pixel);
@@ -370,8 +370,9 @@ bool vnc_client::drawImage()
     // cv::imencode(".jpeg", image, this->image_buf);
 
     cv::Mat image = cv::Mat(height, width, CV_8UC3, cv::Scalar(0, 0, 0));
-    for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
+    log_debug(std::to_string(width) + "x" + std::to_string(height));
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
             uint16_t pixel = this->image_buf[width * y + x];
             uint8_t red = ((pixel >> red_shift) & red_max);
             uint8_t green = ((pixel >> green_shift) & green_max);
@@ -379,6 +380,7 @@ bool vnc_client::drawImage()
             // log_debug("(R,G,B)=(" + std::to_string(red) +
             //           "," + std::to_string(green) +
             //           "," + std::to_string(blue) + ")");
+
             rectangle(image, cv::Point(x, y), cv::Point(x+1, y+1), cv::Scalar(blue, green, red), -1, cv::LINE_AA);
         }
     }
