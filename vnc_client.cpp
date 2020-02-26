@@ -41,39 +41,46 @@ bool vnc_client::connect_to_server()
     return true;
 }
 
-bool vnc_client::exchange_protocol_version()
+bool vnc_client::recv_protocol_version()
 {
     char buf[BUF_SIZE] = {};
-    int len = 0;
-
-    len = recv(this->sockfd, buf, sizeof(buf), 0);
-    if (len < 0) {
+    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(len));
-    log_ldebug(buf, len);
+    log_debug("recv:" + std::to_string(length));
+    log_ldebug(buf, length);
 
-    if (memcmp(buf, RFB_PROTOCOL_VERSION_3_3, sizeof(RFB_PROTOCOL_VERSION_3_3)) == 0) {
+    protocol_version_t protocol_version = {};
+    memmove(&protocol_version, buf, length);
+
+    if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_3, sizeof(RFB_PROTOCOL_VERSION_3_3)) == 0) {
         this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_3);
         log_debug("RFB Version 3.3");
-    } else if (memcmp(buf, RFB_PROTOCOL_VERSION_3_7, sizeof(RFB_PROTOCOL_VERSION_3_7)) == 0) {
+    } else if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_7, sizeof(RFB_PROTOCOL_VERSION_3_7)) == 0) {
         this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_7);
         log_debug("RFB Version 3.7");
-    } else if (memcmp(buf, RFB_PROTOCOL_VERSION_3_8, sizeof(RFB_PROTOCOL_VERSION_3_8)) == 0) {
+    } else if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_8, sizeof(RFB_PROTOCOL_VERSION_3_8)) == 0) {
         this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_8);
         log_debug("RFB Version 3.8");
     } else {
         log_debug("Invalid RFB Version");
         return false;
     }
+    return true;
+}
+
+bool vnc_client::send_protocol_version()
+{
+    protocol_version_t protocol_version = {};
+    memmove(protocol_version.values, this->version.c_str(), this->version.length());
     // send back the same version string
-    len = send(this->sockfd, buf, len, 0);
-    if (len < 0) {
+    int length = send(this->sockfd, &protocol_version, sizeof(protocol_version), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(len));
-    log_ldebug(buf, len);
-
+    log_debug("send:" + std::to_string(length));
+    log_ldebug(((char*)&protocol_version), length);
     return true;
 }
 

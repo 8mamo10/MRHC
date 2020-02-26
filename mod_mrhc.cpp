@@ -87,8 +87,12 @@ static int mrhc_handler(request_rec *r)
         }
         log_debug("Connected");
 
-        if (!client->exchange_protocol_version()) {
-            ap_rputs("Failed to exchange_protocol_version.", r);
+        if (!client->recv_protocol_version()) {
+            ap_rputs("Failed to recv_protocol_version.", r);
+            return OK;
+        }
+        if (!client->send_protocol_version()) {
+            ap_rputs("Failed to send_protocol_version.", r);
             return OK;
         }
         log_debug("Exchanged protocol version");

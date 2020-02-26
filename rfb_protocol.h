@@ -49,6 +49,11 @@ typedef struct server_init {
     uint8_t name_string[BUF_SIZE];
 } server_init_t;
 
+// handshaking messages
+typedef struct protocol_version {
+    uint8_t values[12];
+} protocol_version_t;
+
 // client to server messages
 typedef struct set_pixel_format {
     uint8_t message_type = RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT;

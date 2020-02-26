@@ -24,7 +24,8 @@ class vnc_client
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();
     bool connect_to_server();
-    bool exchange_protocol_version();
+    bool recv_protocol_version();
+    bool send_protocol_version();
     bool exchange_security_type();
     bool vnc_authentication();
     bool exchange_init();
