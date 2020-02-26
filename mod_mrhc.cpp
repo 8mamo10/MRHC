@@ -106,9 +106,17 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
         log_debug("Exchanged security type");
-
-        if (!client->vnc_authentication()) {
-            ap_rputs("Failed to vnc_authentication.", r);
+        // vnc auth
+        if (!client->recv_vnc_auth_challenge()) {
+            ap_rputs("Failed to recv_vnc_auth_challenge.", r);
+            return OK;
+        }
+        if (!client->send_vnc_auth_response()) {
+            ap_rputs("Failed to send_vnc_auth_response.", r);
+            return OK;
+        }
+        if (!client->recv_security_result()) {
+            ap_rputs("Failed to recv_security_result.", r);
             return OK;
         }
         log_debug("VNC authenticated");

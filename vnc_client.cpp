@@ -14,6 +14,7 @@ std::string mrhc_log = "";
 vnc_client::vnc_client(std::string host, int port, std::string password)
     : host(host), port(port), password(password), sockfd(0), version(""), server_init({})
 {
+    memset(this->challenge, 0, sizeof(this->challenge));
 }
 
 vnc_client::~vnc_client()
@@ -115,47 +116,51 @@ bool vnc_client::send_security_type()
     return true;
 }
 
-bool vnc_client::vnc_authentication()
+bool vnc_client::recv_vnc_auth_challenge()
 {
     char buf[BUF_SIZE] = {};
-    int len = 0;
-
-    len = recv(this->sockfd, buf, sizeof(buf), 0);
-    if (len < 0) {
+    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(len));
-    log_xdebug(buf, len);
+    log_debug("recv:" + std::to_string(length));
+    log_xdebug(buf, length);
 
+    memmove(this->challenge, buf, length);
+    return true;
+}
+
+bool vnc_client::send_vnc_auth_response()
+{
     // DES
-    unsigned char challenge[RFB_VNC_AUTH_CHALLENGE_LENGTH];
-    memmove(challenge, buf, RFB_VNC_AUTH_CHALLENGE_LENGTH);
     deskey((unsigned char*)this->password.c_str(), EN0);
     for (int j = 0; j < RFB_VNC_AUTH_CHALLENGE_LENGTH; j += 8) {
-        des(challenge+j, challenge+j);
+        des(this->challenge+j, this->challenge+j);
     }
-    len = send(this->sockfd, challenge, RFB_VNC_AUTH_CHALLENGE_LENGTH, 0);
-    if (len < 0) {
+    int length = send(this->sockfd, this->challenge, RFB_VNC_AUTH_CHALLENGE_LENGTH, 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(len));
-    log_xdebug(challenge, len);
+    log_debug("send:" + std::to_string(length));
+    log_xdebug(this->challenge, length);
+    return true;
+}
 
-    // Security result
-    memset(buf, 0, BUF_SIZE);
-    len = 0;
-    len = recv(this->sockfd, buf, sizeof(buf), 0);
-    if (len < 0) {
+bool vnc_client::recv_security_result()
+{
+    char buf[BUF_SIZE] = {};
+    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(len));
-    log_xdebug(buf, len);
+    log_debug("recv:" + std::to_string(length));
+    log_xdebug(buf, length);
 
-    int security_result = 0;
-    memmove(&security_result, buf, len);
-    security_result = ntohl(security_result);
-    log_debug("securityResult:" + std::to_string(security_result));
-    if (security_result != RFB_AUTH_RESULT_OK) {
+    security_result_t security_result = {};
+    memmove(&security_result, buf, length);
+    uint32_t status = ntohl(security_result.status);
+    log_debug("status:" + std::to_string(status));
+    if (status != RFB_SECURITY_RESULT_OK) {
         log_debug("VNC Authentication failed");
         return false;
     }

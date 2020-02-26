@@ -4,14 +4,14 @@
 const uint8_t RFB_PROTOCOL_VERSION_3_3[] = "RFB 003.003\n";
 const uint8_t RFB_PROTOCOL_VERSION_3_7[] = "RFB 003.007\n";
 const uint8_t RFB_PROTOCOL_VERSION_3_8[] = "RFB 003.008\n";
-const uint8_t RFB_SECURITY_TYPE_VNC_AUTH     = 0x02;
-const uint16_t RFB_VNC_AUTH_CHALLENGE_LENGTH = 16;
-const uint8_t RFB_AUTH_RESULT_OK             = 0x00;
-const uint8_t RFB_AUTH_RESULT_FAILED         = 0x01;
-const uint8_t RFB_SHARED_FLAG_ON             = 0x01;
-const uint8_t RFB_SHARED_FLAG_OFF            = 0x00;
-const uint8_t RFB_INCREMENTAL_OFF            = 0x00;
-const uint8_t RFB_INCREMENTAL_ON             = 0x01;
+const uint8_t RFB_SECURITY_TYPE_VNC_AUTH    = 0x02;
+const uint8_t RFB_VNC_AUTH_CHALLENGE_LENGTH = 16;
+const uint8_t RFB_SECURITY_RESULT_OK        = 0x00;
+const uint8_t RFB_SECURITY_RESULT_FAILED    = 0x01;
+const uint8_t RFB_SHARED_FLAG_ON            = 0x01;
+const uint8_t RFB_SHARED_FLAG_OFF           = 0x00;
+const uint8_t RFB_INCREMENTAL_OFF           = 0x00;
+const uint8_t RFB_INCREMENTAL_ON            = 0x01;
 const uint8_t RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT            = 0x00;
 const uint8_t RFB_MESSAGE_TYPE_SET_ENCODINGS               = 0x02;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
@@ -62,6 +62,18 @@ typedef struct supported_security_types {
 typedef struct security_type {
     uint8_t value;
 } security_type_t;
+
+typedef struct vnc_auth_challenge {
+    uint8_t values[RFB_VNC_AUTH_CHALLENGE_LENGTH];
+} vnc_auth_challenge_t;
+
+typedef struct vnc_auth_response {
+    uint8_t values[RFB_VNC_AUTH_CHALLENGE_LENGTH];
+} vnc_auth_response_t;
+
+typedef struct security_result {
+    uint32_t status;
+} security_result_t;
 
 // client to server messages
 typedef struct set_pixel_format {
