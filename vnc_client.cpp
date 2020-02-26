@@ -12,11 +12,8 @@
 std::string mrhc_log = "";
 
 vnc_client::vnc_client(std::string host, int port, std::string password)
-    : host(host), port(port), password(password)
+    : host(host), port(port), password(password), sockfd(0), version(""), server_init({})
 {
-    this->sockfd = 0;
-    this->version = "";
-    this->server_init = {};
 }
 
 vnc_client::~vnc_client()
