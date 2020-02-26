@@ -14,6 +14,7 @@ class vnc_client
     int sockfd;
 
     std::string version;
+    std::vector<uint8_t> security_types;
     server_init_t server_init;
 
     std::vector<uint16_t> image_buf;
@@ -26,7 +27,8 @@ class vnc_client
     bool connect_to_server();
     bool recv_protocol_version();
     bool send_protocol_version();
-    bool exchange_security_type();
+    bool recv_supported_security_types();
+    bool send_security_type();
     bool vnc_authentication();
     bool exchange_init();
     bool frame_buffer_update();

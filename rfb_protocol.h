@@ -54,6 +54,15 @@ typedef struct protocol_version {
     uint8_t values[12];
 } protocol_version_t;
 
+typedef struct supported_security_types {
+    uint8_t number_of_security_types;
+    uint8_t security_types[BUF_SIZE];
+} supported_security_types_t;
+
+typedef struct security_type {
+    uint8_t value;
+} security_type_t;
+
 // client to server messages
 typedef struct set_pixel_format {
     uint8_t message_type = RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT;

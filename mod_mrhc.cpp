@@ -86,7 +86,7 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
         log_debug("Connected");
-
+        // protocol version
         if (!client->recv_protocol_version()) {
             ap_rputs("Failed to recv_protocol_version.", r);
             return OK;
@@ -96,9 +96,13 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
         log_debug("Exchanged protocol version");
-
-        if (!client->exchange_security_type()) {
-            ap_rputs("Failed to exchange_security_type.", r);
+        // security type
+        if (!client->recv_supported_security_types()) {
+            ap_rputs("Failed to recv_supported_security_types.", r);
+            return OK;
+        }
+        if (!client->send_security_type()) {
+            ap_rputs("Failed to send_security_type.", r);
             return OK;
         }
         log_debug("Exchanged security type");

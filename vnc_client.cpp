@@ -84,26 +84,37 @@ bool vnc_client::send_protocol_version()
     return true;
 }
 
-bool vnc_client::exchange_security_type()
+bool vnc_client::recv_supported_security_types()
 {
     char buf[BUF_SIZE] = {};
-    int len = 0;
-
-    len = recv(this->sockfd, buf, sizeof(buf), 0);
-    if (len < 0) {
+    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(len));
-    log_xdebug(buf, len);
+    log_debug("recv:" + std::to_string(length));
+    log_xdebug(buf, length);
 
+    supported_security_types_t supported_security_types = {};
+    memmove(&supported_security_types, buf, length);
+
+    uint8_t num = supported_security_types.number_of_security_types;
+    for (int i = 0; i < num; i++) {
+        this->security_types.push_back(supported_security_types.security_types[i]);
+    }
+    return true;
+}
+
+bool vnc_client::send_security_type()
+{
+    security_type_t security_type = {};
     // specify VNC Authentication
-    char security_type = RFB_SECURITY_TYPE_VNC_AUTH;
-    len = send(this->sockfd, &security_type, sizeof(security_type), 0);
-    if (len < 0) {
+    security_type.value = RFB_SECURITY_TYPE_VNC_AUTH;
+    int length = send(this->sockfd, &security_type, sizeof(security_type), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(len));
-    log_ldebug(std::to_string(security_type), len);
+    log_debug("send:" + std::to_string(length));
+    log_xdebug(((char*)&security_type), length);
     return true;
 }
 
