@@ -120,13 +120,17 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
         log_debug("VNC authenticated");
-
-        if (!client->exchange_init()) {
-            ap_rputs("Failed to exchange_init.", r);
+        // client/server init
+        if (!client->send_client_init()) {
+            ap_rputs("Failed to send_client_init.", r);
+            return OK;
+        }
+        if (!client->recv_server_init()) {
+            ap_rputs("Failed to recv_server_init.", r);
             return OK;
         }
         log_debug("Exchanged Client/Server Init");
-
+        // frame buffer update
         if (!client->frame_buffer_update()) {
             ap_rputs("Failed to frame_buffer_update.", r);
             return OK;

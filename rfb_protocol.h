@@ -41,14 +41,6 @@ typedef struct pixel_data {
     //uint8_t pixels[]; // currently only support raw encoding
 } pixel_data_t;
 
-typedef struct server_init {
-    uint16_t frame_buffer_width;
-    uint16_t frame_buffer_height;
-    pixel_format_t pixel_format;
-    uint32_t name_length;
-    uint8_t name_string[BUF_SIZE];
-} server_init_t;
-
 // handshaking messages
 typedef struct protocol_version {
     uint8_t values[12];
@@ -74,6 +66,19 @@ typedef struct vnc_auth_response {
 typedef struct security_result {
     uint32_t status;
 } security_result_t;
+
+// initialisation Messages
+typedef struct client_init {
+    uint8_t shared_flag;
+} client_init_t;
+
+typedef struct server_init {
+    uint16_t frame_buffer_width;
+    uint16_t frame_buffer_height;
+    pixel_format_t pixel_format;
+    uint32_t name_length;
+    uint8_t name_string[BUF_SIZE];
+} server_init_t;
 
 // client to server messages
 typedef struct set_pixel_format {

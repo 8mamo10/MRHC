@@ -16,7 +16,11 @@ class vnc_client
     std::string version;
     std::vector<uint8_t> security_types;
     uint8_t challenge[RFB_VNC_AUTH_CHALLENGE_LENGTH];
-    server_init_t server_init;
+
+    uint16_t width = 0;
+    uint16_t height = 0;
+    pixel_format_t pixel_format;
+    std::string name;
 
     std::vector<uint16_t> image_buf;
     std::vector<uint8_t> jpeg_buf;
@@ -33,7 +37,8 @@ class vnc_client
     bool recv_vnc_auth_challenge();
     bool send_vnc_auth_response();
     bool recv_security_result();
-    bool exchange_init();
+    bool send_client_init();
+    bool recv_server_init();
     bool frame_buffer_update();
 
     std::vector<uint8_t> get_jpeg_buf();
