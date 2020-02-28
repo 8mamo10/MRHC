@@ -12,11 +12,11 @@ const uint8_t RFB_SHARED_FLAG_ON            = 0x01;
 const uint8_t RFB_SHARED_FLAG_OFF           = 0x00;
 const uint8_t RFB_INCREMENTAL_OFF           = 0x00;
 const uint8_t RFB_INCREMENTAL_ON            = 0x01;
+const uint8_t RFB_ENCODING_RAW              = 0x00;
 const uint8_t RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT            = 0x00;
 const uint8_t RFB_MESSAGE_TYPE_SET_ENCODINGS               = 0x02;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
-const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE = 0x00;
-const uint8_t RFB_ENCODING_RAW = 0x00;
+const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE         = 0x00;
 
 typedef struct pixel_format {
     uint8_t bits_per_pixel;

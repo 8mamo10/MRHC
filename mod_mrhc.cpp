@@ -131,11 +131,27 @@ static int mrhc_handler(request_rec *r)
         }
         log_debug("Exchanged Client/Server Init");
         // frame buffer update
-        if (!client->frame_buffer_update()) {
-            ap_rputs("Failed to frame_buffer_update.", r);
+        if (!client->send_set_pixel_format()) {
+            ap_rputs("Failed to send_set_pixel_format.", r);
             return OK;
         }
-
+        if (!client->send_set_encodings()) {
+            ap_rputs("Failed to send_set_encodings.", r);
+            return OK;
+        }
+        if (!client->send_frame_buffer_update_request()) {
+            ap_rputs("Failed to send_frame_buffer_update_request.", r);
+            return OK;
+        }
+        if (!client->recv_frame_buffer_update()) {
+            ap_rputs("Failed to recv_frame_buffer_update.", r);
+            return OK;
+        }
+        // output image
+        if (!client->draw_image()) {
+            ap_rputs("Failed to draw_image.", r);
+            return OK;
+        }
         std::vector<uint8_t> jpeg_buf = client->get_jpeg_buf();
         log_debug("jpeg size:" + std::to_string(jpeg_buf.size()));
         char jpeg[jpeg_buf.size()] = {};

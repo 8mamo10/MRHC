@@ -208,47 +208,49 @@ bool vnc_client::recv_server_init()
     return true;
 }
 
-bool vnc_client::frame_buffer_update()
+bool vnc_client::send_set_pixel_format()
 {
-    char buf[BUF_SIZE*BUF_SIZE] = {};
-    int len = 0;
-
-    // set_pixel_format
     set_pixel_format_t set_pixel_format = {};
     pixel_format_t pixel_format = {};
     pixel_format.bits_per_pixel = 0x20;
     pixel_format.depth = 0x20;
     pixel_format.big_endian_flag = 0x00;
     pixel_format.true_colour_flag = 0x01;
-    pixel_format.red_max = htons(0x00ff);
-    pixel_format.green_max = htons(0x00ff);
-    pixel_format.blue_max = htons(0x00ff);
+    pixel_format.red_max = htons(0xff);
+    pixel_format.green_max = htons(0xff);
+    pixel_format.blue_max = htons(0xff);
     pixel_format.red_shift = 0x10;
     pixel_format.green_shift = 0x08;
     pixel_format.blue_shift = 0x00;
     set_pixel_format.pixel_format = pixel_format;
     this->pixel_format = pixel_format;
 
-    len = send(this->sockfd, &set_pixel_format, sizeof(set_pixel_format), 0);
-    if (len < 0) {
+    int length = send(this->sockfd, &set_pixel_format, sizeof(set_pixel_format), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(len));
-    log_xdebug(((char*)&set_pixel_format), len);
+    log_debug("send:" + std::to_string(length));
+    log_xdebug(((char*)&set_pixel_format), length);
+    return true;
+}
 
-    // set_encodings
+bool vnc_client::send_set_encodings()
+{
     set_encodings_t set_encodings = {};
     set_encodings.number_of_encodings = htons(1);
     set_encodings.encoding_type = htonl(RFB_ENCODING_RAW);
 
-    len = send(this->sockfd, &set_encodings, sizeof(set_encodings), 0);
-    if (len < 0) {
+    int length = send(this->sockfd, &set_encodings, sizeof(set_encodings), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(len));
-    log_xdebug(((char*)&set_encodings), len);
+    log_debug("send:" + std::to_string(length));
+    log_xdebug(((char*)&set_encodings), length);
+    return true;
+}
 
-    // frame_buffer_update_request
+bool vnc_client::send_frame_buffer_update_request()
+{
     frame_buffer_update_request_t frame_buffer_update_request = {};
     frame_buffer_update_request.incremental = RFB_INCREMENTAL_OFF;
     frame_buffer_update_request.x_position = htons(0);
@@ -256,23 +258,28 @@ bool vnc_client::frame_buffer_update()
     frame_buffer_update_request.width = htons(this->width);
     frame_buffer_update_request.height = htons(this->height);
 
-    len = send(this->sockfd, &frame_buffer_update_request, sizeof(frame_buffer_update_request), 0);
-    if (len < 0) {
+    int length = send(this->sockfd, &frame_buffer_update_request, sizeof(frame_buffer_update_request), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(len));
-    log_xdebug(((char*)&frame_buffer_update_request), len);
+    log_debug("send:" + std::to_string(length));
+    log_xdebug(((char*)&frame_buffer_update_request), length);
+    return true;
+}
 
-    // frame_buffer_update
+bool vnc_client::recv_frame_buffer_update()
+{
+    char buf[BUF_SIZE] = {};
+
     frame_buffer_update_t frame_buffer_update = {};
-    len = recv(this->sockfd, buf, sizeof(frame_buffer_update), 0);
-    if (len < 0) {
+    int length = recv(this->sockfd, buf, sizeof(frame_buffer_update), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(len));
-    log_xdebug(buf, len);
+    log_debug("recv:" + std::to_string(length));
+    log_xdebug(buf, length);
 
-    memmove(&frame_buffer_update, buf, sizeof(frame_buffer_update));
+    memmove(&frame_buffer_update, buf, length);
     uint8_t message_type = frame_buffer_update.message_type;
     if (message_type != RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE) {
         log_debug("unexpected message_type:" + std::to_string(message_type));
@@ -281,82 +288,84 @@ bool vnc_client::frame_buffer_update()
     uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
     log_debug("number_of_rectangles:" + std::to_string(number_of_rectangles));
 
-    // pixel_data
-    pixel_data_t data = {};
-    memset(buf, 0, sizeof(buf));
-    len = recv(this->sockfd, buf, sizeof(data), 0);
-    if (len < 0) {
+    this->recv_rectangles(number_of_rectangles);
+    return true;
+}
+
+bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
+{
+    for (int i = 0; i < number_of_rectangles; i++) {
+        log_debug("--start recv_rectangle:" + std::to_string(i + 1));
+        if (!this->recv_rectangle()) {
+            log_debug("failed to recv_rectangle");
+            return false;
+        }
+        log_debug("--finish recv_rectangle:" + std::to_string(i + 1));
+    }
+    return true;
+}
+
+bool vnc_client::recv_rectangle()
+{
+    char buf[BUF_SIZE] = {};
+
+    pixel_data_t pixel_data = {};
+    int length = recv(this->sockfd, buf, sizeof(pixel_data), 0);
+    if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(len));
-    log_xdebug(buf, len);
+    log_debug("recv:" + std::to_string(length));
+    log_xdebug(buf, length);
 
-    memmove(&data, buf, sizeof(data));
-    uint16_t x_position = ntohs(data.x_position);
-    uint16_t y_position = ntohs(data.y_position);
-    uint16_t width = ntohs(data.width);
-    uint16_t height = ntohs(data.height);
+    memmove(&pixel_data, buf, length);
+    uint16_t x_position = ntohs(pixel_data.x_position);
+    uint16_t y_position = ntohs(pixel_data.y_position);
+    uint16_t width = ntohs(pixel_data.width);
+    uint16_t height = ntohs(pixel_data.height);
     log_debug("(x_position,y_position,width,height)=(" + std::to_string(x_position) +
               "," + std::to_string(y_position) +
               "," + std::to_string(width) +
               "," + std::to_string(height) + ")");
-    int32_t encoding_type = data.encoding_type;
+    int32_t encoding_type = pixel_data.encoding_type;
     if (encoding_type != RFB_ENCODING_RAW) {
         log_debug("unexpected encoding_type:" + std::to_string(encoding_type));
         return false;
     }
-    // pixels
-    uint8_t bits_per_pixel   = this->pixel_format.bits_per_pixel;
-    // uint8_t depth            = this->server_init.pixel_format.depth;
-    // uint8_t big_endian_flag  = this->server_init.pixel_format.big_endian_flag;
-    // uint8_t true_colour_flag = this->server_init.pixel_format.true_colour_flag;
-    // uint16_t red_max         = ntohs(this->server_init.pixel_format.red_max);
-    // uint16_t green_max       = ntohs(this->server_init.pixel_format.green_max);
-    // uint16_t blue_max        = ntohs(this->server_init.pixel_format.blue_max);
-    // uint8_t red_shift        = this->server_init.pixel_format.red_shift;
-    // uint8_t green_shift      = this->server_init.pixel_format.green_shift;
-    // uint8_t blue_shift       = this->server_init.pixel_format.blue_shift;
-
+    uint8_t bits_per_pixel = this->pixel_format.bits_per_pixel;
+    uint8_t bytes_per_pixel = bits_per_pixel / 8;
     log_debug("---pixel_format---");
     log_debug("bits_per_pixel:"   + std::to_string(bits_per_pixel));
-    // log_debug("depth:"            + std::to_string(depth));
-    // log_debug("big_endian_flag:"  + std::to_string(big_endian_flag));
-    // log_debug("true_colour_flag:" + std::to_string(true_colour_flag));
-    // log_debug("red_max:"          + std::to_string(red_max));
-    // log_debug("green_max:"        + std::to_string(green_max));
-    // log_debug("blue_max:"         + std::to_string(blue_max));
-    // log_debug("red_shift:"        + std::to_string(red_shift));
-    // log_debug("green_shift:"      + std::to_string(green_shift));
-    // log_debug("blue_shift:"       + std::to_string(blue_shift));
+    log_debug("bytes_per_pixel:"   + std::to_string(bytes_per_pixel));
     log_debug("------------------");
 
-    int total_pixel_count = width * height;
-    int total_pixel_bytes = total_pixel_count * bits_per_pixel / 8;
+    uint32_t total_pixel_count = width * height;
+    uint32_t total_pixel_bytes = total_pixel_count * bits_per_pixel / 8;
     log_debug("total_pixel_count:" + std::to_string(total_pixel_count));
     log_debug("expected total_pixel_bytes:" + std::to_string(total_pixel_bytes));
 
-    int total_recv = 0;
-    memset(buf, 0, sizeof(buf));
-    while ((len = recv(this->sockfd, buf, sizeof(buf), 0)) > 0) {
-        log_debug("recv:" + std::to_string(len));
-        total_recv += len;
-        for (int i = 0; i < len; i+=4) {
+    uint32_t total_recv = 0;
+    while (total_recv < total_pixel_bytes) {
+        memset(buf, 0, sizeof(buf));
+        if (total_pixel_bytes - total_recv < sizeof(buf)) {
+            length = recv(this->sockfd, buf, total_pixel_bytes - total_recv, 0);
+        } else {
+            length = recv(this->sockfd, buf, sizeof(buf), 0);
+        }
+        if (length < 0) {
+            return false;
+        }
+        //log_debug("recv:" + std::to_string(length));
+        total_recv += length;
+        for (int i = 0; i < length; i+=bytes_per_pixel) {
             uint32_t pixel = 0;
             memmove(&pixel, &buf[i], sizeof(pixel));
-            pixel = ntohs(pixel);
+            //pixel = ntohl(pixel);
             this->image_buf.push_back(pixel);
         }
-        memset(buf, 0, sizeof(buf));
-        if (total_recv >= total_pixel_bytes) {
-            log_debug("total_recv exceeds total_bytes:" + std::to_string(total_recv));
-            break;
-        }
     }
+    log_debug("total_recv reached total_pixel_bytes:" + std::to_string(total_recv));
     log_debug("image_buf size:" + std::to_string(this->image_buf.size()));
 
-    if (!this->drawImage()) {
-        return false;
-    }
     return true;
 }
 
@@ -365,7 +374,7 @@ std::vector<uint8_t> vnc_client::get_jpeg_buf()
     return this->jpeg_buf;
 }
 
-bool vnc_client::drawImage()
+bool vnc_client::draw_image()
 {
     uint8_t bits_per_pixel   = this->pixel_format.bits_per_pixel;
     uint8_t depth            = this->pixel_format.depth;

@@ -25,7 +25,8 @@ class vnc_client
     std::vector<uint16_t> image_buf;
     std::vector<uint8_t> jpeg_buf;
 
-    bool drawImage();
+    bool recv_rectangles(uint16_t number_of_rectangles);
+    bool recv_rectangle();
  public:
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();
@@ -39,7 +40,12 @@ class vnc_client
     bool recv_security_result();
     bool send_client_init();
     bool recv_server_init();
-    bool frame_buffer_update();
+    bool send_set_pixel_format();
+    bool send_set_encodings();
+    bool send_frame_buffer_update_request();
+    bool recv_frame_buffer_update();
+
+    bool draw_image();
 
     std::vector<uint8_t> get_jpeg_buf();
 };
