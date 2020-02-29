@@ -6,22 +6,23 @@
 class vnc_client
 {
  private:
+    int sockfd;
 
+    // for connection
     std::string host;
     int port;
     std::string password;
 
-    int sockfd;
-
+    // handshaking
     std::string version;
     std::vector<uint8_t> security_types;
     uint8_t challenge[RFB_VNC_AUTH_CHALLENGE_LENGTH];
-
+    // initialisation
     uint16_t width = 0;
     uint16_t height = 0;
     pixel_format_t pixel_format;
     std::string name;
-
+    // for output
     std::vector<uint16_t> image_buf;
     std::vector<uint8_t> jpeg_buf;
 
@@ -31,6 +32,7 @@ class vnc_client
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();
     bool connect_to_server();
+
     bool recv_protocol_version();
     bool send_protocol_version();
     bool recv_supported_security_types();
@@ -44,7 +46,6 @@ class vnc_client
     bool send_set_encodings();
     bool send_frame_buffer_update_request();
     bool recv_frame_buffer_update();
-
     bool draw_image();
 
     std::vector<uint8_t> get_jpeg_buf();

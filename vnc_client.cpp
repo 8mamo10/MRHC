@@ -12,7 +12,7 @@
 std::string mrhc_log = "";
 
 vnc_client::vnc_client(std::string host, int port, std::string password)
-    : host(host), port(port), password(password), sockfd(0), version(""), width(0), height(0), pixel_format({}), name("")
+    : host(host), port(port), password(password), sockfd(0), version(""), security_type(0), width(0), height(0), pixel_format({}), name("")
 {
     memset(this->challenge, 0, sizeof(this->challenge));
 }
