@@ -12,7 +12,7 @@
 std::string mrhc_log = "";
 
 vnc_client::vnc_client(std::string host, int port, std::string password)
-    : host(host), port(port), password(password), sockfd(0), version(""), security_type(0), width(0), height(0), pixel_format({}), name("")
+    : sockfd(0), host(host), port(port), password(password), version(""),  width(0), height(0), pixel_format({}), name("")
 {
     memset(this->challenge, 0, sizeof(this->challenge));
 }
@@ -357,9 +357,9 @@ bool vnc_client::recv_rectangle()
         //log_debug("recv:" + std::to_string(length));
         total_recv += length;
         for (int i = 0; i < length; i+=bytes_per_pixel) {
+            // uint32_t here is just for container of 4bytes, no need to ntohl()
             uint32_t pixel = 0;
             memmove(&pixel, &buf[i], sizeof(pixel));
-            //pixel = ntohl(pixel);
             this->image_buf.push_back(pixel);
         }
     }
@@ -411,7 +411,7 @@ bool vnc_client::draw_image()
     log_debug(std::to_string(this->width) + "x" + std::to_string(this->height));
     for (int y = 0; y < this->height; y++) {
         for (int x = 0; x < this->width; x++) {
-            uint16_t pixel = this->image_buf[this->width * y + x];
+            uint32_t pixel = this->image_buf[this->width * y + x];
             uint8_t red = ((pixel >> red_shift) & red_max);
             uint8_t green = ((pixel >> green_shift) & green_max);
             uint8_t blue = ((pixel >> blue_shift) & blue_max);

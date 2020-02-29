@@ -75,11 +75,11 @@ static int mrhc_handler(request_rec *r)
         return HTTP_UNAUTHORIZED;
     }
     if (ret == APR_SUCCESS) {
-        log_debug("Start VNC Client");
         log_debug("host: " + std::string(host));
         log_debug("port: " + std::to_string(port));
         log_debug("password: " + std::string(password));
 
+        log_debug("Start VNC Client");
         vnc_client *client = new vnc_client(host, port, password);
         if (!client->connect_to_server()) {
             ap_rputs("Failed to connect_to_server.", r);

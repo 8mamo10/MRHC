@@ -23,7 +23,7 @@ class vnc_client
     pixel_format_t pixel_format;
     std::string name;
     // for output
-    std::vector<uint16_t> image_buf;
+    std::vector<uint32_t> image_buf;
     std::vector<uint8_t> jpeg_buf;
 
     bool recv_rectangles(uint16_t number_of_rectangles);
