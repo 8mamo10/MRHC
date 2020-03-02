@@ -400,13 +400,6 @@ bool vnc_client::draw_image()
     log_debug("blue_shift:"       + std::to_string(blue_shift));
     log_debug("------------------");
 
-    // sample drawing
-    // cv::Mat image = cv::Mat(height, width, CV_8UC3, cv::Scalar(0, 0, 0));
-    // rectangle(image, cv::Point(10, 10), cv::Point(100, 100), cv::Scalar(128, 0, 0), -1, cv::LINE_AA);
-    // rectangle(image, cv::Point(200, 200), cv::Point(300, 300), cv::Scalar(0, 128, 0), -1, cv::LINE_AA);
-    // rectangle(image, cv::Point(500, 500), cv::Point(700, 700), cv::Scalar(0, 0, 128), -1, cv::LINE_AA);
-    // cv::imencode(".jpeg", image, this->image_buf);
-
     cv::Mat image = cv::Mat(this->height, this->width, CV_8UC3, cv::Scalar(0, 0, 0));
     log_debug(std::to_string(this->width) + "x" + std::to_string(this->height));
     for (int y = 0; y < this->height; y++) {
