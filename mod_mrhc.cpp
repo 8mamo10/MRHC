@@ -49,6 +49,9 @@ extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
 
+// TODO: Need to support multi process but only support single process for now
+vnc_client *client_cache = NULL;
+
 /* The sample content handler */
 static int mrhc_handler(request_rec *r)
 {
@@ -59,10 +62,36 @@ static int mrhc_handler(request_rec *r)
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;
     }
-    r->content_type = "text/html";
-
     if (r->header_only) {
         return DECLINED;
+    }
+
+    if (client_cache != NULL) {
+        log_debug("VNC Client is already running.");
+
+        if (!client_cache->send_frame_buffer_update_request()) {
+            ap_rputs("Failed to send_frame_buffer_update_request.", r);
+            return OK;
+        }
+        if (!client_cache->recv_frame_buffer_update()) {
+            ap_rputs("Failed to recv_frame_buffer_update.", r);
+            return OK;
+        }
+
+        // output image
+        if (!client_cache->draw_image()) {
+            ap_rputs("Failed to draw_image.", r);
+            return OK;
+        }
+        std::vector<uint8_t> jpeg_buf = client_cache->get_jpeg_buf();
+        log_debug("jpeg size:" + std::to_string(jpeg_buf.size()));
+        char jpeg[jpeg_buf.size()] = {};
+        for (unsigned int i = 0; i < jpeg_buf.size(); i++) {
+            jpeg[i] = jpeg_buf[i];
+        }
+        r->content_type = "image/jpeg";
+        ap_rwrite(jpeg, jpeg_buf.size(), r);
+        return OK;
     }
 
     const char *host;
@@ -139,27 +168,16 @@ static int mrhc_handler(request_rec *r)
             ap_rputs("Failed to send_set_encodings.", r);
             return OK;
         }
-        if (!client->send_frame_buffer_update_request()) {
-            ap_rputs("Failed to send_frame_buffer_update_request.", r);
-            return OK;
-        }
-        if (!client->recv_frame_buffer_update()) {
-            ap_rputs("Failed to recv_frame_buffer_update.", r);
-            return OK;
-        }
-        // output image
-        if (!client->draw_image()) {
-            ap_rputs("Failed to draw_image.", r);
-            return OK;
-        }
-        std::vector<uint8_t> jpeg_buf = client->get_jpeg_buf();
-        log_debug("jpeg size:" + std::to_string(jpeg_buf.size()));
-        char jpeg[jpeg_buf.size()] = {};
-        for (unsigned int i = 0; i < jpeg_buf.size(); i++) {
-            jpeg[i] = jpeg_buf[i];
-        }
-        r->content_type = "image/jpeg";
-        ap_rwrite(jpeg, jpeg_buf.size(), r);
+        // return initial html page with url and image size
+        r->content_type = "text/html";
+        std::string hostname = r->hostname;
+        std::string path = r->unparsed_uri;
+        std::string width = std::to_string(client->get_width());
+        std::string height = std::to_string(client->get_height());
+        std::string html = "<html><body><image src=\"http://" + hostname + path + "\" width=\"" + width + "\" height=\"" + height+ "\"></body></html>";
+        log_debug(html.c_str());
+        ap_rputs(html.c_str(), r);
+        client_cache = client;
         return OK;
     }
     ap_rputs("not reach here", r);
