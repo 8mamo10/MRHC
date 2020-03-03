@@ -49,6 +49,8 @@ class vnc_client
     bool draw_image();
 
     std::vector<uint8_t> get_jpeg_buf();
+    uint16_t get_width();
+    uint16_t get_height();
 };
 
 #endif
