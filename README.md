@@ -161,7 +161,7 @@ $ echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig" >> ~/.zshrc
 $ cd mrhc
 $ make
 $ sudo make install
-$ sudo /usr/local/apache2/bin/httpd -k graceful
+$ sudo /usr/local/apache2/bin/httpd -k start -X # only support single process for now
 ```
 
 or
