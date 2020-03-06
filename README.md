@@ -1,7 +1,8 @@
-# mrhc
-Module of Remote Host Computing
+# MRHC
+Module of Remote Host Computing  
 
-VNC over HTTP
+## what's this
+MRHC privides VNC over HTTP.  
 <img src="https://user-images.githubusercontent.com/562105/76103304-ce997f80-6014-11ea-9897-d07f14697cfd.png" width="320px">
 
 ## os
