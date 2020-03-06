@@ -174,7 +174,19 @@ static int mrhc_handler(request_rec *r)
         std::string path = r->unparsed_uri;
         std::string width = std::to_string(client->get_width());
         std::string height = std::to_string(client->get_height());
-        std::string html = "<html><body><image src=\"http://" + hostname + path + "\" width=\"" + width + "\" height=\"" + height+ "\"></body></html>";
+        std::string html ="\
+<html>                                                                  \
+  <body>                                                                \
+    <image id=\"#mrhc\" src=\"http://" + hostname + path + "\" width=\"" + width + "\" height=\"" + height+ "\"> \
+  </body>                                                               \
+</html>                                                                 \
+<script type=text/javascript>                                           \
+  document.getElementById(\"#mrhc\").addEventListener('click',           \
+    function(e) {                                                       \
+      location.href = \"http://" + hostname + path + "?x=\" + e.offsetX + \"&y=\" + e.offsetY; \
+    }                                                                   \
+);                                                                      \
+</script>";
         log_debug(html.c_str());
         ap_rputs(html.c_str(), r);
         client_cache = client;
