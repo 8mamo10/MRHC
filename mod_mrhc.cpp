@@ -68,6 +68,7 @@ static int mrhc_handler(request_rec *r)
 
     if (client_cache != NULL) {
         log_debug("VNC Client is already running.");
+        client_cache->clear_buf();
 
         if (!client_cache->send_frame_buffer_update_request()) {
             ap_rputs("Failed to send_frame_buffer_update_request.", r);

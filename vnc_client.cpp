@@ -415,6 +415,12 @@ bool vnc_client::draw_image()
     return true;
 }
 
+void vnc_client::clear_buf()
+{
+    this->image_buf.clear();
+    this->jpeg_buf.clear();
+}
+
 std::vector<uint8_t> vnc_client::get_jpeg_buf()
 {
     return this->jpeg_buf;

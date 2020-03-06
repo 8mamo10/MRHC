@@ -47,6 +47,7 @@ class vnc_client
     bool send_frame_buffer_update_request();
     bool recv_frame_buffer_update();
     bool draw_image();
+    void clear_buf();
 
     std::vector<uint8_t> get_jpeg_buf();
     uint16_t get_width();
