@@ -70,6 +70,22 @@ static int mrhc_handler(request_rec *r)
         log_debug("VNC Client is already running.");
         client_cache->clear_buf();
 
+        if (r->parsed_uri.query) {
+            std::vector<std::string> pointer_params = split_string(r->parsed_uri.query, "&");
+            uint16_t x = 0;
+            uint16_t y = 0;
+            for (unsigned int i = 0; i < pointer_params.size(); i++) {
+                log_debug(pointer_params[i]);
+                std::vector<std::string> params = split_string(pointer_params[i], "=");
+                if (params[0] == std::string("x")) x = stoi(params[1]);
+                if (params[0] == std::string("y")) y = stoi(params[1]);
+            }
+            if (!client_cache->send_pointer_event(x, y)) {
+                ap_rputs("Failed to send_pointer_event.", r);
+                return OK;
+            }
+        }
+
         if (!client_cache->send_frame_buffer_update_request()) {
             ap_rputs("Failed to send_frame_buffer_update_request.", r);
             return OK;

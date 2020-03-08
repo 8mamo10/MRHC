@@ -11,6 +11,8 @@
 // for log container
 std::string mrhc_log = "";
 
+//// public /////
+
 vnc_client::vnc_client(std::string host, int port, std::string password)
     : sockfd(0), host(host), port(port), password(password), version(""),  width(0), height(0), pixel_format({}), name("")
 {
@@ -291,6 +293,28 @@ bool vnc_client::recv_frame_buffer_update()
     this->recv_rectangles(number_of_rectangles);
     return true;
 }
+
+bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position)
+{
+    uint8_t button_mask = 0;
+    // only left button
+    button_mask |= (1 << 1);
+
+    pointer_event_t pointer_event = {};
+    pointer_event.button_mask = button_mask;
+    pointer_event.x_position = htons(x_position);
+    pointer_event.y_position = htons(y_position);
+
+    int length = send(this->sockfd, &pointer_event, sizeof(pointer_event), 0);
+    if (length < 0) {
+        return false;
+    }
+    log_debug("send:" + std::to_string(length));
+    log_xdebug(((char*)&pointer_event), length);
+    return true;
+}
+
+//// private /////
 
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
 {

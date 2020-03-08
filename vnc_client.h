@@ -46,6 +46,7 @@ class vnc_client
     bool send_set_encodings();
     bool send_frame_buffer_update_request();
     bool recv_frame_buffer_update();
+    bool send_pointer_event(uint16_t x, uint16_t y);
     bool draw_image();
     void clear_buf();
 
