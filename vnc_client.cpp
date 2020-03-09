@@ -298,14 +298,25 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position)
 {
     uint8_t button_mask = 0;
     // only left button
-    button_mask |= (1 << 1);
+    button_mask |= (RFB_POINTER_DOWN << 0);
 
     pointer_event_t pointer_event = {};
     pointer_event.button_mask = button_mask;
     pointer_event.x_position = htons(x_position);
     pointer_event.y_position = htons(y_position);
 
+    // send down
     int length = send(this->sockfd, &pointer_event, sizeof(pointer_event), 0);
+    if (length < 0) {
+        return false;
+    }
+    log_debug("send:" + std::to_string(length));
+    log_xdebug(((char*)&pointer_event), length);
+
+    // send up
+    button_mask = 0;
+    pointer_event.button_mask = button_mask;
+    length = send(this->sockfd, &pointer_event, sizeof(pointer_event), 0);
     if (length < 0) {
         return false;
     }
