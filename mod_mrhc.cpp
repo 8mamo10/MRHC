@@ -37,6 +37,7 @@
 **    The sample page from mod_mrhc.c
 */ 
 
+#include <unistd.h>
 #include <vector>
 
 #include "ap_config.h"
@@ -84,8 +85,14 @@ static int mrhc_handler(request_rec *r)
                 ap_rputs("Failed to send_pointer_event.", r);
                 return OK;
             }
+            // for testing double blick
+            if (!client_cache->send_pointer_event(x, y)) {
+                ap_rputs("Failed to send_pointer_event.", r);
+                return OK;
+            }
+            // wait for pointer event to be reflected on the screen
+            sleep(1);
         }
-
         if (!client_cache->send_frame_buffer_update_request()) {
             ap_rputs("Failed to send_frame_buffer_update_request.", r);
             return OK;
