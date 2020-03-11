@@ -294,11 +294,10 @@ bool vnc_client::recv_frame_buffer_update()
     return true;
 }
 
-bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position)
+bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, uint8_t button)
 {
     uint8_t button_mask = 0;
-    // only left button
-    button_mask |= (RFB_POINTER_DOWN << 0);
+    button_mask |= (RFB_POINTER_DOWN << button);
 
     pointer_event_t pointer_event = {};
     pointer_event.button_mask = button_mask;

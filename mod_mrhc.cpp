@@ -75,21 +75,23 @@ static int mrhc_handler(request_rec *r)
             std::vector<std::string> pointer_params = split_string(r->parsed_uri.query, "&");
             uint16_t x = 0;
             uint16_t y = 0;
+            uint8_t button = 0;
             for (unsigned int i = 0; i < pointer_params.size(); i++) {
                 log_debug(pointer_params[i]);
                 std::vector<std::string> params = split_string(pointer_params[i], "=");
                 if (params[0] == std::string("x")) x = stoi(params[1]);
                 if (params[0] == std::string("y")) y = stoi(params[1]);
+                if (params[0] == std::string("b")) button = stoi(params[1]);
             }
-            if (!client_cache->send_pointer_event(x, y)) {
+            if (!client_cache->send_pointer_event(x, y, button)) {
                 ap_rputs("Failed to send_pointer_event.", r);
                 return OK;
             }
-            // for testing double blick
-            if (!client_cache->send_pointer_event(x, y)) {
-                ap_rputs("Failed to send_pointer_event.", r);
-                return OK;
-            }
+            // for emulating double click
+            // if (!client_cache->send_pointer_event(x, y, button)) {
+            //     ap_rputs("Failed to send_pointer_event.", r);
+            //     return OK;
+            // }
             // wait for pointer event to be reflected on the screen
             sleep(1);
         }
@@ -207,7 +209,10 @@ static int mrhc_handler(request_rec *r)
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
 <script type=text/javascript>                                           \
   $('#mrhc').on('click', (e) => {                                       \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY); \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
+  }).on('contextmenu', (e) => {                                         \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
+    return false                                                        \
   });                                                                   \
 </script>";
         log_debug(html.c_str());
