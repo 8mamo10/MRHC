@@ -59,6 +59,7 @@ static int mrhc_handler(request_rec *r)
     log_access("called");
     log_error("called");
     log_debug("called");
+    DEBUG("called");
 
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;

@@ -8,6 +8,8 @@
 #include "http_log.h"
 #include "http_protocol.h"
 
+#include "logger.h"
+
 #define BUF_SIZE 1024
 // I'm not sure hot to know the index of the module.
 // I saw the httpd.conf and count the order of `LoadModule mrhc_module`
@@ -37,5 +39,7 @@
         mrhc_log += aznable;                             \
     }                                                    \
     log_debug(mrhc_log);
+
+#define DEBUG(msg) LOGGER->log("[%s:%d][%s] %s", __FILE__, __LINE__, __FUNCTION__, msg)
 
 #endif
