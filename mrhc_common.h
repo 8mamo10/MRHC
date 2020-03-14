@@ -21,7 +21,7 @@
 #define log_error(msg) \
     ap_log_rerror(__FILE__, __LINE__, MODULE_INDEX, APLOG_NOTICE, OK, r, "[%s:%d] [%s] %s", __FILE__, __LINE__, __FUNCTION__, msg);
 
-#define log_debug(msg) \
+#define log_debug(msg)                                                  \
     std::cerr << "[" << __FILE__ << ":" << __LINE__ << "] [" << __FUNCTION__ << "] " << msg << std::endl;
 
 #define log_xdebug(msg, len)                             \
@@ -35,11 +35,15 @@
 
 #define DEBUG(msg) LOGGER->logn("[%s][%s:%d][%s] %s", current_datetime().c_str(), __FILE__, __LINE__, __FUNCTION__, msg)
 
+#define DEBUGF                                                          \
+    LOGGER->log("[%s][%s:%d][%s] ", current_datetime().c_str(), __FILE__, __LINE__, __FUNCTION__); \
+    LOGGER->logn
+
 #define DEBUGX(msg, len)                        \
     for (int i = 0; i < len; i++) {             \
         LOGGER->log("0x%02x ", msg[i]);         \
     }                                           \
-    LOGGER->log("\n");                          \
+    LOGGER->log("\n");
 
 static const std::string current_datetime()
 {
