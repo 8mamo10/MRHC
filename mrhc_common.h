@@ -40,6 +40,16 @@
     }                                                    \
     log_debug(mrhc_log);
 
-#define DEBUG(msg) LOGGER->log("[%s:%d][%s] %s", __FILE__, __LINE__, __FUNCTION__, msg)
+#define DEBUG(msg) LOGGER->logn("[%s][%s:%d][%s] %s", current_datetime().c_str(), __FILE__, __LINE__, __FUNCTION__, msg)
+
+static const std::string current_datetime()
+{
+    time_t     now = time(NULL);
+    struct tm  local;
+    char       buf[80];
+    localtime_r(&now, &local);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &local);
+    return buf;
+}
 
 #endif

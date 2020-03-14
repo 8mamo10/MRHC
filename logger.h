@@ -9,7 +9,9 @@ class logger
 {
  public:
     void log(const std::string &message);
+    void logn(const std::string &message);
     void log(const char *format, ...);
+    void logn(const char *format, ...);
     logger& operator<<(const std::string &message);
     static logger* get_logger();
  private:
