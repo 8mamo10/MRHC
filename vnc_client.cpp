@@ -48,7 +48,7 @@ bool vnc_client::recv_protocol_version()
     if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(length));
+    DEBUGF("recv:%d", length);
     DEBUG(buf);
 
     protocol_version_t protocol_version = {};
@@ -79,7 +79,7 @@ bool vnc_client::send_protocol_version()
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     DEBUG((char*)&protocol_version);
     return true;
 }
@@ -91,7 +91,7 @@ bool vnc_client::recv_supported_security_types()
     if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(length));
+    DEBUGF("recv:%d", length);
     log_xdebug(buf, length);
 
     supported_security_types_t supported_security_types = {};
@@ -113,7 +113,7 @@ bool vnc_client::send_security_type()
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(((char*)&security_type), length);
     return true;
 }
@@ -125,7 +125,7 @@ bool vnc_client::recv_vnc_auth_challenge()
     if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(length));
+    DEBUGF("recv:%d", length);
     log_xdebug(buf, length);
 
     memmove(this->challenge, buf, length);
@@ -143,7 +143,7 @@ bool vnc_client::send_vnc_auth_response()
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(this->challenge, length);
     return true;
 }
@@ -155,7 +155,7 @@ bool vnc_client::recv_security_result()
     if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(length));
+    DEBUGF("recv:%d", length);
     log_xdebug(buf, length);
 
     security_result_t security_result = {};
@@ -179,7 +179,7 @@ bool vnc_client::send_client_init()
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(((char*)&client_init), length);
     return true;
 }
@@ -191,7 +191,7 @@ bool vnc_client::recv_server_init()
     if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(length));
+    DEBUGF("recv:%d", length);
     log_xdebug(buf, length);
 
     server_init_t server_init = {};
@@ -231,7 +231,7 @@ bool vnc_client::send_set_pixel_format()
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(((char*)&set_pixel_format), length);
     return true;
 }
@@ -246,7 +246,7 @@ bool vnc_client::send_set_encodings()
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(((char*)&set_encodings), length);
     return true;
 }
@@ -264,7 +264,7 @@ bool vnc_client::send_frame_buffer_update_request()
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(((char*)&frame_buffer_update_request), length);
     return true;
 }
@@ -278,7 +278,7 @@ bool vnc_client::recv_frame_buffer_update()
     if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(length));
+    DEBUGF("recv:%d", length);
     log_xdebug(buf, length);
 
     memmove(&frame_buffer_update, buf, length);
@@ -309,7 +309,7 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(((char*)&pointer_event), length);
 
     // send up
@@ -319,7 +319,7 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
     if (length < 0) {
         return false;
     }
-    log_debug("send:" + std::to_string(length));
+    DEBUGF("send:%d", length);
     log_xdebug(((char*)&pointer_event), length);
     return true;
 }
@@ -348,7 +348,7 @@ bool vnc_client::recv_rectangle()
     if (length < 0) {
         return false;
     }
-    log_debug("recv:" + std::to_string(length));
+    DEBUGF("recv:%d", length);
     log_xdebug(buf, length);
 
     memmove(&pixel_data, buf, length);
@@ -388,7 +388,7 @@ bool vnc_client::recv_rectangle()
         if (length < 0) {
             return false;
         }
-        //log_debug("recv:" + std::to_string(length));
+        //DEBUGF("recv:%d", length);
         total_recv += length;
         for (int i = 0; i < length; i+=bytes_per_pixel) {
             // uint32_t here is just for container of 4bytes, no need to ntohl()
