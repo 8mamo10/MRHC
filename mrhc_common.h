@@ -24,12 +24,12 @@
 #define log_debug(msg) \
     std::cerr << "[" << __FILE__ << ":" << __LINE__ << "] [" << __FUNCTION__ << "] " << msg << std::endl;
 
-#define log_ldebug(msg, len)                 \
-    mrhc_log = "";                           \
-    for (int i = 0; i < len; i++) {          \
-        mrhc_log += msg[i];                  \
-    }                                        \
-    log_debug(mrhc_log);
+/* #define log_ldebug(msg, len)                 \ */
+/*     mrhc_log = "";                           \ */
+/*     for (int i = 0; i < len; i++) {          \ */
+/*         mrhc_log += msg[i];                  \ */
+/*     }                                        \ */
+/*     log_debug(mrhc_log); */
 
 #define log_xdebug(msg, len)                             \
     mrhc_log = "";                                       \

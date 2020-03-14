@@ -49,7 +49,7 @@ bool vnc_client::recv_protocol_version()
         return false;
     }
     log_debug("recv:" + std::to_string(length));
-    log_ldebug(buf, length);
+    DEBUG(buf);
 
     protocol_version_t protocol_version = {};
     memmove(&protocol_version, buf, length);
@@ -80,7 +80,7 @@ bool vnc_client::send_protocol_version()
         return false;
     }
     log_debug("send:" + std::to_string(length));
-    log_ldebug(((char*)&protocol_version), length);
+    DEBUG((char*)&protocol_version);
     return true;
 }
 
