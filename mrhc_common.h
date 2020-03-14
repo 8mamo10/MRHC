@@ -24,13 +24,6 @@
 #define log_debug(msg) \
     std::cerr << "[" << __FILE__ << ":" << __LINE__ << "] [" << __FUNCTION__ << "] " << msg << std::endl;
 
-/* #define log_ldebug(msg, len)                 \ */
-/*     mrhc_log = "";                           \ */
-/*     for (int i = 0; i < len; i++) {          \ */
-/*         mrhc_log += msg[i];                  \ */
-/*     }                                        \ */
-/*     log_debug(mrhc_log); */
-
 #define log_xdebug(msg, len)                             \
     mrhc_log = "";                                       \
     for (int i = 0; i < len; i++) {                      \
@@ -41,6 +34,12 @@
     log_debug(mrhc_log);
 
 #define DEBUG(msg) LOGGER->logn("[%s][%s:%d][%s] %s", current_datetime().c_str(), __FILE__, __LINE__, __FUNCTION__, msg)
+
+#define DEBUGX(msg, len)                        \
+    for (int i = 0; i < len; i++) {             \
+        LOGGER->log("0x%02x ", msg[i]);         \
+    }                                           \
+    LOGGER->log("\n");                          \
 
 static const std::string current_datetime()
 {
