@@ -1,9 +1,12 @@
 #ifndef __RFB_PROTOCOL_H__
 #define __RFB_PROTOCOL_H__
 
-const uint8_t RFB_PROTOCOL_VERSION_3_3[] = "RFB 003.003\n";
-const uint8_t RFB_PROTOCOL_VERSION_3_7[] = "RFB 003.007\n";
-const uint8_t RFB_PROTOCOL_VERSION_3_8[] = "RFB 003.008\n";
+// RFB 003.003\n
+const uint8_t RFB_PROTOCOL_VERSION_3_3[] = {0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x33, 0x0a};
+// RFB 003.007\n
+const uint8_t RFB_PROTOCOL_VERSION_3_7[] = {0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x37, 0x0a};
+// RFB 003.008\n
+const uint8_t RFB_PROTOCOL_VERSION_3_8[] = {0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x38, 0x0a};
 const uint8_t RFB_SECURITY_TYPE_VNC_AUTH    = 0x02;
 const uint8_t RFB_VNC_AUTH_CHALLENGE_LENGTH = 16;
 const uint8_t RFB_SECURITY_RESULT_OK        = 0x00;
