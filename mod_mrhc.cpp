@@ -56,10 +56,9 @@ vnc_client *client_cache = NULL;
 /* The sample content handler */
 static int mrhc_handler(request_rec *r)
 {
-    log_access("called");
-    log_error("called");
-    log_debug("called");
-    DEBUG("called");
+    LOGGER_ACCESS("called");
+    LOGGER_ERROR("called");
+    LOGGER_DEBUG("called");
 
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;
@@ -69,7 +68,7 @@ static int mrhc_handler(request_rec *r)
     }
 
     if (client_cache != NULL) {
-        log_debug("VNC Client is already running.");
+        LOGGER_DEBUG("VNC Client is already running.");
         client_cache->clear_buf();
 
         if (r->parsed_uri.query) {
@@ -78,7 +77,7 @@ static int mrhc_handler(request_rec *r)
             uint16_t y = 0;
             uint8_t button = 0;
             for (unsigned int i = 0; i < pointer_params.size(); i++) {
-                log_debug(pointer_params[i]);
+                LOGGER_DEBUG(pointer_params[i]);
                 std::vector<std::string> params = split_string(pointer_params[i], "=");
                 if (params[0] == std::string("x")) x = stoi(params[1]);
                 if (params[0] == std::string("y")) y = stoi(params[1]);
@@ -111,7 +110,7 @@ static int mrhc_handler(request_rec *r)
             return OK;
         }
         std::vector<uint8_t> jpeg_buf = client_cache->get_jpeg_buf();
-        log_debug("jpeg size:" + std::to_string(jpeg_buf.size()));
+        LOGGER_DEBUG("jpeg size:%d",jpeg_buf.size());
         char jpeg[jpeg_buf.size()] = {};
         for (unsigned int i = 0; i < jpeg_buf.size(); i++) {
             jpeg[i] = jpeg_buf[i];
@@ -131,17 +130,18 @@ static int mrhc_handler(request_rec *r)
         return HTTP_UNAUTHORIZED;
     }
     if (ret == APR_SUCCESS) {
-        log_debug("host: " + std::string(host));
-        log_debug("port: " + std::to_string(port));
-        log_debug("password: " + std::string(password));
+        LOGGER_DEBUG("host:%s", host);
+        LOGGER_DEBUG("port:%d", port);
+        LOGGER_DEBUG("password:%s", password);
 
-        log_debug("Start VNC Client");
+        LOGGER_DEBUG("Start VNC Client");
         vnc_client *client = new vnc_client(host, port, password);
         if (!client->connect_to_server()) {
+            std::cerr << "Error: " << strerror(errno);
             ap_rputs("Failed to connect_to_server.", r);
             return OK;
         }
-        log_debug("Connected");
+        LOGGER_DEBUG("Connected");
         // protocol version
         if (!client->recv_protocol_version()) {
             ap_rputs("Failed to recv_protocol_version.", r);
@@ -151,7 +151,7 @@ static int mrhc_handler(request_rec *r)
             ap_rputs("Failed to send_protocol_version.", r);
             return OK;
         }
-        log_debug("Exchanged protocol version");
+        LOGGER_DEBUG("Exchanged protocol version");
         // security type
         if (!client->recv_supported_security_types()) {
             ap_rputs("Failed to recv_supported_security_types.", r);
@@ -161,7 +161,7 @@ static int mrhc_handler(request_rec *r)
             ap_rputs("Failed to send_security_type.", r);
             return OK;
         }
-        log_debug("Exchanged security type");
+        LOGGER_DEBUG("Exchanged security type");
         // vnc auth
         if (!client->recv_vnc_auth_challenge()) {
             ap_rputs("Failed to recv_vnc_auth_challenge.", r);
@@ -175,7 +175,7 @@ static int mrhc_handler(request_rec *r)
             ap_rputs("Failed to recv_security_result.", r);
             return OK;
         }
-        log_debug("VNC authenticated");
+        LOGGER_DEBUG("VNC authenticated");
         // client/server init
         if (!client->send_client_init()) {
             ap_rputs("Failed to send_client_init.", r);
@@ -185,7 +185,7 @@ static int mrhc_handler(request_rec *r)
             ap_rputs("Failed to recv_server_init.", r);
             return OK;
         }
-        log_debug("Exchanged Client/Server Init");
+        LOGGER_DEBUG("Exchanged Client/Server Init");
         // frame buffer update
         if (!client->send_set_pixel_format()) {
             ap_rputs("Failed to send_set_pixel_format.", r);
@@ -216,7 +216,8 @@ static int mrhc_handler(request_rec *r)
     return false                                                        \
   });                                                                   \
 </script>";
-        log_debug(html.c_str());
+        //LOGGER_DEBUG(html.c_str());
+        LOGGER_DEBUG(html);
         ap_rputs(html.c_str(), r);
         client_cache = client;
         return OK;

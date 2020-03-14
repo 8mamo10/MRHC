@@ -8,9 +8,6 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
-// for log container
-std::string mrhc_log = "";
-
 //// public /////
 
 vnc_client::vnc_client(std::string host, int port, std::string password)
@@ -48,23 +45,23 @@ bool vnc_client::recv_protocol_version()
     if (length < 0) {
         return false;
     }
-    DEBUGF("recv:%d", length);
-    DEBUG(buf);
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_DEBUG(buf);
 
     protocol_version_t protocol_version = {};
     memmove(&protocol_version, buf, length);
 
     if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_3, sizeof(RFB_PROTOCOL_VERSION_3_3)) == 0) {
         this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_3);
-        log_debug("RFB Version 3.3");
+        LOGGER_DEBUG("RFB Version 3.3");
     } else if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_7, sizeof(RFB_PROTOCOL_VERSION_3_7)) == 0) {
         this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_7);
-        log_debug("RFB Version 3.7");
+        LOGGER_DEBUG("RFB Version 3.7");
     } else if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_8, sizeof(RFB_PROTOCOL_VERSION_3_8)) == 0) {
         this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_8);
-        log_debug("RFB Version 3.8");
+        LOGGER_DEBUG("RFB Version 3.8");
     } else {
-        log_debug("Invalid RFB Version");
+        LOGGER_DEBUG("Invalid RFB Version");
         return false;
     }
     return true;
@@ -79,8 +76,8 @@ bool vnc_client::send_protocol_version()
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    DEBUG((char*)&protocol_version);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_DEBUG((char*)&protocol_version);
     return true;
 }
 
@@ -91,8 +88,8 @@ bool vnc_client::recv_supported_security_types()
     if (length < 0) {
         return false;
     }
-    DEBUGF("recv:%d", length);
-    log_xdebug(buf, length);
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
 
     supported_security_types_t supported_security_types = {};
     memmove(&supported_security_types, buf, length);
@@ -113,8 +110,8 @@ bool vnc_client::send_security_type()
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(((char*)&security_type), length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&security_type), length);
     return true;
 }
 
@@ -125,8 +122,8 @@ bool vnc_client::recv_vnc_auth_challenge()
     if (length < 0) {
         return false;
     }
-    DEBUGF("recv:%d", length);
-    log_xdebug(buf, length);
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
 
     memmove(this->challenge, buf, length);
     return true;
@@ -143,8 +140,8 @@ bool vnc_client::send_vnc_auth_response()
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(this->challenge, length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(this->challenge, length);
     return true;
 }
 
@@ -155,18 +152,18 @@ bool vnc_client::recv_security_result()
     if (length < 0) {
         return false;
     }
-    DEBUGF("recv:%d", length);
-    log_xdebug(buf, length);
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
 
     security_result_t security_result = {};
     memmove(&security_result, buf, length);
     uint32_t status = ntohl(security_result.status);
-    log_debug("status:" + std::to_string(status));
+    LOGGER_DEBUG("status:%d", status);
     if (status != RFB_SECURITY_RESULT_OK) {
-        log_debug("VNC Authentication failed");
+        LOGGER_DEBUG("VNC Authentication failed");
         return false;
     }
-    log_debug("VNC Authentication ok");
+    LOGGER_DEBUG("VNC Authentication ok");
     return true;
 }
 
@@ -179,8 +176,8 @@ bool vnc_client::send_client_init()
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(((char*)&client_init), length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&client_init), length);
     return true;
 }
 
@@ -191,8 +188,8 @@ bool vnc_client::recv_server_init()
     if (length < 0) {
         return false;
     }
-    DEBUGF("recv:%d", length);
-    log_xdebug(buf, length);
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
 
     server_init_t server_init = {};
     memmove(&server_init, buf, length);
@@ -203,9 +200,9 @@ bool vnc_client::recv_server_init()
     memmove(name, server_init.name_string, ntohl(server_init.name_length));
     this->name = std::string(name);
 
-    log_debug("frame_buffer_width:" + std::to_string(this->width));
-    log_debug("frame_buffer_height:" + std::to_string(this->height));
-    log_debug("name:" + this->name);
+    LOGGER_DEBUG("frame_buffer_width:%d", this->width);
+    LOGGER_DEBUG("frame_buffer_height:%d", this->height);
+    LOGGER_DEBUG("name:%s", this->name.c_str());
 
     return true;
 }
@@ -231,8 +228,8 @@ bool vnc_client::send_set_pixel_format()
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(((char*)&set_pixel_format), length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&set_pixel_format), length);
     return true;
 }
 
@@ -246,8 +243,8 @@ bool vnc_client::send_set_encodings()
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(((char*)&set_encodings), length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&set_encodings), length);
     return true;
 }
 
@@ -264,8 +261,8 @@ bool vnc_client::send_frame_buffer_update_request()
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(((char*)&frame_buffer_update_request), length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&frame_buffer_update_request), length);
     return true;
 }
 
@@ -278,17 +275,17 @@ bool vnc_client::recv_frame_buffer_update()
     if (length < 0) {
         return false;
     }
-    DEBUGF("recv:%d", length);
-    log_xdebug(buf, length);
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
 
     memmove(&frame_buffer_update, buf, length);
     uint8_t message_type = frame_buffer_update.message_type;
     if (message_type != RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE) {
-        log_debug("unexpected message_type:" + std::to_string(message_type));
+        LOGGER_DEBUG("unexpected message_type:%d", message_type);
         return false;
     }
     uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
-    log_debug("number_of_rectangles:" + std::to_string(number_of_rectangles));
+    LOGGER_DEBUG("number_of_rectangles:%d", number_of_rectangles);
 
     this->recv_rectangles(number_of_rectangles);
     return true;
@@ -309,8 +306,8 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(((char*)&pointer_event), length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&pointer_event), length);
 
     // send up
     button_mask = 0;
@@ -319,8 +316,8 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
     if (length < 0) {
         return false;
     }
-    DEBUGF("send:%d", length);
-    log_xdebug(((char*)&pointer_event), length);
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&pointer_event), length);
     return true;
 }
 
@@ -329,12 +326,12 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
 {
     for (int i = 0; i < number_of_rectangles; i++) {
-        log_debug("--start recv_rectangle:" + std::to_string(i + 1));
+        LOGGER_DEBUG("--start recv_rectangle:%d", i + 1);
         if (!this->recv_rectangle()) {
-            log_debug("failed to recv_rectangle");
+            LOGGER_DEBUG("failed to recv_rectangle");
             return false;
         }
-        log_debug("--finish recv_rectangle:" + std::to_string(i + 1));
+        LOGGER_DEBUG("--finish recv_rectangle:%d", i + 1);
     }
     return true;
 }
@@ -348,34 +345,32 @@ bool vnc_client::recv_rectangle()
     if (length < 0) {
         return false;
     }
-    DEBUGF("recv:%d", length);
-    log_xdebug(buf, length);
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
 
     memmove(&pixel_data, buf, length);
     uint16_t x_position = ntohs(pixel_data.x_position);
     uint16_t y_position = ntohs(pixel_data.y_position);
     uint16_t width = ntohs(pixel_data.width);
     uint16_t height = ntohs(pixel_data.height);
-    log_debug("(x_position,y_position,width,height)=(" + std::to_string(x_position) +
-              "," + std::to_string(y_position) +
-              "," + std::to_string(width) +
-              "," + std::to_string(height) + ")");
+    LOGGER_DEBUG("(x_position,y_position,width,height)=(%d,%d,%d,%d)",
+           x_position, y_position, width, height);
     int32_t encoding_type = pixel_data.encoding_type;
     if (encoding_type != RFB_ENCODING_RAW) {
-        log_debug("unexpected encoding_type:" + std::to_string(encoding_type));
+        LOGGER_DEBUG("unexpected encoding_type:%d", encoding_type);
         return false;
     }
     uint8_t bits_per_pixel = this->pixel_format.bits_per_pixel;
     uint8_t bytes_per_pixel = bits_per_pixel / 8;
-    log_debug("---pixel_format---");
-    log_debug("bits_per_pixel:"   + std::to_string(bits_per_pixel));
-    log_debug("bytes_per_pixel:"   + std::to_string(bytes_per_pixel));
-    log_debug("------------------");
+    LOGGER_DEBUG("---pixel_format---");
+    LOGGER_DEBUG("bits_per_pixel:%d", bits_per_pixel);
+    LOGGER_DEBUG("bytes_per_pixel:%d", bytes_per_pixel);
+    LOGGER_DEBUG("------------------");
 
     uint32_t total_pixel_count = width * height;
     uint32_t total_pixel_bytes = total_pixel_count * bits_per_pixel / 8;
-    log_debug("total_pixel_count:" + std::to_string(total_pixel_count));
-    log_debug("expected total_pixel_bytes:" + std::to_string(total_pixel_bytes));
+    LOGGER_DEBUG("total_pixel_count:%d", total_pixel_count);
+    LOGGER_DEBUG("expected total_pixel_bytes:%d", total_pixel_bytes);
 
     uint32_t total_recv = 0;
     while (total_recv < total_pixel_bytes) {
@@ -388,7 +383,7 @@ bool vnc_client::recv_rectangle()
         if (length < 0) {
             return false;
         }
-        //DEBUGF("recv:%d", length);
+        //LOGGER_DEBUG("recv:%d", length);
         total_recv += length;
         for (int i = 0; i < length; i+=bytes_per_pixel) {
             // uint32_t here is just for container of 4bytes, no need to ntohl()
@@ -397,8 +392,8 @@ bool vnc_client::recv_rectangle()
             this->image_buf.push_back(pixel);
         }
     }
-    log_debug("total_recv reached total_pixel_bytes:" + std::to_string(total_recv));
-    log_debug("image_buf size:" + std::to_string(this->image_buf.size()));
+    LOGGER_DEBUG("total_recv reached total_pixel_bytes:%d", total_recv);
+    LOGGER_DEBUG("image_buf size:%d", this->image_buf.size());
 
     return true;
 }
@@ -416,32 +411,28 @@ bool vnc_client::draw_image()
     uint8_t green_shift      = this->pixel_format.green_shift;
     uint8_t blue_shift       = this->pixel_format.blue_shift;
 
-    log_debug("---pixel_format---");
-    log_debug("bits_per_pixel:"   + std::to_string(bits_per_pixel));
-    log_debug("depth:"            + std::to_string(depth));
-    log_debug("big_endian_flag:"  + std::to_string(big_endian_flag));
-    log_debug("true_colour_flag:" + std::to_string(true_colour_flag));
-    log_debug("red_max:"          + std::to_string(red_max));
-    log_debug("green_max:"        + std::to_string(green_max));
-    log_debug("blue_max:"         + std::to_string(blue_max));
-    log_debug("red_shift:"        + std::to_string(red_shift));
-    log_debug("green_shift:"      + std::to_string(green_shift));
-    log_debug("blue_shift:"       + std::to_string(blue_shift));
-    log_debug("------------------");
+    LOGGER_DEBUG("---pixel_format---");
+    LOGGER_DEBUG("bits_per_pixel:%d",   bits_per_pixel);
+    LOGGER_DEBUG("depth:%d",            depth);
+    LOGGER_DEBUG("big_endian_flag:%d",  big_endian_flag);
+    LOGGER_DEBUG("true_colour_flag:%d", true_colour_flag);
+    LOGGER_DEBUG("red_max:%d",          red_max);
+    LOGGER_DEBUG("green_max:%d",        green_max);
+    LOGGER_DEBUG("blue_max:%d",         blue_max);
+    LOGGER_DEBUG("red_shift:%d",        red_shift);
+    LOGGER_DEBUG("green_shift:%d",      green_shift);
+    LOGGER_DEBUG("blue_shift:%d",       blue_shift);
+    LOGGER_DEBUG("------------------");
 
     cv::Mat image = cv::Mat(this->height, this->width, CV_8UC3, cv::Scalar(0, 0, 0));
-    log_debug(std::to_string(this->width) + "x" + std::to_string(this->height));
+    LOGGER_DEBUG("%dx%d", this->width, this->height);
     for (int y = 0; y < this->height; y++) {
         for (int x = 0; x < this->width; x++) {
             uint32_t pixel = this->image_buf[this->width * y + x];
             uint8_t red = ((pixel >> red_shift) & red_max);
             uint8_t green = ((pixel >> green_shift) & green_max);
             uint8_t blue = ((pixel >> blue_shift) & blue_max);
-            /*
-            log_debug("(R,G,B)=(" + std::to_string(red) +
-                      "," + std::to_string(green) +
-                      "," + std::to_string(blue) + ")");
-            */
+            //LOGGER_DEBUG("(R,G,B)=(%d,%d,%d)", red, green, blue);
             rectangle(image, cv::Point(x, y), cv::Point(x+1, y+1), cv::Scalar(blue, green, red), -1, cv::LINE_AA);
         }
     }
