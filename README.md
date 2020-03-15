@@ -191,3 +191,14 @@ Add settings for that situation.
 ```
 $ echo -e "gnome-panel &\ngnome-settings-daemon &\nmetacity &\nnautilus &" >> ~/.vnc/xstartup
 ```
+
+## google test
+```
+$ tar xzvf release-1.10.0.tar.gz
+$ cd googletest-release-1.10.0
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ sudo make install
+```
