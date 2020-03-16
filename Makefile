@@ -18,11 +18,12 @@ APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 # Macro
 PROG=mod_mrhc.so
 SRCS=mod_mrhc.cpp vnc_client.cpp d3des.cpp logger.cpp
+
 OBJS=$(SRCS:%.cpp=%.o)
 DEPS=$(SRCS:%.cpp=%.d)
 
 CC=g++
-INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0/ -I/usr/local/apr/include/apr-1 `pkg-config --cflags opencv4`
+INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/local/apr/include/apr-1 `pkg-config --cflags opencv4`
 CFLAGS=$(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -O2
 LIBS=`pkg-config --libs opencv4`
 
@@ -73,3 +74,4 @@ restart:
 	$(APACHECTL) restart
 stop:
 	$(APACHECTL) stop
+
