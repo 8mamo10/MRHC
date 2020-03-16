@@ -75,3 +75,14 @@ restart:
 stop:
 	$(APACHECTL) stop
 
+# for google test
+TEST_DIR=./test
+TEST_SRCS=$(TEST_DIR)/gtest_mrhc.cpp
+TEST_OBJS=vnc_client.o logger.o d3des.o
+TEST_TARGET=$(TEST_DIR)/gtest_mrhc
+TEST_LIBS=$(LIBS) -lgtest -lgtest_main -lpthread
+TEST_INCLUDES=$(INCLUDES) -I/usr/local/include/gtest -I./
+
+test: $(TEST_TARGET)
+$(TEST_TARGET): $(OBJS)
+	$(CC) $(TEST_SRCS) $(TEST_OBJS) -std=c++11 $(TEST_INCLUDES) $(TEST_LIBS) -o $(TEST_TARGET)
