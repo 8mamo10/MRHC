@@ -14,4 +14,10 @@ namespace {
         EXPECT_EQ(0, v.get_width());
     }
 
+    TEST_F(mrhc_test, test_connect_to_server)
+    {
+        vnc_client v = vnc_client("127.0.0.1", 6624, "testtest");
+        bool ret = v.connect_to_server();
+        EXPECT_EQ(true, ret);
+    }
 };
