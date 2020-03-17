@@ -84,5 +84,5 @@ TEST_LIBS=$(LIBS) -lgtest -lgtest_main -lpthread
 TEST_INCLUDES=$(INCLUDES) -I/usr/local/include/gtest -I./
 
 test: $(TEST_TARGET)
-$(TEST_TARGET): $(OBJS)
+$(TEST_TARGET): $(TEST_SRCS) $(OBJS)
 	$(CC) $(TEST_SRCS) $(TEST_OBJS) -std=c++11 $(TEST_INCLUDES) $(TEST_LIBS) -o $(TEST_TARGET)

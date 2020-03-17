@@ -1,4 +1,5 @@
 .libs/
+test/gtest_mrhc
 htdocs
 GPATH
 GRTAGS
@@ -16,4 +17,3 @@ a.out
 *.o
 *.slo
 *.so
-
