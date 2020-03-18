@@ -60,7 +60,7 @@ check_apxs_vars:
 
 #   cleanup
 clean:
-	$(RM) $(PROG) $(OBJS) $(DEPS)
+	$(RM) $(PROG) $(OBJS) $(DEPS) $(TEST_TARGET)
 
 #   install and activate shared object by reloading Apache to
 #   force a reload of the shared object file
@@ -86,3 +86,4 @@ TEST_INCLUDES=$(INCLUDES) -I/usr/local/include/gtest -I./
 test: $(TEST_TARGET)
 $(TEST_TARGET): $(TEST_SRCS) $(OBJS)
 	$(CC) $(TEST_SRCS) $(TEST_OBJS) -std=c++11 $(TEST_INCLUDES) $(TEST_LIBS) -o $(TEST_TARGET)
+	$(TEST_TARGET)
