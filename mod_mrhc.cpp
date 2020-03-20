@@ -71,11 +71,11 @@ static int mrhc_handler(request_rec *r)
         LOGGER_DEBUG("VNC Client is already running.");
         client_cache->clear_buf();
 
+        uint16_t x = 0;
+        uint16_t y = 0;
+        uint8_t button = 0;
         if (r->parsed_uri.query) {
             std::vector<std::string> pointer_params = split_string(r->parsed_uri.query, "&");
-            uint16_t x = 0;
-            uint16_t y = 0;
-            uint8_t button = 0;
             for (unsigned int i = 0; i < pointer_params.size(); i++) {
                 LOGGER_DEBUG(pointer_params[i]);
                 std::vector<std::string> params = split_string(pointer_params[i], "=");
@@ -107,6 +107,11 @@ static int mrhc_handler(request_rec *r)
         // output image
         if (!client_cache->draw_image()) {
             ap_rputs("Failed to draw_image.", r);
+            return OK;
+        }
+        // pointer image
+        if (!client_cache->draw_pointer(x, y)) {
+            ap_rputs("Failed to draw_pointer.", r);
             return OK;
         }
         std::vector<uint8_t> jpeg_buf = client_cache->get_jpeg_buf();

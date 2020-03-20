@@ -1,7 +1,14 @@
 #ifndef __VNC_CLIENT_H__
 #define __VNC_CLIENT_H__
 
+#include "opencv4/opencv2/core/mat.hpp"
+
 #include "rfb_protocol.h"
+
+
+/* namespace cv { */
+/*     class Mat {}; */
+/* }; */
 
 class vnc_client
 {
@@ -17,12 +24,13 @@ class vnc_client
     std::string version;
     std::vector<uint8_t> security_types;
     uint8_t challenge[RFB_VNC_AUTH_CHALLENGE_LENGTH];
-    // initialisation
+    // initialization
     uint16_t width = 0;
     uint16_t height = 0;
     pixel_format_t pixel_format;
     std::string name;
     // for output
+    cv::Mat image;
     std::vector<uint32_t> image_buf;
     std::vector<uint8_t> jpeg_buf;
 
@@ -48,6 +56,7 @@ class vnc_client
     bool recv_frame_buffer_update();
     bool send_pointer_event(uint16_t x, uint16_t y, uint8_t button);
     bool draw_image();
+    bool draw_pointer(uint16_t x, uint16_t y);
     void clear_buf();
 
     std::vector<uint8_t> get_jpeg_buf();
