@@ -62,6 +62,9 @@ class vnc_client
     std::vector<uint8_t> get_jpeg_buf();
     uint16_t get_width();
     uint16_t get_height();
+
+    // for unit test
+    std::string get_version() { return this->version; }
 };
 
 #endif

@@ -221,7 +221,6 @@ static int mrhc_handler(request_rec *r)
     return false                                                        \
   });                                                                   \
 </script>";
-        //LOGGER_DEBUG(html.c_str());
         LOGGER_DEBUG(html);
         ap_rputs(html.c_str(), r);
         client_cache = client;

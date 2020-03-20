@@ -19,12 +19,7 @@ listen($sock_receive, SOMAXCONN)
 my $sock_client;
 
 while (accept($sock_client, $sock_receive)) {
-    my $content;
-
-    while (my $line = <$sock_client>) {
-        $content .= $line;
-    }
-
-    print $sock_client "echo: $content";
+    my $version = pack("CCCCCCCCCCCC", 0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x33, 0x0a);
+    print $sock_client "$version";
     close $sock_client;
 }
