@@ -38,6 +38,16 @@ namespace {
         ret = v.recv_protocol_version();
         EXPECT_EQ(true, ret);
         std::string version = std::string({0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x33, 0x0a});
+        EXPECT_NE(version, v.get_version());
+    }
+
+    TEST_F(mrhc_test, test_recv_protocol_version_3_8)
+    {
+        vnc_client v = vnc_client("127.0.0.1", 6624, "testtest");
+        bool ret = v.connect_to_server();
+        ret = v.recv_protocol_version();
+        EXPECT_EQ(true, ret);
+        std::string version = std::string({0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x38, 0x0a});
         EXPECT_EQ(version, v.get_version());
     }
 };
