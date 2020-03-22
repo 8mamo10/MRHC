@@ -32,6 +32,9 @@ bool vnc_client::connect_to_server()
     addr.sin_port = htons(this->port);
     addr.sin_addr.s_addr = inet_addr(this->host.c_str());
 
+    LOGGER_DEBUG("host:%s", this->host.c_str());
+    LOGGER_DEBUG("port:%d", this->port);
+
     if (connect(this->sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
         return false;
     }

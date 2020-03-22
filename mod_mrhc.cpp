@@ -47,7 +47,7 @@
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
-static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password);
+static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
 
 // TODO: Need to support multi process but only support single process for now
@@ -125,11 +125,11 @@ static int mrhc_handler(request_rec *r)
         return OK;
     }
 
-    const char *host;
+    char host[BUF_SIZE] = {};
     int port = 0;
-    const char *password;
+    char password[BUF_SIZE] = {};
     //apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
-    apr_status_t ret = ap_get_vnc_param_by_basic_auth_components(r, &host, &port, &password);
+    apr_status_t ret = ap_get_vnc_param_by_basic_auth_components(r, host, &port, password);
     if (ret == APR_EINVAL) {
         apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
         return HTTP_UNAUTHORIZED;
@@ -232,7 +232,7 @@ static int mrhc_handler(request_rec *r)
 
 // Since I want to use `:` as a part of username of basic auth, I reinvent a function.
 // see: httpd-2.4.41/server/protocol.c
-static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, const char **host, int *port, const char **password)
+static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password)
 {
     const char *auth_header;
     const char *credentials;
@@ -265,19 +265,28 @@ static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec 
      * deprecated ap_get_basic_auth_pw(), don't fix this for 2.4.x.
      */
     decoded = ap_pbase64decode(r->pool, credentials);
+    LOGGER_DEBUG(decoded);
 
     // vnc host is to be like 192.168.1.10:5900.
     //user = ap_getword_nulls(r->pool, &decoded, ':');
     std::vector<std::string> vnc_params = split_string(decoded, ":");
 
     if (host) {
-        *host = vnc_params[0].c_str();
+        memmove(host, vnc_params[0].c_str(), vnc_params[0].size());
+        LOGGER_DEBUG("host:%s", host);
     }
     if (port) {
-        *port = stoi(vnc_params[1]);
+        try {
+            *port = stoi(vnc_params[1]);
+        } catch (std::invalid_argument) {
+            LOGGER_DEBUG("invalid port: %s", vnc_params[1]);
+            return APR_EINVAL;
+        }
+        LOGGER_DEBUG("port:%d", *port);
     }
     if (password) {
-        *password = vnc_params[2].c_str();
+        memmove(password, vnc_params[2].c_str(), vnc_params[2].size());
+        LOGGER_DEBUG("password:%s", password);
     }
 
     return APR_SUCCESS;
