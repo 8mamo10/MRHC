@@ -220,6 +220,10 @@ static int mrhc_handler(request_rec *r)
     $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
     return false                                                        \
   });                                                                   \
+  setInterval(() => {                                                   \
+    var now = new Date();                                               \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?' + now.getTime()); \
+  }, 5000);                                                             \
 </script>";
         LOGGER_DEBUG(html);
         ap_rputs(html.c_str(), r);
