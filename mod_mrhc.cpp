@@ -218,15 +218,15 @@ static int mrhc_handler(request_rec *r)
     let now = new Date();                                               \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + now.getTime()); \
   };                                                                    \
-  let timer = setInterval(fetchLatestImage, 5000);                      \
+  let timer = setInterval(fetchLatestImage, 10000);                      \
   $('#mrhc').on('click', (e) => {                                       \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
     clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 5000);                        \
+    timer = setInterval(fetchLatestImage, 10000);                        \
   }).on('contextmenu', (e) => {                                         \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
     clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 5000);                        \
+    timer = setInterval(fetchLatestImage, 10000);                        \
     return false                                                        \
   });                                                                   \
 </script>";
