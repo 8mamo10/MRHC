@@ -214,16 +214,21 @@ static int mrhc_handler(request_rec *r)
 </html>                                                                 \
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
 <script type=text/javascript>                                           \
+  let fetchLatestImage = () => {                                        \
+    let now = new Date();                                               \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + now.getTime()); \
+  };                                                                    \
+  let timer = setInterval(fetchLatestImage, 5000);                      \
   $('#mrhc').on('click', (e) => {                                       \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
+    clearInterval(timer);                                               \
+    timer = setInterval(fetchLatestImage, 5000);                        \
   }).on('contextmenu', (e) => {                                         \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
+    clearInterval(timer);                                               \
+    timer = setInterval(fetchLatestImage, 5000);                        \
     return false                                                        \
   });                                                                   \
-  setInterval(() => {                                                   \
-    var now = new Date();                                               \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?' + now.getTime()); \
-  }, 5000);                                                             \
 </script>";
         LOGGER_DEBUG(html);
         ap_rputs(html.c_str(), r);
