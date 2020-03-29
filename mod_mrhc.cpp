@@ -215,8 +215,7 @@ static int mrhc_handler(request_rec *r)
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
 <script type=text/javascript>                                           \
   let fetchLatestImage = () => {                                        \
-    let now = new Date();                                               \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + now.getTime()); \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
   };                                                                    \
   let timer = setInterval(fetchLatestImage, 10000);                      \
   $('#mrhc').on('click', (e) => {                                       \
