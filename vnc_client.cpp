@@ -8,6 +8,59 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
+// Since connect() can wait too long, add timeout to connect()
+// This is effective when the input connection destination is wrong.
+static int connect_with_timeout(int sockfd, struct sockaddr *addr, size_t addrlen, struct timeval *timeout)
+{
+    int res, opt;
+    // get socket flags
+    if ((opt = fcntl(sockfd, F_GETFL, NULL)) < 0) {
+        return -1;
+    }
+    // set socket flags
+    if (fcntl(sockfd, F_SETFL, opt | O_NONBLOCK) < 0) {
+        return -1;
+    }
+    if ((res = connect(sockfd, addr, addrlen)) < 0) {
+        if (errno == EINPROGRESS) {
+            fd_set wait_set;
+            // make file descriptor set with socket
+            FD_ZERO (&wait_set);
+            FD_SET(sockfd, &wait_set);
+            // wait for socket to be writable; return after given timeout
+            res = select(sockfd + 1, NULL, &wait_set, NULL, timeout);
+        }
+    } else {
+        // connection was successful immediately
+        res = 1;
+    }
+    // reset socket flags
+    if (fcntl(sockfd, F_SETFL, opt) < 0) {
+        return -1;
+    }
+    if (res < 0) {
+        // an error occured in connect or select
+        return -1;
+    } else if (res == 0) {
+        // select timed out
+        errno = ETIMEDOUT;
+        return -1;
+    } else {
+        // almost finished
+        socklen_t len = sizeof(opt);
+        // check for errors in socket layer
+        if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &opt, &len) < 0) {
+            return -1;
+        }
+        // there was an error
+        if (opt) {
+            errno = opt;
+            return -1;
+        }
+    }
+    return 0;
+}
+
 //// public /////
 
 vnc_client::vnc_client(std::string host, int port, std::string password)
@@ -35,7 +88,11 @@ bool vnc_client::connect_to_server()
     LOGGER_DEBUG("host:%s", this->host.c_str());
     LOGGER_DEBUG("port:%d", this->port);
 
-    if (connect(this->sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
+    //if (connect(this->sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
+    struct timeval timeout;
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+    if (connect_with_timeout(this->sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in), &timeout) < 0) {
         return false;
     }
     return true;
