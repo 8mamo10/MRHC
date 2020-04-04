@@ -5,6 +5,7 @@
 namespace {
 
     class mrhc_test : public ::testing::Test {
+
     // protected:
     //     virtual void SetUp() {
     //         this->v = new vnc_client("127.0.0.1", 6624, "testtest");
@@ -18,10 +19,17 @@ namespace {
     // g++ mrhc_test.cpp -std=c++11 -lgtest -lgtest_main -lpthread -I/usr/local/include/gtest/
     // -I../ -I/usr/local/apr/include  -I/usr/local/apr/include/apr-1/ -I/usr/local/apache2/include
     // ../vnc_client.o ../logger.o ../d3des.o `pkg-config --libs opencv4`
+
     TEST_F(mrhc_test, test_get_width)
     {
         vnc_client v = vnc_client("", 0, "");
         EXPECT_EQ(0, v.get_width());
+    }
+
+    TEST_F(mrhc_test, test_get_height)
+    {
+        vnc_client v = vnc_client("", 0, "");
+        EXPECT_EQ(0, v.get_height());
     }
 
     TEST_F(mrhc_test, test_connect_to_server)
