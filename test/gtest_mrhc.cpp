@@ -6,6 +6,7 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
+#define MRHC_TEST_PORT 6624
 #define MRHC_TEST_PORT_3_3 6623
 #define MRHC_TEST_PORT_3_8 6628
 
@@ -63,7 +64,7 @@ namespace {
 
     TEST_F(mrhc_test, test_vnc_auth)
     {
-        vnc_client v = vnc_client("127.0.0.1", MRHC_TEST_PORT_3_8, "testtest");
+        vnc_client v = vnc_client("127.0.0.1", MRHC_TEST_PORT, "testtest");
         bool ret = v.connect_to_server();
         ret = v.recv_protocol_version();
         EXPECT_EQ(true, ret);
@@ -71,6 +72,16 @@ namespace {
         std::string version = std::string({0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x38, 0x0a});
         EXPECT_EQ(version, v.get_version());
         ret = v.send_protocol_version();
+        EXPECT_EQ(true, ret);
+        ret = v.recv_supported_security_types();
+        EXPECT_EQ(true, ret);
+        ret = v.send_security_type();
+        EXPECT_EQ(true, ret);
+        ret = v.recv_vnc_auth_challenge();
+        EXPECT_EQ(true, ret);
+        ret = v.send_vnc_auth_response();
+        EXPECT_EQ(true, ret);
+        ret = v.recv_security_result();
         EXPECT_EQ(true, ret);
     }
 
