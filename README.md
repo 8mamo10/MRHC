@@ -176,7 +176,7 @@ $ sudo make reload
 
 ## vnc server
 ```
-$ sudo apt install ubuntu-desktop
+$ sudo apt install ubuntu-desktop # optional, if you need rich gui
 $ sudo apt install vnc4server
 $ vncpasswd
 Password:
