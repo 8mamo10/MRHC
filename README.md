@@ -1,6 +1,8 @@
 # MRHC
 Module of Remote Host Computing  
 
+https://github.com/8mamo10/mrhc/workflows/MRHC/badge.svg
+
 ## what's this
 MRHC provides VNC over HTTP.  
 <img src="https://user-images.githubusercontent.com/562105/76103304-ce997f80-6014-11ea-9897-d07f14697cfd.png" width="320px">
