@@ -5,11 +5,6 @@
 
 #include "rfb_protocol.h"
 
-
-/* namespace cv { */
-/*     class Mat {}; */
-/* }; */
-
 class vnc_client
 {
  private:
