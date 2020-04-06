@@ -1,0 +1,19 @@
+name: MRHC
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: libpcre3-dev
+      run: sudo apt install libpcre3-dev
+
+
