@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: apt update
+      run: sudo apt-get update
     - name: libpcre3-dev
       run: sudo apt install libpcre3-dev
     - name: build-essential
