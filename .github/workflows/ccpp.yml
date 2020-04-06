@@ -27,4 +27,6 @@ jobs:
       run: sudo apt install apache2-dev 
     - name: opencv
       run: sudo apt install libopencv-dev
+    - name: make
+      run: make
 
