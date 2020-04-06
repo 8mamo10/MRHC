@@ -62,7 +62,7 @@ namespace {
         EXPECT_EQ(version, v.get_version());
     }
 
-    TEST_F(mrhc_test, test_vnc_auth)
+    TEST_F(mrhc_test, test_vnc_sequence)
     {
         vnc_client v = vnc_client("127.0.0.1", MRHC_TEST_PORT, "testtest");
         bool ret = v.connect_to_server();
