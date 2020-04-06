@@ -83,6 +83,24 @@ namespace {
         EXPECT_EQ(true, ret);
         ret = v.recv_security_result();
         EXPECT_EQ(true, ret);
+        ret = v.send_client_init();
+        EXPECT_EQ(true, ret);
+        ret = v.recv_server_init();
+        EXPECT_EQ(true, ret);
+        ret = v.send_set_pixel_format();
+        EXPECT_EQ(true, ret);
+        ret = v.send_set_encodings();
+        EXPECT_EQ(true, ret);
+        ret = v.send_pointer_event(0, 0, 0);
+        EXPECT_EQ(true, ret);
+        ret = v.send_frame_buffer_update_request();
+        EXPECT_EQ(true, ret);
+        ret = v.recv_frame_buffer_update();
+        EXPECT_EQ(true, ret);
+        ret = v.draw_image();
+        EXPECT_EQ(true, ret);
+        ret = v.draw_pointer(0, 0);
+        EXPECT_EQ(true, ret);
     }
 
 };
