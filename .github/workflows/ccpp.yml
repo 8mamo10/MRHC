@@ -21,11 +21,11 @@ jobs:
       run: sudo apt install libopencv-dev
     - name: google test
       run: |
-        sudo apt install cmake \
-        sudo apt-get install libgtest-dev \
-        cd /usr/src/gtest/ \
-        sudo cmake CMakeLists.txt \
-        sudo make \
+        sudo apt install cmake
+        sudo apt-get install libgtest-dev
+        cd /usr/src/gtest/
+        sudo cmake CMakeLists.txt
+        sudo make
         sudo cp *.a /usr/lib
     - name: mrhc
       run: make
