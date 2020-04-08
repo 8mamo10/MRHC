@@ -54,8 +54,9 @@ jobs:
         cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local ..
         make
         sudo make install
+        cd ../../
         sudo mkdir /usr/local/lib/pkgconfig
-        sudo cp ../mrhc/lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
-        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+        sudo lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
+        PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
     - name: mrhc
       run: make
