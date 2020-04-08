@@ -15,17 +15,17 @@ jobs:
     - uses: actions/checkout@v2
     - name: apt update
       run: sudo apt-get update
-    - name: libpcre3-dev
-      run: sudo apt install libpcre3-dev
-    - name: build-essential
-      run: sudo apt install build-essential
-    - name: libapr1-dev
-      run: sudo apt install libapr1-dev
-    - name: libaprutil1-dev
-      run: sudo apt install libaprutil1-dev
-    - name: apache2-dev
+    - name: apache
       run: sudo apt install apache2-dev 
     - name: opencv
       run: sudo apt install libopencv-dev
-
-
+    - name: google test
+      run: |
+        sudo apt install cmake \
+        sudo apt-get install libgtest-dev \
+        cd /usr/src/gtest/ \
+        sudo cmake CMakeLists.txt \
+        sudo make \
+        sudo cp *.a /usr/lib
+    - name: mrhc
+      run: make
