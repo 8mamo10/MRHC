@@ -30,6 +30,7 @@ jobs:
     - name: apr-util
       run: |
         wget https://downloads.apache.org//apr/apr-util-1.6.1.tar.gz
+        tar xzvf apr-util-1.6.1.tar.gz
         cd apr-util-1.6.1
         CFLAGS="-g" ./configure --with-apr=/usr/local/apr
         make
