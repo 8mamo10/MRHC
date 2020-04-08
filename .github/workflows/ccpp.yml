@@ -55,7 +55,7 @@ jobs:
         make
         sudo make install
         sudo mkdir /usr/local/lib/pkgconfig
-        sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
+        sudo cp ../mrhc/lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
     - name: mrhc
       run: make
