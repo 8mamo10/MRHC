@@ -493,7 +493,7 @@ bool vnc_client::draw_image()
             uint8_t green = ((pixel >> green_shift) & green_max);
             uint8_t blue = ((pixel >> blue_shift) & blue_max);
             //LOGGER_DEBUG("(R,G,B)=(%d,%d,%d)", red, green, blue);
-            rectangle(this->image, cv::Point(x, y), cv::Point(x+1, y+1), cv::Scalar(blue, green, red), -1, cv::LINE_AA);
+            rectangle(this->image, cv::Point(x, y), cv::Point(x+1, y+1), cv::Scalar(blue, green, red), -1, CV_AA);
         }
     }
     cv::imencode(".jpeg", this->image, this->jpeg_buf);
@@ -510,10 +510,10 @@ bool vnc_client::draw_pointer(uint16_t x, uint16_t y)
         uint16_t right_x = x + d;
         uint16_t upper_y = y - d;
         uint16_t lower_y = y + d;
-        rectangle(this->image, cv::Point(left_x, upper_y), cv::Point(left_x+1, upper_y+1), cv::Scalar(0, 0, 0), -1, cv::LINE_AA);
-        rectangle(this->image, cv::Point(right_x, upper_y), cv::Point(right_x+1, upper_y+1), cv::Scalar(0, 0, 0), -1, cv::LINE_AA);
-        rectangle(this->image, cv::Point(left_x, lower_y), cv::Point(left_x+1, lower_y+1), cv::Scalar(0, 0, 0), -1, cv::LINE_AA);
-        rectangle(this->image, cv::Point(right_x, lower_y), cv::Point(right_x+1, lower_y+1), cv::Scalar(0, 0, 0), -1, cv::LINE_AA);
+        rectangle(this->image, cv::Point(left_x, upper_y), cv::Point(left_x+1, upper_y+1), cv::Scalar(0, 0, 0), -1, CV_AA);
+        rectangle(this->image, cv::Point(right_x, upper_y), cv::Point(right_x+1, upper_y+1), cv::Scalar(0, 0, 0), -1, CV_AA);
+        rectangle(this->image, cv::Point(left_x, lower_y), cv::Point(left_x+1, lower_y+1), cv::Scalar(0, 0, 0), -1, CV_AA);
+        rectangle(this->image, cv::Point(right_x, lower_y), cv::Point(right_x+1, lower_y+1), cv::Scalar(0, 0, 0), -1, CV_AA);
     }
     cv::imencode(".jpeg", this->image, this->jpeg_buf);
     return true;
