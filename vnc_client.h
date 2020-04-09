@@ -54,6 +54,10 @@ class vnc_client
     bool draw_pointer(uint16_t x, uint16_t y);
     void clear_buf();
 
+    // for refactor
+    bool authenticate();
+    bool initialize();
+
     std::vector<uint8_t> get_jpeg_buf();
     uint16_t get_width();
     uint16_t get_height();
