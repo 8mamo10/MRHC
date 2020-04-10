@@ -381,12 +381,12 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
     return true;
 }
 
-bool vnc_client::autneticate()
+bool vnc_client::authenticate()
 {
     return false;
 }
 
-bool vnc_clietn::initialize()
+bool vnc_client::initialize()
 {
     return false;
 }
