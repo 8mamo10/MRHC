@@ -55,8 +55,9 @@ class vnc_client
     void clear_buf();
 
     // for refactor
-    bool authenticate();
     bool initialize();
+    bool authenticate();
+    bool configure();
 
     std::vector<uint8_t> get_jpeg_buf();
     uint16_t get_width();
