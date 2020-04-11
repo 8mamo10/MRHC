@@ -4,10 +4,14 @@ Module of Remote Host Computing
 [![MRHC](https://github.com/8mamo10/mrhc/workflows/MRHC/badge.svg)](https://github.com/8mamo10/mrhc/actions?query=workflow%3AMRHC)
 
 ## what's this
-MRHC provides VNC over HTTP.  
+MRHC is apache module provides VNC over HTTP.  
+Using apr + opencv.  
+
 <img src="https://user-images.githubusercontent.com/562105/76103304-ce997f80-6014-11ea-9897-d07f14697cfd.png" width="320px">
 
 ## os
+Support Ubuntu 16.04 for now.
+
 ```
 $ cat /etc/lsb-release
 DISTRIB_ID=Ubuntu
@@ -18,13 +22,53 @@ $ uname -a
 Linux ubuntu-xenial 4.4.0-166-generic #195-Ubuntu SMP Tue Oct 1 09:35:25 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
 ```
 
-## build environment
+## setup build environment
 ```
-$ sudo apt install libpcre3-dev
-$ sudo apt install build-essential
+$ cd mrhc
+$ sudo ./script/setup.sh
 ```
 
-## build apr
+## how to mrhc
+```
+$ cd mrhc
+$ make
+$ sudo make install
+$ sudo make start
+```
+
+## vnc server
+```
+$ sudo apt install ubuntu-desktop # optional, if you need rich gui
+$ sudo apt install vnc4server
+$ vncpasswd
+Password:
+Verify:
+$ vncserver :1 -rfbport 6624
+$ vncserver -kill :1
+```
+
+In some circumstances, the desktop screen may be gray.  
+Add settings for that situation.  
+(see: https://askubuntu.com/questions/800302/vncserver-grey-screen-ubuntu-16-04-lts)  
+```
+$ echo -e "gnome-panel &\ngnome-settings-daemon &\nmetacity &\nnautilus &" >> ~/.vnc/xstartup
+```
+
+## how to test
+```
+$ cd test
+$ vncserver :1 -rfbport 6624;  perl fake_vnc_server_rfb_3_3.pl &; perl fake_vnc_server_rfb_3_8.pl &;
+$ make test
+$ vncserver -kill :1
+```
+
+
+
+
+
+## information for debug
+
+### build apr
 ```
 $ tar xzvf apr-1.7.0.tar.gz
 $ cd apr-1.7.0
@@ -33,7 +77,7 @@ $ make
 $ sudo make install
 ```
 
-## build apr-util
+### build apr-util
 ```
 $ tar xzvf apr-util-1.6.1.tar.gz
 $ cd apr-util-1.6.1
@@ -43,7 +87,7 @@ $ sudo make install
 $ sudo ln -s /usr/local/apr/bin/apu-1-config /usr/bin/apu-1-config
 ```
 
-## build apache
+### build apache
 ```
 $ tar xzvf httpd-2.4.41.tar.gz
 $ cd httpd-2.4.41
@@ -52,7 +96,7 @@ $ make
 $ sudo make install
 ```
 
-## run apache
+### run apache
 ```
 $ /usr/local/apache2/bin/httpd -v
 Server version: Apache/2.4.41 (Unix)
@@ -60,7 +104,7 @@ Server built:   Jan 19 2020 20:20:22
 $ sudo /usr/local/apache2/bin/httpd -k start
 ```
 
-## init apache module
+### init apache module
 ```
 $ /usr/local/apache2/bin/apxs -g -n mrhc
 $ cd mrhc
@@ -68,29 +112,25 @@ $ /usr/local/apache2/bin/apxs -c mod_mrhc.c
 $ sudo /usr/local/apache2/bin/apxs -i -a -c mod_mrhc.c 
 ```
 
-## apache config
+### build opencv (opencv4)
 ```
-$ sudo vi /usr/local/apache2/conf/httpd.conf
-```
-
-```
-LoadModule mrhc_module        modules/mod_mrhc.so
-<IfModule mrhc_module>
-  LogFormat "%h %l %u %t \"%r\" %>s %b \"%{mrhc_log}n\"" common
-  <Location /mrhc>
-    SetHandler mrhc
-  </Location>
-</IfModule>
+$ sudo apt install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+$ cd opencv
+$ mkdir build
+$ cd build
+$ cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local
+$ make
+$ sudo make install
 ```
 
 ```
-$ /usr/local/apache2/bin/httpd -t
-
-Syntax OK
-$ sudo /usr/local/apache2/bin/httpd -k graceful
+$ sudo mkdir /usr/local/lib/pkgconfig
+$ sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
+$ echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig" >> ~/.zshrc
 ```
 
-## gdb
+### gdb
+
 ```
 $ sudo gdb /usr/local/apache2/bin/httpd
 (gdb) b mrhc_handler
@@ -145,56 +185,7 @@ Thread 3 "httpd" hit Breakpoint 1, mrhc_handler (r=0x7ffff7ef70a0) at mod_mrhc.c
 (gdb) set print pretty on
 ```
 
-## build opencv
-```
-$ sudo apt install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-$ cd opencv
-$ mkdir build
-$ cd build
-$ cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local
-$ make
-$ sudo make install
-```
-
-```
-$ sudo mkdir /usr/local/lib/pkgconfig
-$ sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
-$ echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig" >> ~/.zshrc
-```
-
-## how to mrhc
-```
-$ cd mrhc
-$ make
-$ sudo make install
-$ sudo /usr/local/apache2/bin/httpd -k start -X # only support single process for now
-```
-
-or
-
-```
-$ sudo make reload
-```
-
-## vnc server
-```
-$ sudo apt install ubuntu-desktop # optional, if you need rich gui
-$ sudo apt install vnc4server
-$ vncpasswd
-Password:
-Verify:
-$ vncserver :1 -rfbport 6624
-$ vncserver -kill :1
-```
-
-In some circumstances, the desktop screen may be gray.  
-Add settings for that situation.  
-(see: https://askubuntu.com/questions/800302/vncserver-grey-screen-ubuntu-16-04-lts)  
-```
-$ echo -e "gnome-panel &\ngnome-settings-daemon &\nmetacity &\nnautilus &" >> ~/.vnc/xstartup
-```
-
-## google test
+### google test
 ```
 $ tar xzvf release-1.10.0.tar.gz
 $ cd googletest-release-1.10.0
@@ -203,12 +194,4 @@ $ cd build
 $ cmake ..
 $ make
 $ sudo make install
-```
-
-## how to test
-```
-$ cd test
-$ vncserver :1 -rfbport 6624;  perl fake_vnc_server_rfb_3_3.pl &; perl fake_vnc_server_rfb_3_8.pl &;
-$ make test
-$ vncserver -kill :1
 ```
