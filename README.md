@@ -74,7 +74,7 @@ $ sudo vi /usr/local/apache2/conf/httpd.conf
 ```
 
 ```
-LoadModule hoge_module        modules/mod_mrhc.so
+LoadModule mrhc_module        modules/mod_mrhc.so
 <IfModule mrhc_module>
   LogFormat "%h %l %u %t \"%r\" %>s %b \"%{mrhc_log}n\"" common
   <Location /mrhc>

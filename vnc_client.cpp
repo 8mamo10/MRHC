@@ -381,6 +381,21 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
     return true;
 }
 
+bool vnc_client::initialize()
+{
+    return false;
+}
+
+bool vnc_client::authenticate()
+{
+    return false;
+}
+
+bool vnc_client::configure()
+{
+    return false;
+}
+
 //// private /////
 
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
