@@ -1,6 +1,6 @@
 # the used tools
 APXS=/usr/bin/apxs
-APACHECTL=/usr/local/apache2/bin/apachectl
+APACHECTL=/usr/sbin/apache2ctl
 
 # apxs's internal values.
 APXS_CC=`$(APXS) -q CC`
@@ -18,6 +18,9 @@ APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 # Macro
 PROG=mod_mrhc.so
 SRCS=mod_mrhc.cpp vnc_client.cpp d3des.cpp logger.cpp
+MRHC_CONF=mrhc.conf
+APACHE2_MODS_AVAILEBLE=/etc/apache2/mods-available
+APACHE2_MODS_ENABLED=/etc/apache2/mods-enabled
 
 OBJS=$(SRCS:%.cpp=%.o)
 DEPS=$(SRCS:%.cpp=%.d)
@@ -43,6 +46,8 @@ include $(shell ls $(DEPS) 2>/dev/null)
 # install the shared object file into Apache
 install: all
 	$(APXS) -i -a -n 'mrhc' $(PROG)
+	cp conf/$(MRHC_CONF) $(APACHE2_MODS_AVAILEBLE)
+	ln -s -f $(APACHE2_MODS_AVAILEBLE)/$(MRHC_CONF) $(APACHE2_MODS_ENABLED)/$(MRHC_CONF)
 
 # display the apxs variables
 check_apxs_vars:
@@ -69,9 +74,11 @@ reload: install restart
 #   the general Apache start/restart/stop
 #   procedures
 start:
-	$(APACHECTL) start
+#	$(APACHECTL) start
+	$(APACHECTL) -X
 restart:
-	$(APACHECTL) restart
+#	$(APACHECTL) restart
+	$(APACHECTL) -X
 stop:
 	$(APACHECTL) stop
 
