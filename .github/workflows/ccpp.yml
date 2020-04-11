@@ -2,7 +2,7 @@ name: MRHC
 
 on:
   push:
-    branches: [ master, feature/ci_pass ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
