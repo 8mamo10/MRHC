@@ -112,13 +112,13 @@ bool vnc_client::recv_protocol_version()
     memmove(&protocol_version, buf, length);
 
     if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_3, sizeof(RFB_PROTOCOL_VERSION_3_3)) == 0) {
-        this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_3);
+        this->version = std::string(buf);
         LOGGER_DEBUG("RFB Version 3.3");
     } else if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_7, sizeof(RFB_PROTOCOL_VERSION_3_7)) == 0) {
-        this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_7);
+        this->version = std::string(buf);
         LOGGER_DEBUG("RFB Version 3.7");
     } else if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_8, sizeof(RFB_PROTOCOL_VERSION_3_8)) == 0) {
-        this->version = std::string((const char*)RFB_PROTOCOL_VERSION_3_8);
+        this->version = std::string(buf);
         LOGGER_DEBUG("RFB Version 3.8");
     } else {
         LOGGER_DEBUG("Invalid RFB Version");
