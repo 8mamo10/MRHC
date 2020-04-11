@@ -1,7 +1,8 @@
 #ifndef __VNC_CLIENT_H__
 #define __VNC_CLIENT_H__
 
-#include "opencv4/opencv2/core/mat.hpp"
+
+#include "opencv2/core/core.hpp"
 
 #include "rfb_protocol.h"
 

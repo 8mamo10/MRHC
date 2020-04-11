@@ -1,5 +1,5 @@
 # the used tools
-APXS=/usr/local/apache2/bin/apxs
+APXS=/usr/bin/apxs
 APACHECTL=/usr/local/apache2/bin/apachectl
 
 # apxs's internal values.
@@ -23,9 +23,9 @@ OBJS=$(SRCS:%.cpp=%.o)
 DEPS=$(SRCS:%.cpp=%.d)
 
 CC=g++
-INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/local/apr/include/apr-1 `pkg-config --cflags opencv4`
+INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0 `pkg-config --cflags opencv`
 CFLAGS=$(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -O2
-LIBS=`pkg-config --libs opencv4`
+LIBS=`pkg-config --libs opencv`
 
 # the default target
 all: $(PROG)

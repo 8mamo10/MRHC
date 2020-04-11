@@ -14,49 +14,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: apt update
-      run: sudo apt-get update
-    - name: libpcre3-dev
-      run: sudo apt install libpcre3-dev
-    - name: build-essential
-      run: sudo apt install build-essential
-    - name: apr
-      run: |
-        wget https://downloads.apache.org//apr/apr-1.7.0.tar.gz
-        tar xzvf apr-1.7.0.tar.gz
-        cd apr-1.7.0
-        CFLAGS="-g" ./configure
-        make
-        sudo make install
-    - name: apr-util
-      run: |
-        wget https://downloads.apache.org//apr/apr-util-1.6.1.tar.gz
-        tar xzvf apr-util-1.6.1.tar.gz
-        cd apr-util-1.6.1
-        CFLAGS="-g" ./configure --with-apr=/usr/local/apr
-        make
-        sudo make install
-        sudo ln -s /usr/local/apr/bin/apu-1-config /usr/bin/apu-1-config
-    - name: apache2
-      run: |
-        wget https://archive.apache.org/dist/httpd/httpd-2.4.41.tar.gz
-        tar xzvf httpd-2.4.41.tar.gz
-        cd httpd-2.4.41
-        CFLAGS="-g" ./configure # add -g option for gdb debug
-        make
-        sudo make install
+      run: sudo apt update
+    - name: apache
+      run: sudo apt install apache2-dev 
     - name: opencv
+      run: sudo apt install libopencv-dev
+    - name: google test
       run: |
-        sudo apt install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-        git clone https://github.com/opencv/opencv.git
-        cd opencv
-        mkdir build
-        cd build
-        cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local ..
-        make
-        sudo make install
-        cd ../../
-        sudo mkdir /usr/local/lib/pkgconfig
-        sudo cp lib/pkgconfig/opencv4.pc /usr/local/lib/pkgconfig/
-        PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+        sudo apt install cmake
+        sudo apt install libgtest-dev
+        cd /usr/src/gtest/
+        sudo cmake CMakeLists.txt
+        sudo make
+        sudo cp *.a /usr/lib
     - name: mrhc
       run: make
