@@ -28,12 +28,30 @@ $ cd mrhc
 $ sudo ./script/setup.sh
 ```
 
-## how to mrhc
+## build mrhc
 ```
 $ cd mrhc
 $ make
+```
+
+## how to mrhc
+Install apache2 like this.
+```
+$ sudo apt install apache2
+```
+
+```
+$ cd mrhc
 $ sudo make install
 $ sudo make start
+```
+
+Then, access to http://[your host]/mrhc from browser.  
+You're required to authenticate by Basic auth.  
+Please enter in the following format.  
+```
+username: [vnc_host]:[vnc_port]
+password: [vnc_password]
 ```
 
 ## vnc server
@@ -61,10 +79,6 @@ $ vncserver :1 -rfbport 6624;  perl fake_vnc_server_rfb_3_3.pl &; perl fake_vnc_
 $ make test
 $ vncserver -kill :1
 ```
-
-
-
-
 
 ## information for debug
 
