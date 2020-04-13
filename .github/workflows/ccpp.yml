@@ -13,19 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: apt update
-      run: sudo apt update
-    - name: apache
-      run: sudo apt install apache2-dev 
-    - name: opencv
-      run: sudo apt install libopencv-dev
-    - name: google test
-      run: |
-        sudo apt install cmake
-        sudo apt install libgtest-dev
-        cd /usr/src/gtest/
-        sudo cmake CMakeLists.txt
-        sudo make
-        sudo cp *.a /usr/lib
+    - name: setup
+      run: ./script/setup.sh
     - name: mrhc
       run: make
