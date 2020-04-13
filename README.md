@@ -4,13 +4,16 @@ Module of Remote Host Computing
 [![MRHC](https://github.com/8mamo10/mrhc/workflows/MRHC/badge.svg)](https://github.com/8mamo10/mrhc/actions?query=workflow%3AMRHC)
 
 ## what's this
-MRHC is apache module provides VNC over HTTP.  
+MRHC is apache module that provides VNC over HTTP.  
 Using apr + opencv.  
 
 <img src="https://user-images.githubusercontent.com/562105/76103304-ce997f80-6014-11ea-9897-d07f14697cfd.png" width="320px">
 
+MRHC reads as `Murofushi`.  
+This name carries the wish and desire to throw out PC operations.  
+
 ## os
-Support Ubuntu 16.04 for now.
+Support Ubuntu 16.04 for now. (I have not tested the operation with others)  
 
 ```
 $ cat /etc/lsb-release
@@ -40,6 +43,7 @@ Install apache2 like this.
 $ sudo apt install apache2
 ```
 
+Build and install mrhc.
 ```
 $ cd mrhc
 $ sudo make install
