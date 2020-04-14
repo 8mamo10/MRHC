@@ -28,7 +28,7 @@ Linux ubuntu-xenial 4.4.0-166-generic #195-Ubuntu SMP Tue Oct 1 09:35:25 UTC 201
 ## setup build environment
 ```
 $ cd mrhc
-$ sudo ./script/setup.sh
+$ ./script/setup.sh
 ```
 
 ## build mrhc
@@ -38,12 +38,12 @@ $ make
 ```
 
 ## how to mrhc
-Install apache2 like this.
+Install apache2 beforehand, like this.  
 ```
 $ sudo apt install apache2
 ```
 
-Build and install mrhc.
+Build and install mrhc.  
 ```
 $ cd mrhc
 $ sudo make install
@@ -51,7 +51,7 @@ $ sudo make start
 ```
 
 Then, access to http://[your host]/mrhc from browser.  
-You're required to authenticate by Basic auth.  
+You're required to authenticate by basic auth.  
 Please enter in the following format.  
 ```
 username: [vnc_host]:[vnc_port]
@@ -77,9 +77,10 @@ $ echo -e "gnome-panel &\ngnome-settings-daemon &\nmetacity &\nnautilus &" >> ~/
 ```
 
 ## how to test
+Using real vnc server and some fake simulating script of vnc server.  
 ```
 $ cd test
-$ vncserver :1 -rfbport 6624;  perl fake_vnc_server_rfb_3_3.pl &; perl fake_vnc_server_rfb_3_8.pl &;
+$ vncserver :1 -rfbport 6624; perl fake_vnc_server_rfb_3_3.pl &; perl fake_vnc_server_rfb_3_8.pl &;
 $ make test
 $ vncserver -kill :1
 ```
