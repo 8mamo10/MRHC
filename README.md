@@ -28,7 +28,7 @@ Linux ubuntu-xenial 4.4.0-166-generic #195-Ubuntu SMP Tue Oct 1 09:35:25 UTC 201
 ## setup build environment
 ```
 $ cd mrhc
-$ ./script/setup.sh
+$ sudo ./script/setup.sh
 ```
 
 ## build mrhc
