@@ -19,5 +19,9 @@ jobs:
       run: make
     - name: setup test
       run: ./script/setup_test.sh
+    - name: start vnc
+      run: ./test/start_vnc.sh
     - name: mrhc test
       run: make test
+    - name: stop vnc
+      run: ./test/stop_vnc.sh
