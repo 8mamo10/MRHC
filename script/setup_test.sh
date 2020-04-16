@@ -6,7 +6,7 @@ sudo apt install vnc4server
 expect -c "
 spawn vncpasswd
 expect \"Password:\"
-send -- \"testtest\n\"
+send \"testtest\n\"
 expect \"Verify:\"
-send -- \"testtest\n\"
+send \"testtest\n\"
 "
