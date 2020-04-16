@@ -97,10 +97,10 @@ namespace {
         EXPECT_EQ(true, ret);
         ret = v.recv_frame_buffer_update();
         EXPECT_EQ(true, ret);
-        ret = v.draw_image();
-        EXPECT_EQ(true, ret);
-        ret = v.draw_pointer(0, 0);
-        EXPECT_EQ(true, ret);
+        // ret = v.draw_image();
+        // EXPECT_EQ(true, ret);
+        // ret = v.draw_pointer(0, 0);
+        // EXPECT_EQ(true, ret);
     }
 
 };
