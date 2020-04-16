@@ -9,4 +9,5 @@ expect \"Password:\"
 send \"testtest\n\"
 expect \"Verify:\"
 send \"testtest\n\"
+expect
 "
