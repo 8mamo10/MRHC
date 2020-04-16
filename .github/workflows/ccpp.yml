@@ -17,3 +17,7 @@ jobs:
       run: ./script/setup.sh
     - name: mrhc
       run: make
+    - name: setup test
+      run: ./script/setup_test.sh
+    - name: mrhc test
+      run: make test
