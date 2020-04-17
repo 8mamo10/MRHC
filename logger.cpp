@@ -1,7 +1,6 @@
 #include "logger.h"
 
-//const std::string logger::filename = "/usr/local/apache2/logs/mrhc.log";
-const std::string logger::filename = "/var/log/apache2/mrhc.log";
+const std::string logger::filename = "/usr/local/apache2/logs/mrhc.log";
 logger* logger::instance = NULL;
 std::ofstream logger::logfile;
 
