@@ -126,7 +126,7 @@ static int mrhc_handler(request_rec *r)
     }
 
     char host[BUF_SIZE] = {};
-    int port = 0;
+    int  port = 0;
     char password[BUF_SIZE] = {};
     //apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
     apr_status_t ret = ap_get_vnc_param_by_basic_auth_components(r, host, &port, password);
@@ -141,63 +141,16 @@ static int mrhc_handler(request_rec *r)
 
         LOGGER_DEBUG("Start VNC Client");
         vnc_client *client = new vnc_client(host, port, password);
-        if (!client->connect_to_server()) {
-            std::cerr << "Error: " << strerror(errno);
-            ap_rputs("Failed to connect_to_server.", r);
+        if (!client->initialize()) {
+            ap_rputs("Failed to initialize.", r);
             return OK;
         }
-        LOGGER_DEBUG("Connected");
-        // protocol version
-        if (!client->recv_protocol_version()) {
-            ap_rputs("Failed to recv_protocol_version.", r);
+        if (!client->authenticate()) {
+            ap_rputs("Failed to authenticate.", r);
             return OK;
         }
-        if (!client->send_protocol_version()) {
-            ap_rputs("Failed to send_protocol_version.", r);
-            return OK;
-        }
-        LOGGER_DEBUG("Exchanged protocol version");
-        // security type
-        if (!client->recv_supported_security_types()) {
-            ap_rputs("Failed to recv_supported_security_types.", r);
-            return OK;
-        }
-        if (!client->send_security_type()) {
-            ap_rputs("Failed to send_security_type.", r);
-            return OK;
-        }
-        LOGGER_DEBUG("Exchanged security type");
-        // vnc auth
-        if (!client->recv_vnc_auth_challenge()) {
-            ap_rputs("Failed to recv_vnc_auth_challenge.", r);
-            return OK;
-        }
-        if (!client->send_vnc_auth_response()) {
-            ap_rputs("Failed to send_vnc_auth_response.", r);
-            return OK;
-        }
-        if (!client->recv_security_result()) {
-            ap_rputs("Failed to recv_security_result.", r);
-            return OK;
-        }
-        LOGGER_DEBUG("VNC authenticated");
-        // client/server init
-        if (!client->send_client_init()) {
-            ap_rputs("Failed to send_client_init.", r);
-            return OK;
-        }
-        if (!client->recv_server_init()) {
-            ap_rputs("Failed to recv_server_init.", r);
-            return OK;
-        }
-        LOGGER_DEBUG("Exchanged Client/Server Init");
-        // frame buffer update
-        if (!client->send_set_pixel_format()) {
-            ap_rputs("Failed to send_set_pixel_format.", r);
-            return OK;
-        }
-        if (!client->send_set_encodings()) {
-            ap_rputs("Failed to send_set_encodings.", r);
+        if (!client->configure()) {
+            ap_rputs("Failed to confiture.", r);
             return OK;
         }
         // return initial html page with url and image size

@@ -383,17 +383,75 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
 
 bool vnc_client::initialize()
 {
-    return false;
+    if (!this->connect_to_server()) {
+        std::cerr << "Error: " << strerror(errno);
+        LOGGER_DEBUG("Failed to connect_to_server.");
+        return false;
+    }
+    return true;
 }
 
 bool vnc_client::authenticate()
 {
-    return false;
+    // protocol version
+    if (!this->recv_protocol_version()) {
+        LOGGER_DEBUG("Failed to recv_protocol_version.");
+        return false;
+    }
+    if (!this->send_protocol_version()) {
+        LOGGER_DEBUG("Failed to send_protocol_version.");
+        return false;
+    }
+    LOGGER_DEBUG("Exchanged protocol version");
+    // security type
+    if (!this->recv_supported_security_types()) {
+        LOGGER_DEBUG("Failed to recv_supported_security_types.");
+        return false;
+    }
+    if (!this->send_security_type()) {
+        LOGGER_DEBUG("Failed to send_security_type.");
+        return false;
+    }
+    LOGGER_DEBUG("Exchanged security type");
+    // vnc auth
+    if (!this->recv_vnc_auth_challenge()) {
+        LOGGER_DEBUG("Failed to recv_vnc_auth_challenge.");
+        return false;
+    }
+    if (!this->send_vnc_auth_response()) {
+        LOGGER_DEBUG("Failed to send_vnc_auth_response.");
+        return false;
+    }
+    if (!this->recv_security_result()) {
+        LOGGER_DEBUG("Failed to recv_security_result.");
+        return false;
+    }
+    LOGGER_DEBUG("VNC authenticated");
+    return true;
 }
 
 bool vnc_client::configure()
 {
-    return false;
+    // client/server init
+    if (!this->send_client_init()) {
+        LOGGER_DEBUG("Failed to send_client_init.");
+        return false;
+    }
+    if (!this->recv_server_init()) {
+        LOGGER_DEBUG("Failed to recv_server_init.");
+        return false;
+    }
+    LOGGER_DEBUG("Exchanged Client/Server Init");
+    // format/encode
+    if (!this->send_set_pixel_format()) {
+        LOGGER_DEBUG("Failed to send_set_pixel_format.");
+        return false;
+    }
+    if (!this->send_set_encodings()) {
+        LOGGER_DEBUG("Failed to send_set_encodings.");
+        return false;
+    }
+    return true;
 }
 
 //// private /////
