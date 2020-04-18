@@ -25,7 +25,7 @@ class vnc_client
     uint16_t height = 0;
     pixel_format_t pixel_format;
     std::string name;
-    // for output
+    // output
     cv::Mat image;
     std::vector<uint32_t> image_buf;
     std::vector<uint8_t> jpeg_buf;
@@ -35,8 +35,18 @@ class vnc_client
  public:
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();
+    // interface to drive vnc client by mod_mrhc
+    bool initialize();
+    bool authenticate();
+    bool configure();
+    // getter
+    std::vector<uint8_t> get_jpeg_buf();
+    uint16_t get_width();
+    uint16_t get_height();
+    std::string get_version() { return this->version; }
+    ////// make the following public for testing //////
     bool connect_to_server();
-
+    // RFB Protocol (see also: rfb_protocol.h)
     bool recv_protocol_version();
     bool send_protocol_version();
     bool recv_supported_security_types();
@@ -54,18 +64,6 @@ class vnc_client
     bool draw_image();
     bool draw_pointer(uint16_t x, uint16_t y);
     void clear_buf();
-
-    // for refactor
-    bool initialize();
-    bool authenticate();
-    bool configure();
-
-    std::vector<uint8_t> get_jpeg_buf();
-    uint16_t get_width();
-    uint16_t get_height();
-
-    // for unit test
-    std::string get_version() { return this->version; }
 };
 
 #endif
