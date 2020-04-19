@@ -49,6 +49,7 @@ extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
+static std::string mrhc_html(const request_rec *r, const vnc_client *client);
 
 // TODO: Need to support multi process but only support single process for now
 vnc_client *client_cache = NULL;
@@ -155,35 +156,7 @@ static int mrhc_handler(request_rec *r)
         }
         // return initial html page with url and image size
         r->content_type = "text/html";
-        std::string hostname = r->hostname;
-        std::string path = r->unparsed_uri;
-        std::string width = std::to_string(client->get_width());
-        std::string height = std::to_string(client->get_height());
-        std::string html ="\
-<html>                                                                  \
-  <body>                                                                \
-    <image id='mrhc' src='http://" + hostname + path + "' width='" + width + "' height='" + height + "'> \
-  </body>                                                               \
-</html>                                                                 \
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
-<script type=text/javascript>                                           \
-  let fetchLatestImage = () => {                                        \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
-  };                                                                    \
-  let timer = setInterval(fetchLatestImage, 10000);                      \
-  $('#mrhc').on('click', (e) => {                                       \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
-    clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                        \
-  }).on('contextmenu', (e) => {                                         \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
-    clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                        \
-    return false                                                        \
-  });                                                                   \
-</script>";
-        LOGGER_DEBUG(html);
-        ap_rputs(html.c_str(), r);
+        ap_rputs(mrhc_html(r, client).c_str(), r);
         client_cache = client;
         return OK;
     }
@@ -268,6 +241,44 @@ static std::vector<std::string> split_string(std::string s, std::string delim)
     }
     return v;
 }
+
+static std::string mrhc_html(const request_rec *r, const vnc_client *client)
+{
+    std::string html = "";
+    if (r == NULL || client == NULL) {
+        return html;
+    }
+    std::string hostname = r->hostname;
+    std::string path = r->unparsed_uri;
+    std::string width = std::to_string(client->get_width());
+    std::string height = std::to_string(client->get_height());
+    html ="\
+<html>                                                                  \
+  <body>                                                                \
+    <image id='mrhc' src='http://" + hostname + path + "' width='" + width + "' height='" + height + "'> \
+  </body>                                                               \
+</html>                                                                 \
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
+<script type=text/javascript>                                           \
+  let fetchLatestImage = () => {                                        \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
+  };                                                                    \
+  let timer = setInterval(fetchLatestImage, 10000);                      \
+  $('#mrhc').on('click', (e) => {                                       \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
+    clearInterval(timer);                                               \
+    timer = setInterval(fetchLatestImage, 10000);                        \
+  }).on('contextmenu', (e) => {                                         \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
+    clearInterval(timer);                                               \
+    timer = setInterval(fetchLatestImage, 10000);                        \
+    return false                                                        \
+  });                                                                   \
+</script>";
+    LOGGER_DEBUG(html);
+    return html;
+}
+
 
 static void mrhc_register_hooks(apr_pool_t *p)
 {
