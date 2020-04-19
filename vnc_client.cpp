@@ -597,18 +597,3 @@ void vnc_client::clear_buf()
     this->image_buf.clear();
     this->jpeg_buf.clear();
 }
-
-std::vector<uint8_t> vnc_client::get_jpeg_buf()
-{
-    return this->jpeg_buf;
-}
-
-uint16_t vnc_client::get_width()
-{
-    return this->width;
-}
-
-uint16_t vnc_client::get_height()
-{
-    return this->height;
-}

@@ -40,10 +40,10 @@ class vnc_client
     bool authenticate();
     bool configure();
     // getter
-    std::vector<uint8_t> get_jpeg_buf();
-    uint16_t get_width();
-    uint16_t get_height();
-    std::string get_version() { return this->version; }
+    const std::vector<uint8_t> get_jpeg_buf() const { return this->jpeg_buf; };
+    const uint16_t get_width() const { return this->width; };
+    const uint16_t get_height() const { return this->height; };
+    const std::string get_version() const { return this->version; }
     ////// make the following public for testing //////
     bool connect_to_server();
     // RFB Protocol (see also: rfb_protocol.h)
