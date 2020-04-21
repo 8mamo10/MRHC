@@ -426,12 +426,7 @@ bool vnc_client::authenticate()
         LOGGER_DEBUG("Failed to recv_security_result.");
         return false;
     }
-    LOGGER_DEBUG("VNC authenticated");
-    return true;
-}
-
-bool vnc_client::configure()
-{
+    LOGGER_DEBUG("Authenticated");
     // client/server init
     if (!this->send_client_init()) {
         LOGGER_DEBUG("Failed to send_client_init.");
@@ -442,6 +437,11 @@ bool vnc_client::configure()
         return false;
     }
     LOGGER_DEBUG("Exchanged Client/Server Init");
+    return true;
+}
+
+bool vnc_client::configure()
+{
     // format/encode
     if (!this->send_set_pixel_format()) {
         LOGGER_DEBUG("Failed to send_set_pixel_format.");
