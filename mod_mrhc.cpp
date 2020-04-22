@@ -84,15 +84,10 @@ static int mrhc_handler(request_rec *r)
                 if (params[0] == std::string("y")) y = stoi(params[1]);
                 if (params[0] == std::string("b")) button = stoi(params[1]);
             }
-            if (!client_cache->send_pointer_event(x, y, button)) {
-                ap_rputs("Failed to send_pointer_event.", r);
+            if (!client_cache->operate(x, y, button)) {
+                ap_rputs("Failed to operate.", r);
                 return OK;
             }
-            // for emulating double click
-            // if (!client_cache->send_pointer_event(x, y, button)) {
-            //     ap_rputs("Failed to send_pointer_event.", r);
-            //     return OK;
-            // }
             // wait for pointer event to be reflected on the screen
             sleep(1);
         }

@@ -454,6 +454,20 @@ bool vnc_client::configure()
     return true;
 }
 
+bool vnc_client::operate(uint16_t x, uint16_t y, uint8_t button)
+{
+    if (!this->send_pointer_event(x, y, button)) {
+        LOGGER_DEBUG("Failed to send_pointer_event.");
+        return false;
+    }
+    // for emulating double click
+    // if (!this->send_pointer_event(x, y, button)) {
+    //     LOGGER_DEBUG("Failed to send_pointer_event.");
+    //     return false;
+    // }
+    return true;
+}
+
 //// private /////
 
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
