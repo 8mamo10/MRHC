@@ -70,7 +70,6 @@ static int mrhc_handler(request_rec *r)
 
     if (client_cache != NULL) {
         LOGGER_DEBUG("VNC Client is already running.");
-        client_cache->clear_buf();
 
         uint16_t x = 0;
         uint16_t y = 0;
@@ -88,26 +87,11 @@ static int mrhc_handler(request_rec *r)
                 ap_rputs("Failed to operate.", r);
                 return OK;
             }
-            // wait for pointer event to be reflected on the screen
+            // wait for the operation to be reflected
             sleep(1);
         }
-        if (!client_cache->send_frame_buffer_update_request()) {
-            ap_rputs("Failed to send_frame_buffer_update_request.", r);
-            return OK;
-        }
-        if (!client_cache->recv_frame_buffer_update()) {
-            ap_rputs("Failed to recv_frame_buffer_update.", r);
-            return OK;
-        }
-
-        // output image
-        if (!client_cache->draw_image()) {
-            ap_rputs("Failed to draw_image.", r);
-            return OK;
-        }
-        // pointer image
-        if (!client_cache->draw_pointer(x, y)) {
-            ap_rputs("Failed to draw_pointer.", r);
+        if (!client_cache->capture(x, y)) {
+            ap_rputs("Failed to capture.", r);
             return OK;
         }
         std::vector<uint8_t> jpeg_buf = client_cache->get_jpeg_buf();

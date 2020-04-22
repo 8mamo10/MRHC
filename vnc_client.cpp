@@ -468,6 +468,30 @@ bool vnc_client::operate(uint16_t x, uint16_t y, uint8_t button)
     return true;
 }
 
+bool vnc_client::capture(uint16_t x, uint16_t y)
+{
+    this->clear_buf();
+    if (!this->send_frame_buffer_update_request()) {
+        LOGGER_DEBUG("Failed to send_frame_buffer_update_request.");
+        return false;
+    }
+    if (!this->recv_frame_buffer_update()) {
+        LOGGER_DEBUG("Failed to recv_frame_buffer_update.");
+        return false;
+    }
+    // output image
+    if (!this->draw_image()) {
+        LOGGER_DEBUG("Failed to draw_image.");
+        return false;
+    }
+    // pointer image
+    if (!this->draw_pointer(x, y)) {
+        LOGGER_DEBUG("Failed to draw_pointer");
+        return false;
+    }
+    return true;
+}
+
 //// private /////
 
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
