@@ -50,6 +50,8 @@ extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
 static std::string mrhc_html(const request_rec *r, const vnc_client *client);
+static bool mrhc_spin(vnc_client *client, request_rec *r);
+static bool mrhc_throw(vnc_client *client, request_rec *r);
 
 // TODO: Need to support multi process but only support single process for now
 vnc_client *client_cache = NULL;
@@ -70,38 +72,10 @@ static int mrhc_handler(request_rec *r)
 
     if (client_cache != NULL) {
         LOGGER_DEBUG("VNC Client is already running.");
-
-        uint16_t x = 0;
-        uint16_t y = 0;
-        uint8_t button = 0;
-        if (r->parsed_uri.query) {
-            std::vector<std::string> pointer_params = split_string(r->parsed_uri.query, "&");
-            for (unsigned int i = 0; i < pointer_params.size(); i++) {
-                LOGGER_DEBUG(pointer_params[i]);
-                std::vector<std::string> params = split_string(pointer_params[i], "=");
-                if (params[0] == std::string("x")) x = stoi(params[1]);
-                if (params[0] == std::string("y")) y = stoi(params[1]);
-                if (params[0] == std::string("b")) button = stoi(params[1]);
-            }
-            if (!client_cache->operate(x, y, button)) {
-                ap_rputs("Failed to operate.", r);
-                return OK;
-            }
-            // wait for the operation to be reflected
-            sleep(1);
-        }
-        if (!client_cache->capture(x, y)) {
-            ap_rputs("Failed to capture.", r);
+        if (!mrhc_throw(client_cache, r)) {
+            ap_rputs("mrhc failed to throw", r);
             return OK;
         }
-        std::vector<uint8_t> jpeg_buf = client_cache->get_jpeg_buf();
-        LOGGER_DEBUG("jpeg size:%d",jpeg_buf.size());
-        char jpeg[jpeg_buf.size()] = {};
-        for (unsigned int i = 0; i < jpeg_buf.size(); i++) {
-            jpeg[i] = jpeg_buf[i];
-        }
-        r->content_type = "image/jpeg";
-        ap_rwrite(jpeg, jpeg_buf.size(), r);
         return OK;
     }
 
@@ -119,28 +93,81 @@ static int mrhc_handler(request_rec *r)
         LOGGER_DEBUG("port:%d", port);
         LOGGER_DEBUG("password:%s", password);
 
-        LOGGER_DEBUG("Start VNC Client");
+        LOGGER_DEBUG("Start VNC Client");        
         vnc_client *client = new vnc_client(host, port, password);
-        if (!client->initialize()) {
-            ap_rputs("Failed to initialize.", r);
+        if (!mrhc_spin(client, r)) {
+            ap_rputs("mrhc failed to spin", r);
             return OK;
         }
-        if (!client->authenticate()) {
-            ap_rputs("Failed to authenticate.", r);
-            return OK;
-        }
-        if (!client->configure()) {
-            ap_rputs("Failed to confiture.", r);
-            return OK;
-        }
-        // return initial html page with url and image size
-        r->content_type = "text/html";
-        ap_rputs(mrhc_html(r, client).c_str(), r);
         client_cache = client;
         return OK;
     }
     ap_rputs("not reach here", r);
     return OK;
+}
+
+static bool mrhc_spin(vnc_client *client, request_rec *r)
+{
+    if (client == NULL || r == NULL) {
+        LOGGER_DEBUG("Invalid arguments.");
+        return false;
+    }
+    if (!client->initialize()) {
+        LOGGER_DEBUG("Failed to initialize.");
+        return false;
+    }
+    if (!client->authenticate()) {
+        LOGGER_DEBUG("Failed to authenticate.");
+        return false;
+    }
+    if (!client->configure()) {
+        LOGGER_DEBUG("Failed to configure.");
+        return false;
+    }
+    // return initial html page with url and image size
+    r->content_type = "text/html";
+    ap_rputs(mrhc_html(r, client).c_str(), r);
+    return true;
+}
+
+static bool mrhc_throw(vnc_client *client, request_rec *r)
+{
+    if (client == NULL || r == NULL) {
+        LOGGER_DEBUG("Invalid arguments.");
+        return false;
+    }
+    uint16_t x = 0;
+    uint16_t y = 0;
+    uint8_t button = 0;
+    if (r->parsed_uri.query) {
+        std::vector<std::string> pointer_params = split_string(r->parsed_uri.query, "&");
+        for (unsigned int i = 0; i < pointer_params.size(); i++) {
+            LOGGER_DEBUG(pointer_params[i]);
+            std::vector<std::string> params = split_string(pointer_params[i], "=");
+            if (params[0] == std::string("x")) x = stoi(params[1]);
+            if (params[0] == std::string("y")) y = stoi(params[1]);
+            if (params[0] == std::string("b")) button = stoi(params[1]);
+        }
+        if (!client->operate(x, y, button)) {
+            LOGGER_DEBUG("Failed to operate.");
+            return false;
+        }
+        // wait for the operation to be reflected
+        sleep(1);
+    }
+    if (!client->capture(x, y)) {
+        LOGGER_DEBUG("Failed to capture.");
+        return false;
+    }
+    std::vector<uint8_t> jpeg_buf = client->get_jpeg_buf();
+    LOGGER_DEBUG("jpeg size:%d",jpeg_buf.size());
+    char jpeg[jpeg_buf.size()] = {};
+    for (unsigned int i = 0; i < jpeg_buf.size(); i++) {
+        jpeg[i] = jpeg_buf[i];
+    }
+    r->content_type = "image/jpeg";
+    ap_rwrite(jpeg, jpeg_buf.size(), r);
+    return true;
 }
 
 // Since I want to use `:` as a part of username of basic auth, I reinvent a function.
