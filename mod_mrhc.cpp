@@ -49,9 +49,9 @@ extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
-static std::string mrhc_html(const request_rec *r, const vnc_client *client);
 static bool mrhc_spin(vnc_client *client, request_rec *r);
 static bool mrhc_throw(vnc_client *client, request_rec *r);
+static std::string mrhc_html(const request_rec *r, const vnc_client *client);
 
 // TODO: Need to support multi process but only support single process for now
 vnc_client *client_cache = NULL;
