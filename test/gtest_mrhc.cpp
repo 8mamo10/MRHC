@@ -65,42 +65,21 @@ namespace {
     TEST_F(mrhc_test, test_vnc_sequence)
     {
         vnc_client v = vnc_client("127.0.0.1", MRHC_TEST_PORT, "testtest");
-        bool ret = v.connect_to_server();
-        ret = v.recv_protocol_version();
+        bool ret = v.initialize();
         EXPECT_EQ(true, ret);
+        ret = v.authenticate();
+        EXPECT_EQ(true, ret);
+        ret = v.configure();
+        EXPECT_EQ(true, ret);
+        ret = v.configure();
+        EXPECT_EQ(true, ret);
+        ret = v.operate(0, 0, 0);
+        EXPECT_EQ(true, ret);
+        ret = v.capture(0, 0);
+        EXPECT_EQ(true, ret);
+
         // RFB 003.008
         std::string version = std::string({0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x38, 0x0a});
         EXPECT_EQ(version, v.get_version());
-        ret = v.send_protocol_version();
-        EXPECT_EQ(true, ret);
-        ret = v.recv_supported_security_types();
-        EXPECT_EQ(true, ret);
-        ret = v.send_security_type();
-        EXPECT_EQ(true, ret);
-        ret = v.recv_vnc_auth_challenge();
-        EXPECT_EQ(true, ret);
-        ret = v.send_vnc_auth_response();
-        EXPECT_EQ(true, ret);
-        ret = v.recv_security_result();
-        EXPECT_EQ(true, ret);
-        ret = v.send_client_init();
-        EXPECT_EQ(true, ret);
-        ret = v.recv_server_init();
-        EXPECT_EQ(true, ret);
-        ret = v.send_set_pixel_format();
-        EXPECT_EQ(true, ret);
-        ret = v.send_set_encodings();
-        EXPECT_EQ(true, ret);
-        ret = v.send_pointer_event(0, 0, 0);
-        EXPECT_EQ(true, ret);
-        ret = v.send_frame_buffer_update_request();
-        EXPECT_EQ(true, ret);
-        ret = v.recv_frame_buffer_update();
-        EXPECT_EQ(true, ret);
-        ret = v.draw_image();
-        EXPECT_EQ(true, ret);
-        ret = v.draw_pointer(0, 0);
-        EXPECT_EQ(true, ret);
     }
-
 };
