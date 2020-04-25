@@ -6,6 +6,12 @@
 
 #include "rfb_protocol.h"
 
+typedef struct vnc_operation {
+    uint16_t x;
+    uint16_t y;
+    uint8_t button;
+} vnc_operation_t;
+
 class vnc_client
 {
  private:
@@ -39,8 +45,8 @@ class vnc_client
     bool initialize();
     bool authenticate();
     bool configure();
-    bool operate(uint16_t x, uint16_t y, uint8_t button);
-    bool capture(uint16_t x, uint16_t y);
+    bool operate(vnc_operation_t operation);
+    bool capture(vnc_operation_t operation);
     // getter
     const std::vector<uint8_t> get_jpeg_buf() const { return this->jpeg_buf; };
     const uint16_t get_width() const { return this->width; };

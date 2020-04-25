@@ -454,8 +454,11 @@ bool vnc_client::configure()
     return true;
 }
 
-bool vnc_client::operate(uint16_t x, uint16_t y, uint8_t button)
+bool vnc_client::operate(vnc_operation_t operation)
 {
+    uint16_t x = operation.x;
+    uint16_t y = operation.y;
+    uint8_t button = operation.button;
     if (!this->send_pointer_event(x, y, button)) {
         LOGGER_DEBUG("Failed to send_pointer_event.");
         return false;
@@ -468,9 +471,12 @@ bool vnc_client::operate(uint16_t x, uint16_t y, uint8_t button)
     return true;
 }
 
-bool vnc_client::capture(uint16_t x, uint16_t y)
+bool vnc_client::capture(vnc_operation_t operation)
 {
     this->clear_buf();
+
+    uint16_t x = operation.x;
+    uint16_t y = operation.y;
     if (!this->send_frame_buffer_update_request()) {
         LOGGER_DEBUG("Failed to send_frame_buffer_update_request.");
         return false;

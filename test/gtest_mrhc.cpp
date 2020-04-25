@@ -73,9 +73,9 @@ namespace {
         EXPECT_EQ(true, ret);
         ret = v.configure();
         EXPECT_EQ(true, ret);
-        ret = v.operate(0, 0, 0);
+        ret = v.operate({});
         EXPECT_EQ(true, ret);
-        ret = v.capture(0, 0);
+        ret = v.capture({});
         EXPECT_EQ(true, ret);
 
         // RFB 003.008

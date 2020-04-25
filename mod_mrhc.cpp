@@ -47,11 +47,12 @@
 
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
-static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
-static std::vector<std::string> split_string(std::string s, std::string delim);
 static bool mrhc_spin(vnc_client *client, request_rec *r);
 static bool mrhc_throw(vnc_client *client, request_rec *r);
+static vnc_operation_t mrhc_query(const request_rec *r);
 static std::string mrhc_html(const request_rec *r, const vnc_client *client);
+static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
+static std::vector<std::string> split_string(std::string s, std::string delim);
 
 // TODO: Need to support multi process but only support single process for now
 vnc_client *client_cache = NULL;
@@ -66,28 +67,29 @@ static int mrhc_handler(request_rec *r)
     if (strcmp(r->handler, "mrhc")) {
         return DECLINED;
     }
+
     if (r->header_only) {
         return DECLINED;
     }
 
+    // mrhc is already spinning, throw it.
     if (client_cache != NULL) {
         LOGGER_DEBUG("VNC Client is already running.");
         if (!mrhc_throw(client_cache, r)) {
             ap_rputs("mrhc failed to throw", r);
-            return OK;
         }
         return OK;
     }
-
+    // get the throwing destination with basic authentication
     char host[BUF_SIZE] = {};
     int  port = 0;
     char password[BUF_SIZE] = {};
-    //apr_status_t ret = ap_get_basic_auth_components(r, &username, &password);
     apr_status_t ret = ap_get_vnc_param_by_basic_auth_components(r, host, &port, password);
     if (ret == APR_EINVAL) {
         apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
         return HTTP_UNAUTHORIZED;
     }
+    // mrhc begins to spin
     if (ret == APR_SUCCESS) {
         LOGGER_DEBUG("host:%s", host);
         LOGGER_DEBUG("port:%d", port);
@@ -102,6 +104,7 @@ static int mrhc_handler(request_rec *r)
         client_cache = client;
         return OK;
     }
+    // mrhc is disqualified
     ap_rputs("not reach here", r);
     return OK;
 }
@@ -136,26 +139,17 @@ static bool mrhc_throw(vnc_client *client, request_rec *r)
         LOGGER_DEBUG("Invalid arguments.");
         return false;
     }
-    uint16_t x = 0;
-    uint16_t y = 0;
-    uint8_t button = 0;
+    vnc_operation_t operation = vnc_operation_t{};
     if (r->parsed_uri.query) {
-        std::vector<std::string> pointer_params = split_string(r->parsed_uri.query, "&");
-        for (unsigned int i = 0; i < pointer_params.size(); i++) {
-            LOGGER_DEBUG(pointer_params[i]);
-            std::vector<std::string> params = split_string(pointer_params[i], "=");
-            if (params[0] == std::string("x")) x = stoi(params[1]);
-            if (params[0] == std::string("y")) y = stoi(params[1]);
-            if (params[0] == std::string("b")) button = stoi(params[1]);
-        }
-        if (!client->operate(x, y, button)) {
+        operation = mrhc_query(r);
+        if (!client->operate(operation)) {
             LOGGER_DEBUG("Failed to operate.");
             return false;
         }
         // wait for the operation to be reflected
         sleep(1);
     }
-    if (!client->capture(x, y)) {
+    if (!client->capture(operation)) {
         LOGGER_DEBUG("Failed to capture.");
         return false;
     }
@@ -168,6 +162,60 @@ static bool mrhc_throw(vnc_client *client, request_rec *r)
     r->content_type = "image/jpeg";
     ap_rwrite(jpeg, jpeg_buf.size(), r);
     return true;
+}
+
+static vnc_operation_t mrhc_query(const request_rec *r)
+{
+    vnc_operation_t op = vnc_operation_t{};
+    if (r->parsed_uri.query == NULL) {
+        return op;
+    }
+    std::vector<std::string> pointer_params = split_string(r->parsed_uri.query, "&");
+    for (unsigned int i = 0; i < pointer_params.size(); i++) {
+        LOGGER_DEBUG(pointer_params[i]);
+        std::vector<std::string> params = split_string(pointer_params[i], "=");
+        if (params[0] == std::string("x")) op.x = stoi(params[1]);
+        if (params[0] == std::string("y")) op.y = stoi(params[1]);
+        if (params[0] == std::string("b")) op.button = stoi(params[1]);
+    }
+    return op;
+}
+
+static std::string mrhc_html(const request_rec *r, const vnc_client *client)
+{
+    std::string html = "";
+    if (r == NULL || client == NULL) {
+        return html;
+    }
+    std::string hostname = r->hostname;
+    std::string path = r->unparsed_uri;
+    std::string width = std::to_string(client->get_width());
+    std::string height = std::to_string(client->get_height());
+    html ="\
+<html>                                                                  \
+  <body>                                                                \
+    <image id='mrhc' src='http://" + hostname + path + "' width='" + width + "' height='" + height + "'> \
+  </body>                                                               \
+</html>                                                                 \
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
+<script type=text/javascript>                                           \
+  let fetchLatestImage = () => {                                        \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
+  };                                                                    \
+  let timer = setInterval(fetchLatestImage, 10000);                      \
+  $('#mrhc').on('click', (e) => {                                       \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
+    clearInterval(timer);                                               \
+    timer = setInterval(fetchLatestImage, 10000);                        \
+  }).on('contextmenu', (e) => {                                         \
+    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
+    clearInterval(timer);                                               \
+    timer = setInterval(fetchLatestImage, 10000);                        \
+    return false                                                        \
+  });                                                                   \
+</script>";
+    LOGGER_DEBUG(html);
+    return html;
 }
 
 // Since I want to use `:` as a part of username of basic auth, I reinvent a function.
@@ -247,44 +295,6 @@ static std::vector<std::string> split_string(std::string s, std::string delim)
     }
     return v;
 }
-
-static std::string mrhc_html(const request_rec *r, const vnc_client *client)
-{
-    std::string html = "";
-    if (r == NULL || client == NULL) {
-        return html;
-    }
-    std::string hostname = r->hostname;
-    std::string path = r->unparsed_uri;
-    std::string width = std::to_string(client->get_width());
-    std::string height = std::to_string(client->get_height());
-    html ="\
-<html>                                                                  \
-  <body>                                                                \
-    <image id='mrhc' src='http://" + hostname + path + "' width='" + width + "' height='" + height + "'> \
-  </body>                                                               \
-</html>                                                                 \
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
-<script type=text/javascript>                                           \
-  let fetchLatestImage = () => {                                        \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
-  };                                                                    \
-  let timer = setInterval(fetchLatestImage, 10000);                      \
-  $('#mrhc').on('click', (e) => {                                       \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
-    clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                        \
-  }).on('contextmenu', (e) => {                                         \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
-    clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                        \
-    return false                                                        \
-  });                                                                   \
-</script>";
-    LOGGER_DEBUG(html);
-    return html;
-}
-
 
 static void mrhc_register_hooks(apr_pool_t *p)
 {
