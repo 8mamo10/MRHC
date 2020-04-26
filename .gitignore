@@ -10,7 +10,7 @@ apr-util-1.6.1
 httpd-2.4.41
 opencv
 vnc-4_1_3-unixsrc
-a.out
+*.out
 *.d
 *.la
 *.lo
