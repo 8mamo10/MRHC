@@ -1,3 +1,4 @@
+// g++ -std=c++11 semaphore_a.cpp -o a.out 
 #include<sys/ipc.h>
 #include<sys/sem.h>
 #include<sys/types.h>
