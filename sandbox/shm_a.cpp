@@ -6,6 +6,24 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
+
+
+class vnc_client
+{
+public:
+    int sockfd;
+    std::string host;
+    int port;
+    std::string password;
+
+    vnc_client() {
+        this->sockfd = 0;
+        this->host = "";
+        this->port = 0;
+        this->password = "";
+    };
+};
+
 using namespace std;
 
 int main(){
@@ -32,17 +50,21 @@ int main(){
     }
 
     // attach to process
+    vnc_client *v = new vnc_client();
     char* const shared_memory = reinterpret_cast<char*>(shmat(seg_id, 0, 0));
 
     // write to shared memory
     string s;
+
     int flag = 0;
     cout << "if you want to close, please type 'q'" << endl;
     while(flag == 0){
         cout << "word: ";
         cin >> s;
         if(s == "q") flag = 1;
-        else sprintf(shared_memory, s.c_str());
+        else {
+            sprintf(shared_memory, s.c_str());
+        }
     }
 
     // detach from process
