@@ -7,22 +7,11 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
-class vnc_client
-{
-public:
-    int sockfd;
-    std::string host;
-    int port;
-    std::string password;
-
-    vnc_client() {
-        this->sockfd = 0;
-        this->host = "";
-        this->port = 0;
-        this->password = "";
-    };
-};
+#include "tmp_vnc_client.h"
 
 using namespace std;
 
