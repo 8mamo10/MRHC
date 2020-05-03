@@ -30,7 +30,9 @@ int main(){
     }
 
     // shm id
-    const int size = 0x6400;
+    //const int size = 0x6400;
+    const int size = sizeof(vnc_client);
+    cout << "shm size: " << size << endl;
     const int seg_id = shmget(key, size,
                               IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
     if(seg_id == -1){
@@ -39,26 +41,35 @@ int main(){
     }
 
     // attach to process
-    vnc_client *v = new vnc_client();
-    char* const shared_memory = reinterpret_cast<char*>(shmat(seg_id, 0, 0));
+    cout << "vnc_client size: " << sizeof(vnc_client) << endl;
+    void *shared_memory = shmat(seg_id, 0, 0);
+    //T*  ptr =  new ( adr ) T();
+    vnc_client *ptr = new (shared_memory) vnc_client();
+    string host = ptr->get_host();
+    cout << "host: " << host << endl;
 
-    // write to shared memory
-    string s;
+    // // write to shared memory
+    // string s;
 
-    int flag = 0;
-    cout << "if you want to close, please type 'q'" << endl;
-    while(flag == 0){
-        cout << "word: ";
-        cin >> s;
-        if(s == "q") flag = 1;
-        else {
-            sprintf(shared_memory, s.c_str());
-        }
+    // int flag = 0;
+    // cout << "if you want to close, please type 'q'" << endl;
+    // while(flag == 0){
+    //     cout << "word: ";
+    //     cin >> s;
+    //     if(s == "q") flag = 1;
+    //     else {
+    //         //sprintf(shared_memory, s.c_str());
+    //     }
+    // }
+
+    if (!ptr->connect_to_server()) {
+        cout << "failed to connect_to_server" << endl;
+        shmdt(shared_memory);
+        shmctl(seg_id, IPC_RMID, NULL);
+        return false;
     }
-
     // detach from process
     shmdt(shared_memory);
-
     // free shared memory
     shmctl(seg_id, IPC_RMID, NULL);
 
