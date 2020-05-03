@@ -64,10 +64,18 @@ int main(){
 
     if (!ptr->connect_to_server()) {
         cout << "failed to connect_to_server" << endl;
-        shmdt(shared_memory);
-        shmctl(seg_id, IPC_RMID, NULL);
-        return false;
+        goto fin;
     }
+    if (!ptr->recv_protocol_version()) {
+        cout << "failed to recv_protool_version" << endl;
+        goto fin;
+    }
+    if (!ptr->send_protocol_version()) {
+        cout << "failed to send_protool_version" << endl;
+        goto fin;
+    }
+
+ fin:
     // detach from process
     shmdt(shared_memory);
     // free shared memory

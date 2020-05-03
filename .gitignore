@@ -17,3 +17,5 @@ vnc-4_1_3-unixsrc
 *.o
 *.slo
 *.so
+core
+key.dat
