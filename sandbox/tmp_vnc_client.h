@@ -10,9 +10,9 @@ public:
 
     vnc_client() {
         this->sockfd = 0;
-        this->host = "";
-        this->port = 0;
-        this->password = "";
+        this->host = "127.0.0.1";
+        this->port = 6623;
+        this->password = "testtest";
     };
     bool connect_to_server()
     {
@@ -28,4 +28,5 @@ public:
         }
         return true;
     }
+    std::string get_host() { return this->host; }
 };
