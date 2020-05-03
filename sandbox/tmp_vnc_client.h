@@ -1,4 +1,7 @@
+#include <iostream>
 #include <string>
+
+#define BUF_SIZE 1024
 
 class vnc_client
 {
@@ -26,6 +29,26 @@ public:
         if (connect(this->sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
             return false;
         }
+        return true;
+    }
+    bool recv_protocol_version() {
+        char buf[BUF_SIZE] = {};
+        int length = recv(this->sockfd, buf, sizeof(buf), 0);
+        if (length < 0) {
+            return false;
+        }
+        std::cout << "recv: " << length << std::endl;
+        return true;
+    }
+    bool send_protocol_version()
+    {
+        // RFB 003.003\n
+        const uint8_t RFB_PROTOCOL_VERSION_3_3[] = {0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x33, 0x0a};
+        int length = send(this->sockfd, &RFB_PROTOCOL_VERSION_3_3, 12, 0);
+        if (length < 0) {
+            return false;
+        }
+        std::cout << "send: " << length << std::endl;
         return true;
     }
     std::string get_host() { return this->host; }
