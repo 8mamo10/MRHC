@@ -1,6 +1,10 @@
 #include <iostream>
 #include <string>
 
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 #define BUF_SIZE 1024
 
 class vnc_client
@@ -12,10 +16,10 @@ public:
     std::string password;
 
     vnc_client() {
-        this->sockfd = 0;
-        this->host = "127.0.0.1";
-        this->port = 6623;
-        this->password = "testtest";
+        /* this->sockfd = 0; */
+        /* this->host = "127.0.0.1"; */
+        /* this->port = 6623; */
+        /* this->password = "testtest"; */
     };
     bool connect_to_server()
     {
@@ -52,4 +56,7 @@ public:
         return true;
     }
     std::string get_host() { return this->host; }
+    void set_host(std::string h) { this->host = h; }
+    int get_port() { return this->port; }
+    void set_port(int p) { this->port = p; }
 };

@@ -7,10 +7,6 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-
 #include "tmp_vnc_client.h"
 
 using namespace std;
@@ -40,40 +36,54 @@ int main(){
         return EXIT_FAILURE;
     }
 
+    cout << "key: " << key << endl;
+    cout << "seg_id: " << seg_id << endl;
+
     // attach to process
     cout << "vnc_client size: " << sizeof(vnc_client) << endl;
     void *shared_memory = shmat(seg_id, 0, 0);
+    cout << "shaderd_memory: " << shared_memory << endl;
+
     //T*  ptr =  new ( adr ) T();
-    vnc_client *ptr = new (shared_memory) vnc_client();
-    string host = ptr->get_host();
+    vnc_client *v = new (shared_memory) vnc_client();
+    cout << "v: " << v << endl;
+    v->set_host("127.0.0.1");
+    string host = v->get_host();
     cout << "host: " << host << endl;
+    v->set_port(6623);
+    int port = v->get_port();
+    cout << "port: " << port << endl;
 
-    // // write to shared memory
-    // string s;
-
-    // int flag = 0;
-    // cout << "if you want to close, please type 'q'" << endl;
-    // while(flag == 0){
-    //     cout << "word: ";
-    //     cin >> s;
-    //     if(s == "q") flag = 1;
-    //     else {
-    //         //sprintf(shared_memory, s.c_str());
-    //     }
-    // }
-
-    if (!ptr->connect_to_server()) {
+    // to wait other process
+    string s;
+    int flag = 0;
+    /*
+    if (!v->connect_to_server()) {
         cout << "failed to connect_to_server" << endl;
         goto fin;
     }
-    if (!ptr->recv_protocol_version()) {
+    if (!v->recv_protocol_version()) {
         cout << "failed to recv_protool_version" << endl;
         goto fin;
     }
-    if (!ptr->send_protocol_version()) {
+    */
+    // wait another process
+    cout << "if you want to close, please type 'q'" << endl;
+    while (flag == 0) {
+        //cout << "word: ";
+        cin >> s;
+        if (s == "q") {
+            flag = 1;
+        } else {
+            //sprintf(shared_memory, s.c_str());
+        }
+    }
+    /*
+    if (!v->send_protocol_version()) {
         cout << "failed to send_protool_version" << endl;
         goto fin;
     }
+    */
 
  fin:
     // detach from process
