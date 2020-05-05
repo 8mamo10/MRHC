@@ -33,8 +33,12 @@ int main(){
     void *shared_memory = shmat(seg_id, 0, 0);
     cout << "shared_memory: " << shared_memory << endl;
     vnc_client *v = (vnc_client*)shared_memory;
+    // string is unable to be shared. only primitive data type is capable ?
     //string host = v->get_host();
     //cout << "host: " << host << endl;
+    char host_c[BUF_SIZE] = {};
+    v->get_host_c(host_c);
+    cout << "host_c: " << host_c << endl;
     int port = v->get_port();
     cout << "port: " << port << endl;
     /*

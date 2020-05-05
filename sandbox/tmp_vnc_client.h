@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <string.h>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -12,6 +13,7 @@ class vnc_client
 public:
     int sockfd;
     std::string host;
+    char host_c[BUF_SIZE];
     int port;
     std::string password;
 
@@ -57,6 +59,8 @@ public:
     }
     std::string get_host() { return this->host; }
     void set_host(std::string h) { this->host = h; }
+    void get_host_c(char *dst) { memmove(dst, this->host_c, strlen(this->host_c)); }
+    void set_host_c(const char *h, int length) { memmove(this->host_c, h, length); }
     int get_port() { return this->port; }
     void set_port(int p) { this->port = p; }
 };

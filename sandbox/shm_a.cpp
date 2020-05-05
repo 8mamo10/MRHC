@@ -47,9 +47,17 @@ int main(){
     //T*  ptr =  new ( adr ) T();
     vnc_client *v = new (shared_memory) vnc_client();
     cout << "v: " << v << endl;
-    v->set_host("127.0.0.1");
+
+    string localhost = "127.0.0.1";
+    v->set_host(localhost);
     string host = v->get_host();
     cout << "host: " << host << endl;
+
+    v->set_host_c(localhost.c_str(), localhost.length());
+    char host_c[BUF_SIZE] = {};
+    v->get_host_c(host_c);
+    cout << "host_c: " << host_c << endl;
+
     v->set_port(6623);
     int port = v->get_port();
     cout << "port: " << port << endl;
@@ -57,7 +65,6 @@ int main(){
     // to wait other process
     string s;
     int flag = 0;
-    /*
     if (!v->connect_to_server()) {
         cout << "failed to connect_to_server" << endl;
         goto fin;
@@ -66,7 +73,7 @@ int main(){
         cout << "failed to recv_protool_version" << endl;
         goto fin;
     }
-    */
+
     // wait another process
     cout << "if you want to close, please type 'q'" << endl;
     while (flag == 0) {
