@@ -69,6 +69,9 @@ int main(){
         cout << "failed to connect_to_server" << endl;
         goto fin;
     }
+
+    cout << "sockfd: " << v->get_sockfd() << endl;
+
     if (!v->recv_protocol_version()) {
         cout << "failed to recv_protool_version" << endl;
         goto fin;

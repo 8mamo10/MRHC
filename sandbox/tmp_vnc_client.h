@@ -44,6 +44,7 @@ public:
             return false;
         }
         std::cout << "recv: " << length << std::endl;
+        std::cout << "buf: " << buf << std::endl;
         return true;
     }
     bool send_protocol_version()
@@ -63,4 +64,5 @@ public:
     void set_host_c(const char *h, int length) { memmove(this->host_c, h, length); }
     int get_port() { return this->port; }
     void set_port(int p) { this->port = p; }
+    int get_sockfd() { return this->sockfd; }
 };

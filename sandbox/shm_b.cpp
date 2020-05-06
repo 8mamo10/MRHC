@@ -41,11 +41,10 @@ int main(){
     cout << "host_c: " << host_c << endl;
     int port = v->get_port();
     cout << "port: " << port << endl;
-    /*
+    cout << "sockfd: " << v->get_sockfd() << endl;
     if (!v->send_protocol_version()) {
         cout << "failed to send_protool_version" << endl;
     }
-    */
     // read frm sahred memory
     // int flag = 0;
     // char c;
