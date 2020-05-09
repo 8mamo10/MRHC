@@ -78,6 +78,9 @@ namespace {
         ret = v.capture({});
         EXPECT_EQ(true, ret);
 
+        ret = v.write_jpeg_buf("/tmp/mrhc.jpeg");
+        EXPECT_EQ(true, ret);
+
         // RFB 003.008
         std::string version = std::string({0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x38, 0x0a});
         EXPECT_EQ(version, v.get_version());

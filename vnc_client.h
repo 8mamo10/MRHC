@@ -21,7 +21,6 @@ class vnc_client
     std::string host;
     int port;
     std::string password;
-
     // handshaking
     std::string version;
     std::vector<uint8_t> security_types;
@@ -47,11 +46,15 @@ class vnc_client
     bool configure();
     bool operate(vnc_operation_t operation);
     bool capture(vnc_operation_t operation);
+
+    bool write_jpeg_buf(const std::string path);
+
     // getter
     const std::vector<uint8_t> get_jpeg_buf() const { return this->jpeg_buf; };
     const uint16_t get_width() const { return this->width; };
     const uint16_t get_height() const { return this->height; };
     const std::string get_version() const { return this->version; }
+
     ////// make the following public for testing //////
     bool connect_to_server();
     // RFB Protocol (see also: rfb_protocol.h)

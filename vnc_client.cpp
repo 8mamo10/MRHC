@@ -498,6 +498,11 @@ bool vnc_client::capture(vnc_operation_t operation)
     return true;
 }
 
+bool vnc_client::write_jpeg_buf(const std::string path)
+{
+    return cv::imwrite(path, this->image);
+}
+
 //// private /////
 
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
