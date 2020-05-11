@@ -10,6 +10,7 @@ typedef struct vnc_operation {
     uint16_t x;
     uint16_t y;
     uint8_t button;
+    uint8_t logout;
 } vnc_operation_t;
 
 class vnc_client

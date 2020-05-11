@@ -77,6 +77,10 @@ static int mrhc_handler(request_rec *r)
         LOGGER_DEBUG("VNC Client is already running.");
         if (!mrhc_throw(client_cache, r)) {
             ap_rputs("mrhc failed to throw", r);
+            apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+            //apr_table_set(r->err_headers_out, "Location", "http://mrhc.8mamo10.net/mrhc");
+            return HTTP_UNAUTHORIZED;
+            //return HTTP_MOVED_TEMPORARILY;
         }
         return OK;
     }
@@ -99,7 +103,8 @@ static int mrhc_handler(request_rec *r)
         vnc_client *client = new vnc_client(host, port, password);
         if (!mrhc_spin(client, r)) {
             ap_rputs("mrhc failed to spin", r);
-            return OK;
+            //apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+            //return HTTP_UNAUTHORIZED;
         }
         client_cache = client;
         return OK;
@@ -142,6 +147,11 @@ static bool mrhc_throw(vnc_client *client, request_rec *r)
     vnc_operation_t operation = vnc_operation_t{};
     if (r->parsed_uri.query) {
         operation = mrhc_query(r);
+        if (operation.logout == 1) {
+            delete client_cache;
+            client_cache = NULL;
+            return false;
+        }
         if (!client->operate(operation)) {
             LOGGER_DEBUG("Failed to operate.");
             return false;
@@ -177,6 +187,7 @@ static vnc_operation_t mrhc_query(const request_rec *r)
         if (params[0] == std::string("x")) op.x = stoi(params[1]);
         if (params[0] == std::string("y")) op.y = stoi(params[1]);
         if (params[0] == std::string("b")) op.button = stoi(params[1]);
+        if (params[0] == std::string("l")) op.logout = stoi(params[1]);
     }
     return op;
 }
@@ -194,6 +205,8 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
     html ="\
 <html>                                                                  \
   <body>                                                                \
+    <button type='button' id='logout'>logout</button>                   \
+    <br/>                                                               \
     <image id='mrhc' src='http://" + hostname + path + "' width='" + width + "' height='" + height + "'> \
   </body>                                                               \
 </html>                                                                 \
@@ -202,16 +215,19 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
   let fetchLatestImage = () => {                                        \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
   };                                                                    \
-  let timer = setInterval(fetchLatestImage, 10000);                      \
+  let timer = setInterval(fetchLatestImage, 10000);                     \
   $('#mrhc').on('click', (e) => {                                       \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
     clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                        \
+    timer = setInterval(fetchLatestImage, 10000);                       \
   }).on('contextmenu', (e) => {                                         \
     $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
     clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                        \
-    return false                                                        \
+    timer = setInterval(fetchLatestImage, 10000);                       \
+    return false;                                                       \
+  });                                                                   \
+  $('#logout').on('click', (e) => {                                     \
+    window.location.href = 'http://" + hostname + path + "?l=1';        \
   });                                                                   \
 </script>";
     LOGGER_DEBUG(html);
