@@ -72,9 +72,37 @@ static int mrhc_handler(request_rec *r)
         return DECLINED;
     }
 
+    if (client_cache == NULL) {
+        // get the throwing destination with basic authentication
+        char host[BUF_SIZE] = {};
+        int  port = 0;
+        char password[BUF_SIZE] = {};
+        apr_status_t ret = ap_get_vnc_param_by_basic_auth_components(r, host, &port, password);
+        if (ret == APR_EINVAL) {
+            apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+            return HTTP_UNAUTHORIZED;
+        }
+        // mrhc begins to spin
+        if (ret == APR_SUCCESS) {
+            LOGGER_DEBUG("host:%s", host);
+            LOGGER_DEBUG("port:%d", port);
+            LOGGER_DEBUG("password:%s", password);
+
+            LOGGER_DEBUG("Start VNC Client");
+            vnc_client *client = new vnc_client(host, port, password);
+            if (!mrhc_spin(client, r)) {
+                ap_rputs("mrhc failed to spin", r);
+                //apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+                //return HTTP_UNAUTHORIZED;
+            }
+            client_cache = client;
+            return OK;
+        }
+    }
     // mrhc is already spinning, throw it.
     if (client_cache != NULL) {
         LOGGER_DEBUG("VNC Client is already running.");
+
         if (!mrhc_throw(client_cache, r)) {
             ap_rputs("mrhc failed to throw", r);
             apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
@@ -82,31 +110,6 @@ static int mrhc_handler(request_rec *r)
             return HTTP_UNAUTHORIZED;
             //return HTTP_MOVED_TEMPORARILY;
         }
-        return OK;
-    }
-    // get the throwing destination with basic authentication
-    char host[BUF_SIZE] = {};
-    int  port = 0;
-    char password[BUF_SIZE] = {};
-    apr_status_t ret = ap_get_vnc_param_by_basic_auth_components(r, host, &port, password);
-    if (ret == APR_EINVAL) {
-        apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
-        return HTTP_UNAUTHORIZED;
-    }
-    // mrhc begins to spin
-    if (ret == APR_SUCCESS) {
-        LOGGER_DEBUG("host:%s", host);
-        LOGGER_DEBUG("port:%d", port);
-        LOGGER_DEBUG("password:%s", password);
-
-        LOGGER_DEBUG("Start VNC Client");        
-        vnc_client *client = new vnc_client(host, port, password);
-        if (!mrhc_spin(client, r)) {
-            ap_rputs("mrhc failed to spin", r);
-            //apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
-            //return HTTP_UNAUTHORIZED;
-        }
-        client_cache = client;
         return OK;
     }
     // mrhc is disqualified
