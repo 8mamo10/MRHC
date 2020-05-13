@@ -129,7 +129,6 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("mrhc failed to throw", r);
         apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
         return HTTP_UNAUTHORIZED;
-        //return HTTP_MOVED_TEMPORARILY;
     }
     return OK;
 }
@@ -167,11 +166,6 @@ static bool mrhc_throw(vnc_client *client, request_rec *r)
     vnc_operation_t operation = vnc_operation_t{};
     if (r->parsed_uri.query) {
         operation = mrhc_query(r);
-        if (operation.logout == 1) {
-            delete client_cache;
-            client_cache = NULL;
-            return false;
-        }
         if (!client->operate(operation)) {
             LOGGER_DEBUG("Failed to operate.");
             return false;
@@ -207,7 +201,6 @@ static vnc_operation_t mrhc_query(const request_rec *r)
         if (params[0] == std::string("x")) op.x = stoi(params[1]);
         if (params[0] == std::string("y")) op.y = stoi(params[1]);
         if (params[0] == std::string("b")) op.button = stoi(params[1]);
-        if (params[0] == std::string("l")) op.logout = stoi(params[1]);
     }
     return op;
 }
