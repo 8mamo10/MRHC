@@ -48,9 +48,9 @@
 extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 
 static bool mrhc_spin(vnc_client *client, request_rec *r);
+static bool mrhc_confirm(request_rec *r);
 static bool mrhc_throw(vnc_client *client, request_rec *r);
-static vnc_operation_t mrhc_query(const request_rec *r);
-static std::string mrhc_html(const request_rec *r, const vnc_client *client);
+static vnc_operation_t mrhc_query(const request_rec *r);static std::string mrhc_html(const request_rec *r, const vnc_client *client);
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
 
@@ -92,8 +92,6 @@ static int mrhc_handler(request_rec *r)
             vnc_client *client = new vnc_client(host, port, password);
             if (!mrhc_spin(client, r)) {
                 ap_rputs("mrhc failed to spin", r);
-                //apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
-                //return HTTP_UNAUTHORIZED;
             }
             client_cache = client;
             return OK;
@@ -102,28 +100,18 @@ static int mrhc_handler(request_rec *r)
         ap_rputs("mrhc died", r);
         return OK;
     }
-    // mrhc is already spinning, throw it.
-    LOGGER_DEBUG("VNC Client is already running.");
 
-    apr_array_header_t *pairs = NULL;
-    int res = ap_parse_form_data(r, NULL, &pairs, -1, BUF_SIZE);
-    if (res != OK) {
-        LOGGER_DEBUG("failed to ap_parse_form_data,");
-    } else {
-        LOGGER_DEBUG("succeeded to ap_parse_form_data,");
-        while (pairs && !apr_is_empty_array(pairs)) {
-            ap_form_pair_t *pair = (ap_form_pair_t *) apr_array_pop(pairs);
-            if (strncmp(pair->name, "logout", strlen("logout")) == 0) {
-                LOGGER_DEBUG("do logout");
-                delete client_cache;
-                client_cache = NULL;
-                apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
-                return HTTP_UNAUTHORIZED;
-            } else {
-                LOGGER_DEBUG("parse error");
-            }
+    if (!mrhc_confirm(r)) {
+        // mrhc cnacels this throwing
+        if (client_cache != NULL) {
+            delete client_cache;
+            client_cache = NULL;
         }
+        apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+        return HTTP_UNAUTHORIZED;
     }
+    // mrhc is already spinning, ready to throw it.
+    LOGGER_DEBUG("VNC Client is already running.");
 
     if (!mrhc_throw(client_cache, r)) {
         ap_rputs("mrhc failed to throw", r);
@@ -154,6 +142,24 @@ static bool mrhc_spin(vnc_client *client, request_rec *r)
     // return initial html page with url and image size
     r->content_type = "text/html";
     ap_rputs(mrhc_html(r, client).c_str(), r);
+    return true;
+}
+
+static bool mrhc_confirm(request_rec *r)
+{
+    apr_array_header_t *pairs = NULL;
+    int res = ap_parse_form_data(r, NULL, &pairs, -1, BUF_SIZE);
+    if (res != OK) {
+        LOGGER_DEBUG("failed to ap_parse_form_data.");
+        return false;
+    }
+    while (pairs && !apr_is_empty_array(pairs)) {
+        ap_form_pair_t *pair = (ap_form_pair_t *) apr_array_pop(pairs);
+        if (strcmp(pair->name, "logout") == 0) {
+            LOGGER_DEBUG("do logout.");
+            return false;
+        }
+    }
     return true;
 }
 
