@@ -98,22 +98,39 @@ static int mrhc_handler(request_rec *r)
             client_cache = client;
             return OK;
         }
-    }
-    // mrhc is already spinning, throw it.
-    if (client_cache != NULL) {
-        LOGGER_DEBUG("VNC Client is already running.");
-
-        if (!mrhc_throw(client_cache, r)) {
-            ap_rputs("mrhc failed to throw", r);
-            apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
-            //apr_table_set(r->err_headers_out, "Location", "http://mrhc.8mamo10.net/mrhc");
-            return HTTP_UNAUTHORIZED;
-            //return HTTP_MOVED_TEMPORARILY;
-        }
+        // mrhc is disqualified
+        ap_rputs("mrhc died", r);
         return OK;
     }
-    // mrhc is disqualified
-    ap_rputs("not reach here", r);
+    // mrhc is already spinning, throw it.
+    LOGGER_DEBUG("VNC Client is already running.");
+
+    apr_array_header_t *pairs = NULL;
+    int res = ap_parse_form_data(r, NULL, &pairs, -1, BUF_SIZE);
+    if (res != OK) {
+        LOGGER_DEBUG("failed to ap_parse_form_data,");
+    } else {
+        LOGGER_DEBUG("succeeded to ap_parse_form_data,");
+        while (pairs && !apr_is_empty_array(pairs)) {
+            ap_form_pair_t *pair = (ap_form_pair_t *) apr_array_pop(pairs);
+            if (strncmp(pair->name, "logout", strlen("logout")) == 0) {
+                LOGGER_DEBUG("do logout");
+                delete client_cache;
+                client_cache = NULL;
+                apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+                return HTTP_UNAUTHORIZED;
+            } else {
+                LOGGER_DEBUG("parse error");
+            }
+        }
+    }
+
+    if (!mrhc_throw(client_cache, r)) {
+        ap_rputs("mrhc failed to throw", r);
+        apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
+        return HTTP_UNAUTHORIZED;
+        //return HTTP_MOVED_TEMPORARILY;
+    }
     return OK;
 }
 
@@ -208,8 +225,10 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
     html ="\
 <html>                                                                  \
   <body>                                                                \
-    <button type='button' id='logout'>logout</button>                   \
-    <br/>                                                               \
+    <form action='" + path + "' method='post'>                          \
+      <input type='hidden' name='logout' value='1'>                     \
+      <input type='submit' value='logout'>                              \
+    </form>                                                             \
     <image id='mrhc' src='http://" + hostname + path + "' width='" + width + "' height='" + height + "'> \
   </body>                                                               \
 </html>                                                                 \
