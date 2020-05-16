@@ -1,6 +1,8 @@
 #ifndef __RFB_PROTOCOL_H__
 #define __RFB_PROTOCOL_H__
 
+const uint16_t RFB_BUF_SIZE = 256;
+
 // RFB 003.003\n
 const uint8_t RFB_PROTOCOL_VERSION_3_3[] = {0x52, 0x46, 0x42, 0x20, 0x30, 0x30, 0x33, 0x2e, 0x30, 0x30, 0x33, 0x0a};
 // RFB 003.007\n
@@ -56,7 +58,7 @@ typedef struct protocol_version {
 
 typedef struct supported_security_types {
     uint8_t number_of_security_types;
-    uint8_t security_types[BUF_SIZE];
+    uint8_t security_types[RFB_BUF_SIZE];
 } supported_security_types_t;
 
 typedef struct security_type {
@@ -85,7 +87,7 @@ typedef struct server_init {
     uint16_t frame_buffer_height;
     pixel_format_t pixel_format;
     uint32_t name_length;
-    uint8_t name_string[BUF_SIZE];
+    uint8_t name_string[RFB_BUF_SIZE];
 } server_init_t;
 
 // client to server messages
