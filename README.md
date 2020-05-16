@@ -27,14 +27,8 @@ Linux ubuntu-xenial 4.4.0-166-generic #195-Ubuntu SMP Tue Oct 1 09:35:25 UTC 201
 
 ## setup build environment
 ```
-$ cd mrhc
+$ cd path/to/mrhc
 $ ./script/setup.sh
-```
-
-## build mrhc
-```
-$ cd mrhc
-$ make
 ```
 
 ## how to mrhc
@@ -45,8 +39,13 @@ $ sudo apt install apache2
 
 Build and install mrhc.  
 ```
-$ cd mrhc
+$ cd path/to/mrhc
+$ make
 $ sudo make install
+```
+
+Start mrhc. (currently, mrhc runs in debug mode only)
+```
 $ sudo make start
 ```
 
