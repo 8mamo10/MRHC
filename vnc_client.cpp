@@ -100,15 +100,16 @@ bool vnc_client::connect_to_server()
 
 bool vnc_client::recv_protocol_version()
 {
+    protocol_version_t protocol_version = {};
+
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    int length = recv(this->sockfd, buf, sizeof(protocol_version), 0);
     if (length < 0) {
         return false;
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_DEBUG(buf);
 
-    protocol_version_t protocol_version = {};
     memmove(&protocol_version, buf, length);
 
     if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_3, sizeof(RFB_PROTOCOL_VERSION_3_3)) == 0) {
@@ -143,15 +144,16 @@ bool vnc_client::send_protocol_version()
 
 bool vnc_client::recv_supported_security_types()
 {
+    supported_security_types_t supported_security_types = {};
+
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    int length = recv(this->sockfd, buf, sizeof(supported_security_types), 0);
     if (length < 0) {
         return false;
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_XDEBUG(buf, length);
 
-    supported_security_types_t supported_security_types = {};
     memmove(&supported_security_types, buf, length);
 
     uint8_t num = supported_security_types.number_of_security_types;
@@ -177,15 +179,18 @@ bool vnc_client::send_security_type()
 
 bool vnc_client::recv_vnc_auth_challenge()
 {
+    vnc_auth_challenge_t vnc_auth_challenge = {};
+
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    int length = recv(this->sockfd, buf, sizeof(vnc_auth_challenge), 0);
     if (length < 0) {
         return false;
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_XDEBUG(buf, length);
 
-    memmove(this->challenge, buf, length);
+    memmove(&vnc_auth_challenge, buf, length);
+    memmove(this->challenge, &vnc_auth_challenge, length);
     return true;
 }
 
@@ -207,16 +212,18 @@ bool vnc_client::send_vnc_auth_response()
 
 bool vnc_client::recv_security_result()
 {
+    security_result_t security_result = {};
+
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    int length = recv(this->sockfd, buf, sizeof(security_result), 0);
     if (length < 0) {
         return false;
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_XDEBUG(buf, length);
 
-    security_result_t security_result = {};
     memmove(&security_result, buf, length);
+
     uint32_t status = ntohl(security_result.status);
     LOGGER_DEBUG("status:%d", status);
     if (status != RFB_SECURITY_RESULT_OK) {
@@ -243,15 +250,16 @@ bool vnc_client::send_client_init()
 
 bool vnc_client::recv_server_init()
 {
-    char buf[sizeof(server_init_t)] = {};
-    int length = recv(this->sockfd, buf, sizeof(buf), 0);
+    server_init_t server_init = {};
+
+    char buf[BUF_SIZE] = {};
+    int length = recv(this->sockfd, buf, sizeof(server_init), 0);
     if (length < 0) {
         return false;
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_XDEBUG(buf, length);
 
-    server_init_t server_init = {};
     memmove(&server_init, buf, length);
 
     this->width = ntohs(server_init.frame_buffer_width);
@@ -328,9 +336,9 @@ bool vnc_client::send_frame_buffer_update_request()
 
 bool vnc_client::recv_frame_buffer_update()
 {
-    char buf[BUF_SIZE] = {};
-
     frame_buffer_update_t frame_buffer_update = {};
+
+    char buf[BUF_SIZE] = {};
     int length = recv(this->sockfd, buf, sizeof(frame_buffer_update), 0);
     if (length < 0) {
         return false;
@@ -339,6 +347,7 @@ bool vnc_client::recv_frame_buffer_update()
     LOGGER_XDEBUG(buf, length);
 
     memmove(&frame_buffer_update, buf, length);
+
     uint8_t message_type = frame_buffer_update.message_type;
     if (message_type != RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE) {
         LOGGER_DEBUG("unexpected message_type:%d", message_type);
@@ -520,9 +529,9 @@ bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
 
 bool vnc_client::recv_rectangle()
 {
-    char buf[BUF_SIZE] = {};
-
     pixel_data_t pixel_data = {};
+
+    char buf[BUF_SIZE] = {};
     int length = recv(this->sockfd, buf, sizeof(pixel_data), 0);
     if (length < 0) {
         return false;
