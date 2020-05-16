@@ -356,7 +356,10 @@ bool vnc_client::recv_frame_buffer_update()
     uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
     LOGGER_DEBUG("number_of_rectangles:%d", number_of_rectangles);
 
-    this->recv_rectangles(number_of_rectangles);
+    if (!this->recv_rectangles(number_of_rectangles)) {
+        LOGGER_DEBUG("failed to recv_rectangles");
+        return false;
+    }
     return true;
 }
 
