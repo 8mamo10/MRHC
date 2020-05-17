@@ -52,6 +52,7 @@ static bool mrhc_confirm(request_rec *r);
 static bool mrhc_throw(vnc_client *client, request_rec *r);
 static vnc_operation_t mrhc_query(const request_rec *r);
 static std::string mrhc_html(const request_rec *r, const vnc_client *client);
+static std::string mrhc_error(const request_rec *r, const std::string message);
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
 
@@ -92,13 +93,13 @@ static int mrhc_handler(request_rec *r)
             LOGGER_DEBUG("Start VNC Client");
             vnc_client *client = new vnc_client(host, port, password);
             if (!mrhc_spin(client, r)) {
-                ap_rputs("mrhc failed to spin", r);
+                ap_rputs(mrhc_error(r, "failed to mrhc, please try again.").c_str(), r);
             }
             client_cache = client;
             return OK;
         }
         // mrhc is disqualified
-        ap_rputs("mrhc died", r);
+        ap_rputs(mrhc_error(r, "fatal error").c_str(), r);
         return OK;
     }
 
@@ -115,7 +116,6 @@ static int mrhc_handler(request_rec *r)
     LOGGER_DEBUG("VNC Client is already running.");
 
     if (!mrhc_throw(client_cache, r)) {
-        ap_rputs("mrhc failed to throw", r);
         apr_table_set(r->err_headers_out, "WWW-Authenticate", "Basic real=\"\"");
         return HTTP_UNAUTHORIZED;
     }
@@ -248,6 +248,28 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
       return false;                                                     \
     });                                                                 \
   </script>                                                             \
+</html>";
+    LOGGER_DEBUG(html);
+    return html;
+}
+
+static std::string mrhc_error(const request_rec *r, const std::string message)
+{
+    std::string html = "";
+    if (r == NULL) {
+        return html;
+    }
+    std::string hostname = r->hostname;
+    std::string path = r->unparsed_uri;
+    html ="\
+<html>                                                                  \
+  <body>                                                                \
+    <form action='" + path + "' method='post'>                          \
+      <input type='hidden' name='logout' value='1'>                     \
+      <input type='submit' value='retry'>                               \
+    </form>                                                             \
+    <p>" + message + "</p>                                              \
+  </body>                                                               \
 </html>";
     LOGGER_DEBUG(html);
     return html;
