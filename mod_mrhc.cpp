@@ -50,7 +50,8 @@ extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 static bool mrhc_spin(vnc_client *client, request_rec *r);
 static bool mrhc_confirm(request_rec *r);
 static bool mrhc_throw(vnc_client *client, request_rec *r);
-static vnc_operation_t mrhc_query(const request_rec *r);static std::string mrhc_html(const request_rec *r, const vnc_client *client);
+static vnc_operation_t mrhc_query(const request_rec *r);
+static std::string mrhc_html(const request_rec *r, const vnc_client *client);
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
 
@@ -230,27 +231,24 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
     </form>                                                             \
     <image id='mrhc' src='http://" + hostname + path + "' width='" + width + "' height='" + height + "'> \
   </body>                                                               \
-</html>                                                                 \
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
-<script type=text/javascript>                                           \
-  let fetchLatestImage = () => {                                        \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
-  };                                                                    \
-  let timer = setInterval(fetchLatestImage, 10000);                     \
-  $('#mrhc').on('click', (e) => {                                       \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
-    clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                       \
-  }).on('contextmenu', (e) => {                                         \
-    $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
-    clearInterval(timer);                                               \
-    timer = setInterval(fetchLatestImage, 10000);                       \
-    return false;                                                       \
-  });                                                                   \
-  $('#logout').on('click', (e) => {                                     \
-    window.location.href = 'http://" + hostname + path + "?l=1';        \
-  });                                                                   \
-</script>";
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script> \
+  <script type=text/javascript>                                         \
+    let fetchLatestImage = () => {                                      \
+      $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
+    };                                                                  \
+    let timer = setInterval(fetchLatestImage, 10000);                   \
+    $('#mrhc').on('click', (e) => {                                     \
+      $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
+      clearInterval(timer);                                             \
+      timer = setInterval(fetchLatestImage, 10000);                     \
+    }).on('contextmenu', (e) => {                                       \
+      $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
+      clearInterval(timer);                                             \
+      timer = setInterval(fetchLatestImage, 10000);                     \
+      return false;                                                     \
+    });                                                                 \
+  </script>                                                             \
+</html>";
     LOGGER_DEBUG(html);
     return html;
 }
