@@ -25,6 +25,7 @@ const uint8_t RFB_POINTER_DOWN              = 0x01;
 const uint8_t RFB_MESSAGE_TYPE_SET_PIXEL_FORMAT            = 0x00;
 const uint8_t RFB_MESSAGE_TYPE_SET_ENCODINGS               = 0x02;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
+const uint8_t RFB_MESSAGE_TYPE_KEY_EVENT                   = 0x04;
 const uint8_t RFB_MESSAGE_TYPE_POINTER_EVENT               = 0x05;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE         = 0x00;
 
@@ -112,6 +113,13 @@ typedef struct frame_buffer_update_request {
     uint16_t width;
     uint16_t height;
 } frame_buffer_update_request_t;
+
+typedef struct key_event {
+    uint8_t message_type = RFB_MESSAGE_TYPE_KEY_EVENT;
+    uint8_t down_flag;
+    uint8_t padding[2];
+    uint32_t key;
+} key_event_t;
 
 typedef struct pointer_event {
     uint8_t message_type = RFB_MESSAGE_TYPE_POINTER_EVENT;
