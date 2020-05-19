@@ -363,6 +363,31 @@ bool vnc_client::recv_frame_buffer_update()
     return true;
 }
 
+bool vnc_client::send_key_event(uint32_t key)
+{
+    key_event_t key_event = {};
+    key_event.down_flag = RFB_KEY_DOWN;
+    key_event.key = htonl(key);
+
+    // send down
+    int length = send(this->sockfd, &key_event, sizeof(key_event), 0);
+    if (length < 0) {
+        return false;
+    }
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&key_event), length);
+
+    // send up
+    key_event.down_flag = RFB_KEY_UP;
+    length = send(this->sockfd, &key_event, sizeof(key_event), 0);
+    if (length < 0) {
+        return false;
+    }
+    LOGGER_DEBUG("send:%d", length);
+    LOGGER_XDEBUG(((char*)&key_event), length);
+    return true;
+}
+
 bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, uint8_t button)
 {
     uint8_t button_mask = 0;
