@@ -17,13 +17,19 @@ int main() {
     cout << "IPTOS_TOS(IPTOS_LOWCOST): " << IPTOS_TOS(IPTOS_LOWCOST) << endl;
     cout << "IPTOS_TOS(IPTOS_MINCOST): " << IPTOS_TOS(IPTOS_MINCOST) << endl;
 
+    int tos = 0x08;
+    int mask = 0x1e;
+    int masked_tos = tos & mask;
+    int shifted_masked_tos = (tos & mask) >> 1;
+    cout << masked_tos << endl;
+    cout << shifted_masked_tos << endl;
+
     int sockfd = 0;
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         cout << "failed to socket" << endl;
         return false;
     }
 
-    int tos = 0x08;
     if (setsockopt(sockfd, IPPROTO_IP, IP_TOS,  &tos, sizeof(tos))) {
         cout << "failed to setsockopt" << endl;
         return false;
@@ -32,7 +38,7 @@ int main() {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(80);
-    addr.sin_addr.s_addr = inet_addr("192.168.1.7");
+    addr.sin_addr.s_addr = inet_addr("192.168.33.10");
     if (connect(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
         cout << "failed to connect" << endl;
         return false;
