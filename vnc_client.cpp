@@ -506,6 +506,10 @@ bool vnc_client::operate(vnc_operation_t operation)
         }
         return true;
     }
+    if (x == 0 && y == 0) {
+        // no pointer
+        return true;
+    }
     if (!this->send_pointer_event(x, y, button)) {
         LOGGER_DEBUG("Failed to send_pointer_event.");
         return false;
@@ -541,6 +545,10 @@ bool vnc_client::capture(vnc_operation_t operation)
     // pointer image
     uint16_t x = operation.x;
     uint16_t y = operation.y;
+    if (x == 0 && y == 0) {
+        // no pointer
+        return true;
+    }
     if (!this->draw_pointer(x, y)) {
         LOGGER_DEBUG("Failed to draw_pointer");
         return false;
