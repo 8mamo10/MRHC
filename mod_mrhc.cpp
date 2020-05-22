@@ -237,15 +237,15 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
     let fetchLatestImage = () => {                                      \
       $('#mrhc').attr('src', 'http://" + hostname + path + "?t=' + Date.now()); \
     };                                                                  \
-    let timer = setInterval(fetchLatestImage, 10000);                   \
+    let timer = setInterval(fetchLatestImage, 5000);                    \
     $('#mrhc').on('click', (e) => {                                     \
       $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=0'); \
       clearInterval(timer);                                             \
-      timer = setInterval(fetchLatestImage, 10000);                     \
+      timer = setInterval(fetchLatestImage, 5000);                      \
     }).on('contextmenu', (e) => {                                       \
       $('#mrhc').attr('src', 'http://" + hostname + path + "?x=' + e.offsetX + '&y=' + e.offsetY + '&b=2'); \
       clearInterval(timer);                                             \
-      timer = setInterval(fetchLatestImage, 10000);                     \
+      timer = setInterval(fetchLatestImage, 5000);                      \
       return false;                                                     \
     });                                                                 \
     $(window).on('keydown', (e) => {                                    \
