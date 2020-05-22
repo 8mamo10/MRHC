@@ -1,9 +1,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <X11/Xlib.h>
-
 #include "opencv2/opencv.hpp"
+
+#include <X11/Xlib.h>
 
 #include "d3des.h"
 #include "mrhc_common.h"
