@@ -1,6 +1,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <X11/Xlib.h>
 
 #include "opencv2/opencv.hpp"
 
@@ -363,11 +364,12 @@ bool vnc_client::recv_frame_buffer_update()
     return true;
 }
 
-bool vnc_client::send_key_event(uint32_t key)
+bool vnc_client::send_key_event(std::string key)
 {
     key_event_t key_event = {};
     key_event.down_flag = RFB_KEY_DOWN;
-    key_event.key = htonl(key);
+    uint32_t keyCode = XStringToKeysym(key.c_str());
+    key_event.key = htonl(keyCode);
 
     // send down
     int length = send(this->sockfd, &key_event, sizeof(key_event), 0);
@@ -496,6 +498,14 @@ bool vnc_client::operate(vnc_operation_t operation)
     uint16_t x = operation.x;
     uint16_t y = operation.y;
     uint8_t button = operation.button;
+    std::string key = operation.key;
+    if (!key.empty()) {
+        if (!this->send_key_event(key)) {
+            LOGGER_DEBUG("Failed to send_key_event.");
+            return false;
+        }
+        return true;
+    }
     if (!this->send_pointer_event(x, y, button)) {
         LOGGER_DEBUG("Failed to send_pointer_event.");
         return false;
@@ -510,10 +520,11 @@ bool vnc_client::operate(vnc_operation_t operation)
 
 bool vnc_client::capture(vnc_operation_t operation)
 {
+    std::string key = operation.key;
+    if (!key.empty()) return true;
+
     this->clear_buf();
 
-    uint16_t x = operation.x;
-    uint16_t y = operation.y;
     if (!this->send_frame_buffer_update_request()) {
         LOGGER_DEBUG("Failed to send_frame_buffer_update_request.");
         return false;
@@ -528,6 +539,8 @@ bool vnc_client::capture(vnc_operation_t operation)
         return false;
     }
     // pointer image
+    uint16_t x = operation.x;
+    uint16_t y = operation.y;
     if (!this->draw_pointer(x, y)) {
         LOGGER_DEBUG("Failed to draw_pointer");
         return false;

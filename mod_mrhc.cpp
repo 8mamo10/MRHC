@@ -208,6 +208,7 @@ static vnc_operation_t mrhc_query(const request_rec *r)
         if (params[0] == std::string("x")) op.x = stoi(params[1]);
         if (params[0] == std::string("y")) op.y = stoi(params[1]);
         if (params[0] == std::string("b")) op.button = stoi(params[1]);
+        if (params[0] == std::string("k")) op.key = params[1];
     }
     return op;
 }
@@ -246,6 +247,14 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
       clearInterval(timer);                                             \
       timer = setInterval(fetchLatestImage, 10000);                     \
       return false;                                                     \
+    });                                                                 \
+    $(window).on('keydown', (e) => {                                    \
+      $.ajax(                                                           \
+        {                                                               \
+          type: 'GET',                                                  \
+          url: 'http://" + hostname + path + "?k=' + e.key,             \
+        }                                                               \
+      );                                                                \
     });                                                                 \
   </script>                                                             \
 </html>";

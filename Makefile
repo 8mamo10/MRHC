@@ -87,7 +87,7 @@ TEST_DIR=./test
 TEST_SRCS=$(TEST_DIR)/gtest_mrhc.cpp
 TEST_OBJS=vnc_client.o logger.o d3des.o
 TEST_TARGET=$(TEST_DIR)/gtest_mrhc
-TEST_LIBS=$(LIBS) -lgtest -lgtest_main -lpthread
+TEST_LIBS=$(LIBS) -lgtest -lgtest_main -lpthread -lX11
 TEST_INCLUDES=$(INCLUDES) -I/usr/local/include/gtest -I./
 
 test: $(TEST_TARGET)

@@ -10,6 +10,7 @@ typedef struct vnc_operation {
     uint16_t x;
     uint16_t y;
     uint8_t button;
+    std::string key;
 } vnc_operation_t;
 
 class vnc_client
@@ -71,7 +72,7 @@ class vnc_client
     bool send_set_encodings();
     bool send_frame_buffer_update_request();
     bool recv_frame_buffer_update();
-    bool send_key_event(uint32_t key);
+    bool send_key_event(std::string key);
     bool send_pointer_event(uint16_t x, uint16_t y, uint8_t button);
     bool draw_image();
     bool draw_pointer(uint16_t x, uint16_t y);
