@@ -79,7 +79,7 @@ $ echo -e "gnome-panel &\ngnome-settings-daemon &\nmetacity &\nnautilus &" >> ~/
 Using real vnc server and some fake simulating script of vnc server.  
 ```
 $ cd test
-$ vncserver :1 -rfbport 6624; perl fake_vnc_server_rfb_3_3.pl &; perl fake_vnc_server_rfb_3_8.pl &;
+$ ./start_vnc.sh
 $ make test
-$ vncserver -kill :1
+$ ./stop_vnc.sh
 ```
