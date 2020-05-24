@@ -368,9 +368,14 @@ bool vnc_client::send_key_event(std::string key)
 {
     key_event_t key_event = {};
     key_event.down_flag = RFB_KEY_DOWN;
+    LOGGER_DEBUG("key:%s", key.c_str());
     uint32_t keyCode = XStringToKeysym(key.c_str());
+    LOGGER_DEBUG("keyCode:0x%x", keyCode);
     key_event.key = htonl(keyCode);
-
+    if (keyCode == 0) {
+        LOGGER_DEBUG("Unreconized key:%s", key.c_str());
+        return true;
+    }
     // send down
     int length = send(this->sockfd, &key_event, sizeof(key_event), 0);
     if (length < 0) {
