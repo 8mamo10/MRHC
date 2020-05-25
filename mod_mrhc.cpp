@@ -208,7 +208,8 @@ static vnc_operation_t mrhc_query(const request_rec *r)
         if (params[0] == std::string("x")) op.x = stoi(params[1]);
         if (params[0] == std::string("y")) op.y = stoi(params[1]);
         if (params[0] == std::string("b")) op.button = stoi(params[1]);
-        if (params[0] == std::string("k")) op.key = params[1];
+        // @TODO
+        if (params[0] == std::string("k")) op.key = params[1].empty() ? "Space" : params[1];
     }
     return op;
 }
