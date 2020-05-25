@@ -371,8 +371,13 @@ bool vnc_client::send_key_event(std::string key)
     LOGGER_DEBUG("key:%s", key.c_str());
     uint32_t keyCode = XStringToKeysym(key.c_str());
     LOGGER_DEBUG("keyCode:0x%08lx", keyCode);
+    // @TODO:
     if (key == "Backspace") {
         keyCode = 0xff08;
+        LOGGER_DEBUG("keyCode:0x%08lx", keyCode);
+    }
+    if (key == ".") {
+        keyCode = 0x002e;
         LOGGER_DEBUG("keyCode:0x%08lx", keyCode);
     }
     key_event.key = htonl(keyCode);
