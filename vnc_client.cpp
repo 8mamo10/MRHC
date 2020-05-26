@@ -373,6 +373,7 @@ bool vnc_client::send_key_event(std::string key)
     LOGGER_DEBUG("keyCode:0x%08lx", keyCode);
     // @TODO:
     if (keyCode == 0) {
+        LOGGER_DEBUG("Try some other common keyCode for %s", key.c_str());
         if (key == "Backspace") {
             keyCode = 0xff08;
         } else if (key == ".") {
@@ -382,11 +383,11 @@ bool vnc_client::send_key_event(std::string key)
         } else if (key == "Space") {
             keyCode = 0xff80;
         }
-        LOGGER_DEBUG("other common keyCode:0x%08lx", keyCode);
+        LOGGER_DEBUG("keyCode:0x%08lx", keyCode);
     }
     key_event.key = htonl(keyCode);
     if (keyCode == 0) {
-        LOGGER_DEBUG("Unreconized key:%s", key.c_str());
+        LOGGER_DEBUG("Ignore unreconized key:%s", key.c_str());
         return true;
     }
     // send down
