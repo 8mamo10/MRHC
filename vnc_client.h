@@ -36,6 +36,7 @@ class vnc_client
     std::vector<uint32_t> image_buf;
     std::vector<uint8_t> jpeg_buf;
 
+    bool recv_server_to_client_message();
     bool recv_rectangles(uint16_t number_of_rectangles);
     bool recv_rectangle();
  public:
@@ -72,6 +73,7 @@ class vnc_client
     bool send_set_encodings();
     bool send_frame_buffer_update_request();
     bool recv_frame_buffer_update();
+    bool recv_bell();
     bool send_key_event(std::string key);
     bool send_pointer_event(uint16_t x, uint16_t y, uint8_t button);
     bool draw_image();

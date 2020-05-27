@@ -340,20 +340,21 @@ bool vnc_client::recv_frame_buffer_update()
     frame_buffer_update_t frame_buffer_update = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(frame_buffer_update), 0);
+    // size - 1 because message type has already recv
+    int length = recv(this->sockfd, buf, sizeof(frame_buffer_update) - 1, 0);
     if (length < 0) {
         return false;
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_XDEBUG(buf, length);
 
-    memmove(&frame_buffer_update, buf, length);
+    memmove(&frame_buffer_update.padding, buf, length);
 
-    uint8_t message_type = frame_buffer_update.message_type;
-    if (message_type != RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE) {
-        LOGGER_DEBUG("unexpected message_type:%d", message_type);
-        return false;
-    }
+    // uint8_t message_type = frame_buffer_update.message_type;
+    // if (message_type != RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE) {
+    //     LOGGER_DEBUG("unexpected message_type:%d", message_type);
+    //     return false;
+    // }
     uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
     LOGGER_DEBUG("number_of_rectangles:%d", number_of_rectangles);
 
@@ -361,6 +362,12 @@ bool vnc_client::recv_frame_buffer_update()
         LOGGER_DEBUG("failed to recv_rectangles");
         return false;
     }
+    return true;
+}
+
+bool vnc_client::recv_bell()
+{
+    LOGGER_DEBUG("recv bell, do nothing");
     return true;
 }
 
@@ -443,7 +450,7 @@ bool vnc_client::initialize()
 {
     if (!this->connect_to_server()) {
         std::cerr << "Error: " << strerror(errno);
-        LOGGER_DEBUG("Failed to connect_to_server.");
+        LOGGER_DEBUG("Failed to connect_to_server");
         return false;
     }
     return true;
@@ -453,45 +460,45 @@ bool vnc_client::authenticate()
 {
     // protocol version
     if (!this->recv_protocol_version()) {
-        LOGGER_DEBUG("Failed to recv_protocol_version.");
+        LOGGER_DEBUG("Failed to recv_protocol_version");
         return false;
     }
     if (!this->send_protocol_version()) {
-        LOGGER_DEBUG("Failed to send_protocol_version.");
+        LOGGER_DEBUG("Failed to send_protocol_version");
         return false;
     }
     LOGGER_DEBUG("Exchanged protocol version");
     // security type
     if (!this->recv_supported_security_types()) {
-        LOGGER_DEBUG("Failed to recv_supported_security_types.");
+        LOGGER_DEBUG("Failed to recv_supported_security_types");
         return false;
     }
     if (!this->send_security_type()) {
-        LOGGER_DEBUG("Failed to send_security_type.");
+        LOGGER_DEBUG("Failed to send_security_type");
         return false;
     }
     LOGGER_DEBUG("Exchanged security type");
     // vnc auth
     if (!this->recv_vnc_auth_challenge()) {
-        LOGGER_DEBUG("Failed to recv_vnc_auth_challenge.");
+        LOGGER_DEBUG("Failed to recv_vnc_auth_challenge");
         return false;
     }
     if (!this->send_vnc_auth_response()) {
-        LOGGER_DEBUG("Failed to send_vnc_auth_response.");
+        LOGGER_DEBUG("Failed to send_vnc_auth_response");
         return false;
     }
     if (!this->recv_security_result()) {
-        LOGGER_DEBUG("Failed to recv_security_result.");
+        LOGGER_DEBUG("Failed to recv_security_result");
         return false;
     }
     LOGGER_DEBUG("Authenticated");
     // client/server init
     if (!this->send_client_init()) {
-        LOGGER_DEBUG("Failed to send_client_init.");
+        LOGGER_DEBUG("Failed to send_client_init");
         return false;
     }
     if (!this->recv_server_init()) {
-        LOGGER_DEBUG("Failed to recv_server_init.");
+        LOGGER_DEBUG("Failed to recv_server_init");
         return false;
     }
     LOGGER_DEBUG("Exchanged Client/Server Init");
@@ -502,11 +509,11 @@ bool vnc_client::configure()
 {
     // format/encode
     if (!this->send_set_pixel_format()) {
-        LOGGER_DEBUG("Failed to send_set_pixel_format.");
+        LOGGER_DEBUG("Failed to send_set_pixel_format");
         return false;
     }
     if (!this->send_set_encodings()) {
-        LOGGER_DEBUG("Failed to send_set_encodings.");
+        LOGGER_DEBUG("Failed to send_set_encodings");
         return false;
     }
     return true;
@@ -520,7 +527,7 @@ bool vnc_client::operate(vnc_operation_t operation)
     std::string key = operation.key;
     if (!key.empty()) {
         if (!this->send_key_event(key)) {
-            LOGGER_DEBUG("Failed to send_key_event.");
+            LOGGER_DEBUG("Failed to send_key_event");
             return false;
         }
         return true;
@@ -530,12 +537,12 @@ bool vnc_client::operate(vnc_operation_t operation)
         return true;
     }
     if (!this->send_pointer_event(x, y, button)) {
-        LOGGER_DEBUG("Failed to send_pointer_event.");
+        LOGGER_DEBUG("Failed to send_pointer_event");
         return false;
     }
     // for emulating double click
     // if (!this->send_pointer_event(x, y, button)) {
-    //     LOGGER_DEBUG("Failed to send_pointer_event.");
+    //     LOGGER_DEBUG("Failed to send_pointer_event");
     //     return false;
     // }
     return true;
@@ -549,16 +556,20 @@ bool vnc_client::capture(vnc_operation_t operation)
     this->clear_buf();
 
     if (!this->send_frame_buffer_update_request()) {
-        LOGGER_DEBUG("Failed to send_frame_buffer_update_request.");
+        LOGGER_DEBUG("Failed to send_frame_buffer_update_request");
         return false;
     }
-    if (!this->recv_frame_buffer_update()) {
-        LOGGER_DEBUG("Failed to recv_frame_buffer_update.");
+    // if (!this->recv_frame_buffer_update()) {
+    //     LOGGER_DEBUG("Failed to recv_frame_buffer_update");
+    //     return false;
+    // }
+    if (!this->recv_server_to_client_message()) {
+        LOGGER_DEBUG("Failed to recv_server_to_client_message");
         return false;
     }
     // output image
     if (!this->draw_image()) {
-        LOGGER_DEBUG("Failed to draw_image.");
+        LOGGER_DEBUG("Failed to draw_image");
         return false;
     }
     // pointer image
@@ -581,6 +592,31 @@ bool vnc_client::write_jpeg_buf(const std::string path)
 }
 
 //// private /////
+
+bool vnc_client::recv_server_to_client_message()
+{
+    char buf[BUF_SIZE] = {};
+    // recv message type
+    int length = recv(this->sockfd, buf, 1, 0);
+    if (length < 0) {
+        return false;
+    }
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
+
+    uint8_t message_type = 0;
+    memmove(&message_type, buf, length);
+    switch (message_type) {
+    case RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE:
+        return this->recv_frame_buffer_update();
+    case RFB_MESSAGE_TYPE_BELL:
+        return this->recv_bell();
+    default:
+        LOGGER_DEBUG("unexpected message_type:%d", message_type);
+        return false;
+    }
+    return true;
+}
 
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
 {
