@@ -30,6 +30,7 @@ const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
 const uint8_t RFB_MESSAGE_TYPE_KEY_EVENT                   = 0x04;
 const uint8_t RFB_MESSAGE_TYPE_POINTER_EVENT               = 0x05;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE         = 0x00;
+const uint8_t RFB_MESSAGE_TYPE_BELL                        = 0x02;
 
 typedef struct pixel_format {
     uint8_t bits_per_pixel;
@@ -137,5 +138,9 @@ typedef struct frame_buffer_update {
     uint16_t number_of_rectangles;
     //pixel_data_t pixel_datas[];
 } frame_buffer_update_t;
+
+typedef struct bell {
+    uint8_t message_type = RFB_MESSAGE_TYPE_BELL;
+} bell_t;
 
 #endif
