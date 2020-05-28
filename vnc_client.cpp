@@ -376,27 +376,13 @@ bool vnc_client::send_key_event(std::string key)
     key_event_t key_event = {};
     key_event.down_flag = RFB_KEY_DOWN;
     LOGGER_DEBUG("key:%s", key.c_str());
-    uint32_t keyCode = XStringToKeysym(key.c_str());
-    LOGGER_DEBUG("keyCode:0x%08lx", keyCode);
-    // @TODO:
-    if (keyCode == 0) {
-        LOGGER_DEBUG("Try some other common keyCode for %s", key.c_str());
-        if (key == "Backspace") {
-            keyCode = 0xff08;
-        } else if (key == ".") {
-            keyCode = 0x002e;
-        } else if (key == "Enter") {
-            keyCode = 0xff0d;
-        } else if (key == "Space") {
-            keyCode = 0xff80;
-        }
-        LOGGER_DEBUG("keyCode:0x%08lx", keyCode);
-    }
-    key_event.key = htonl(keyCode);
-    if (keyCode == 0) {
+    uint32_t key_code = this->convert_key_to_code(key);
+    if (key_code == 0) {
         LOGGER_DEBUG("Ignore unreconized key:%s", key.c_str());
         return true;
     }
+    key_event.key = htonl(key_code);
+
     // send down
     int length = send(this->sockfd, &key_event, sizeof(key_event), 0);
     if (length < 0) {
@@ -691,6 +677,30 @@ bool vnc_client::recv_rectangle()
     LOGGER_DEBUG("image_buf size:%d", this->image_buf.size());
 
     return true;
+}
+
+const uint32_t vnc_client::convert_key_to_code(std::string key)
+{
+    uint32_t key_code = XStringToKeysym(key.c_str());
+    if (key_code != 0) {
+        LOGGER_DEBUG("key_code:0x%08lx", key_code);
+        return key_code;
+    }
+    LOGGER_DEBUG("Key not found, try mrhc own correspondence table");
+    if (key == "Backspace") {
+        key_code = RFB_KEY_CODE_BACKSPACE;
+    } else if (key == ".") {
+        key_code = RFB_KEY_CODE_PERIOD;
+    } else if (key == "Enter") {
+        key_code = RFB_KEY_CODE_ENTER;
+    } else if (key == "Space") {
+        key_code = RFB_KEY_CODE_SPACE;
+    } else {
+        LOGGER_DEBUG("Failed to detect key_code");
+        return 0;
+    }
+    LOGGER_DEBUG("key_code:0x%08lx", key_code);
+    return key_code;
 }
 
 bool vnc_client::draw_image()

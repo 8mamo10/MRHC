@@ -39,6 +39,7 @@ class vnc_client
     bool recv_server_to_client_message();
     bool recv_rectangles(uint16_t number_of_rectangles);
     bool recv_rectangle();
+    const uint32_t convert_key_to_code(std::string key);
  public:
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();
