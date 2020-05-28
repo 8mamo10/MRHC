@@ -50,9 +50,9 @@ extern "C" module AP_MODULE_DECLARE_DATA mrhc_module;
 static bool mrhc_spin(vnc_client *client, request_rec *r);
 static bool mrhc_confirm(request_rec *r);
 static bool mrhc_throw(vnc_client *client, request_rec *r);
-static vnc_operation_t mrhc_query(const request_rec *r);
-static std::string mrhc_html(const request_rec *r, const vnc_client *client);
-static std::string mrhc_error(const request_rec *r, const std::string message);
+static const vnc_operation_t mrhc_query(const request_rec *r);
+static const std::string mrhc_html(const request_rec *r, const vnc_client *client);
+static const std::string mrhc_error(const request_rec *r, const std::string message);
 static apr_status_t ap_get_vnc_param_by_basic_auth_components(const request_rec *r, char *host, int *port, char *password);
 static std::vector<std::string> split_string(std::string s, std::string delim);
 
@@ -195,7 +195,7 @@ static bool mrhc_throw(vnc_client *client, request_rec *r)
     return true;
 }
 
-static vnc_operation_t mrhc_query(const request_rec *r)
+static const vnc_operation_t mrhc_query(const request_rec *r)
 {
     vnc_operation_t op = vnc_operation_t{};
     if (r->parsed_uri.query == NULL) {
@@ -214,7 +214,7 @@ static vnc_operation_t mrhc_query(const request_rec *r)
     return op;
 }
 
-static std::string mrhc_html(const request_rec *r, const vnc_client *client)
+static const std::string mrhc_html(const request_rec *r, const vnc_client *client)
 {
     std::string html = "";
     if (r == NULL || client == NULL) {
@@ -263,7 +263,7 @@ static std::string mrhc_html(const request_rec *r, const vnc_client *client)
     return html;
 }
 
-static std::string mrhc_error(const request_rec *r, const std::string message)
+static const std::string mrhc_error(const request_rec *r, const std::string message)
 {
     std::string html = "";
     if (r == NULL) {
