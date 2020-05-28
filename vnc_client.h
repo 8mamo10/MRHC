@@ -20,6 +20,7 @@ class vnc_client
     static const std::string KEY_PERIOD;
     static const std::string KEY_ENTER;
     static const std::string KEY_SPACE;
+    static const std::string KEY_SLASH;
 
     int sockfd;
 

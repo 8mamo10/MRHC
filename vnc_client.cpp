@@ -13,6 +13,7 @@ const std::string vnc_client::KEY_BACKSPACE = "Backspace";
 const std::string vnc_client::KEY_PERIOD    = ".";
 const std::string vnc_client::KEY_ENTER     = "Enter";
 const std::string vnc_client::KEY_SPACE     = "Space";
+const std::string vnc_client::KEY_SLASH     = "/";
 
 // Since connect() can wait too long, add timeout to connect()
 // This is effective when the input connection destination is wrong.
@@ -700,6 +701,8 @@ const uint32_t vnc_client::convert_key_to_code(std::string key)
         key_code = RFB_KEY_CODE_ENTER;
     } else if (key == vnc_client::KEY_SPACE) {
         key_code = RFB_KEY_CODE_SPACE;
+    } else if (key == vnc_client::KEY_SLASH) {
+        key_code = RFB_KEY_CODE_SLASH;
     } else {
         LOGGER_DEBUG("Failed to detect key_code");
         return 0;

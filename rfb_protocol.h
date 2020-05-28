@@ -36,6 +36,7 @@ const uint32_t RFB_KEY_CODE_BACKSPACE = 0xff08;
 const uint32_t RFB_KEY_CODE_PERIOD    = 0x002e;
 const uint32_t RFB_KEY_CODE_ENTER     = 0xff0d;
 const uint32_t RFB_KEY_CODE_SPACE     = 0xff80;
+const uint32_t RFB_KEY_CODE_SLASH     = 0x002f;
 
 typedef struct pixel_format {
     uint8_t bits_per_pixel;
