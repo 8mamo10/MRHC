@@ -9,6 +9,11 @@
 #include "mrhc_common.h"
 #include "vnc_client.h"
 
+const std::string vnc_client::KEY_BACKSPACE = "Backspace";
+const std::string vnc_client::KEY_PERIOD    = ".";
+const std::string vnc_client::KEY_ENTER     = "Enter";
+const std::string vnc_client::KEY_SPACE     = "Space";
+
 // Since connect() can wait too long, add timeout to connect()
 // This is effective when the input connection destination is wrong.
 static int connect_with_timeout(int sockfd, struct sockaddr *addr, size_t addrlen, struct timeval *timeout)
@@ -687,13 +692,13 @@ const uint32_t vnc_client::convert_key_to_code(std::string key)
         return key_code;
     }
     LOGGER_DEBUG("Key not found, try mrhc own correspondence table");
-    if (key == "Backspace") {
+    if (key == vnc_client::KEY_BACKSPACE) {
         key_code = RFB_KEY_CODE_BACKSPACE;
-    } else if (key == ".") {
+    } else if (key == vnc_client::KEY_PERIOD) {
         key_code = RFB_KEY_CODE_PERIOD;
-    } else if (key == "Enter") {
+    } else if (key == vnc_client::KEY_ENTER) {
         key_code = RFB_KEY_CODE_ENTER;
-    } else if (key == "Space") {
+    } else if (key == vnc_client::KEY_SPACE) {
         key_code = RFB_KEY_CODE_SPACE;
     } else {
         LOGGER_DEBUG("Failed to detect key_code");

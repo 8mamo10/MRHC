@@ -16,6 +16,11 @@ typedef struct vnc_operation {
 class vnc_client
 {
  private:
+    static const std::string KEY_BACKSPACE;
+    static const std::string KEY_PERIOD;
+    static const std::string KEY_ENTER;
+    static const std::string KEY_SPACE;
+
     int sockfd;
 
     // for connection
