@@ -16,12 +16,6 @@ typedef struct vnc_operation {
 class vnc_client
 {
  private:
-    static const std::string KEY_BACKSPACE;
-    static const std::string KEY_PERIOD;
-    static const std::string KEY_ENTER;
-    static const std::string KEY_SPACE;
-    static const std::string KEY_SLASH;
-
     int sockfd;
 
     // for connection
@@ -47,6 +41,12 @@ class vnc_client
     bool recv_rectangle();
     const uint32_t convert_key_to_code(std::string key);
  public:
+    static const std::string KEY_BACKSPACE;
+    static const std::string KEY_PERIOD;
+    static const std::string KEY_ENTER;
+    static const std::string KEY_SPACE;
+    static const std::string KEY_SLASH;
+
     vnc_client(std::string host, int port, std::string password);
     ~vnc_client();
     // interface to drive vnc client by mod_mrhc
