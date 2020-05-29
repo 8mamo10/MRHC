@@ -551,10 +551,6 @@ bool vnc_client::capture(vnc_operation_t operation)
         LOGGER_DEBUG("Failed to send_frame_buffer_update_request");
         return false;
     }
-    // if (!this->recv_frame_buffer_update()) {
-    //     LOGGER_DEBUG("Failed to recv_frame_buffer_update");
-    //     return false;
-    // }
     if (!this->recv_server_to_client_message()) {
         LOGGER_DEBUG("Failed to recv_server_to_client_message");
         return false;
