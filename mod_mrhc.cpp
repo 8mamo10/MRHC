@@ -226,6 +226,9 @@ static const std::string mrhc_html(const request_rec *r, const vnc_client *clien
     std::string height = std::to_string(client->get_height());
     html ="\
 <html>                                                                  \
+  <head>                                                                \
+    <link rel='shortcut icon' href='https://user-images.githubusercontent.com/562105/83327371-2c590300-a2b6-11ea-90cf-07a5a586f5ae.png'> \
+  </head>                                                               \
   <body>                                                                \
     <form action='" + path + "' method='post'>                          \
       <input type='hidden' name='logout' value='1'>                     \
