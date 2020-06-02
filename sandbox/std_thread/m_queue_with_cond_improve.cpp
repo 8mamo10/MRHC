@@ -1,4 +1,4 @@
-// g++ -Wall -pthread -std=c++11 m_queue_with_cond.cpp
+// g++ -Wall -pthread -std=c++11 m_queue_with_cond_improve.cpp
 #include <condition_variable>
 #include <iostream>
 #include <mutex>
@@ -39,9 +39,20 @@ public:
 };
 
 /////
+
+m_queue mq;
+
+// void jammer()
+// {
+//     int v;
+//     while ((v = mq.pop()) > 0) {
+//         std::cout << "jammer:" << v << std::endl;
+//     }
+//     std::cout << "(EOD)" << std::endl;
+// }
+
 int main()
 {
-    m_queue mq;
     std::thread th1([&]{
             for (int i = 1; i <= 1000; i++) {
                 mq.push(i);
@@ -51,10 +62,12 @@ int main()
     std::thread th2([&]{
             int v;
             while ((v = mq.pop()) > 0) {
-                std::cout << v << std::endl;
+                std::cout << "th2:" << v << std::endl;
             }
             std::cout << "(EOD)" << std::endl;
         });
+    //std::thread th3(jammer);
     th1.join();
     th2.join();
+    //th3.join();
 }
