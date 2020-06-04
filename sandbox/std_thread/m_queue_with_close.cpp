@@ -7,7 +7,7 @@
 #include <thread>
 
 struct closed_exception: std::exception {};
-struct abort_exeption: std::exeption {};
+struct aborted_exception: std::exception {};
 
 class m_queue {
     static const int capacity = 10;
@@ -27,7 +27,7 @@ public:
             throw closed_exception();
         }
         if (aborted) {
-            throw board_eception();
+            throw aborted_exception();
         }
         bool do_signal = q.empty();
         q.push(data);
@@ -40,11 +40,11 @@ public:
         cv_noempty.wait(lk, [&]{
                 return !q.empty() || (q.empty() && closed) || aborted;
             });
-        if (q.empty && closed) {
+        if (q.empty() && closed) {
             return false; // closed queue
         }
         if (aborted) {
-            throw abord_exception;
+            throw aborted_exception();
         }
         bool do_signal = (q.size() == capacity);
         data = q.front();
@@ -57,14 +57,14 @@ public:
     void close() {
         std::lock_guard<std::mutex> lk(mtx);
         closed = true;
-        cv_notfull.notify_all();
-        cv_noempty.notigy_all();
+        cv_nofull.notify_all();
+        cv_noempty.notify_all();
     }
     void abort() {
         std::lock_guard<std::mutex> lk(mtx);
         aborted = true;
-        cv_notfull.notify_all();
-        cv_noempty.notigy_all();
+        cv_nofull.notify_all();
+        cv_noempty.notify_all();
     }
 };
 
@@ -99,17 +99,17 @@ int main()
     std::thread th2([&]{
             try {
                 int v;
-                while (mq.pop()) {
+                while (mq.pop(v)) {
                     std::cout << "th2:" << v << std::endl;
                 }
                 std::cout << "(EOD)" << std::endl;
-            } catch (abort_exception&) {
+            } catch (aborted_exception&) {
                 std::cout << "abort consumer" << std::endl;
             }
         });
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     //std::thread th3(jammer);
-    q.abort();
+    mq.abort();
     th1.join();
     th2.join();
     //th3.join();
