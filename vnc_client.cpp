@@ -532,11 +532,6 @@ bool vnc_client::operate(vnc_operation_t operation)
         LOGGER_DEBUG("Failed to send_pointer_event");
         return false;
     }
-    // for emulating double click
-    // if (!this->send_pointer_event(x, y, button)) {
-    //     LOGGER_DEBUG("Failed to send_pointer_event");
-    //     return false;
-    // }
     return true;
 }
 
