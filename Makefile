@@ -19,6 +19,7 @@ APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 PROG=mod_mrhc.so
 SRCS=mod_mrhc.cpp vnc_client.cpp d3des.cpp logger.cpp
 MRHC_CONF=mrhc.conf
+MRHC_LOG=/tmp/mrhc.log
 APACHE2_MODS_AVAILEBLE=/etc/apache2/mods-available
 APACHE2_MODS_ENABLED=/etc/apache2/mods-enabled
 
@@ -48,6 +49,8 @@ install: all
 	$(APXS) -i -a -n 'mrhc' $(PROG)
 	cp conf/$(MRHC_CONF) $(APACHE2_MODS_AVAILEBLE)
 	ln -s -f $(APACHE2_MODS_AVAILEBLE)/$(MRHC_CONF) $(APACHE2_MODS_ENABLED)/$(MRHC_CONF)
+	touch $(MRHC_LOG)
+	chmod 777 $(MRHC_LOG)
 
 # display the apxs variables
 check_apxs_vars:
