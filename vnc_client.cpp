@@ -592,8 +592,14 @@ bool vnc_client::recv_server_to_client_message()
     switch (message_type) {
     case RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE:
         return this->recv_frame_buffer_update();
+    case RFB_MESSAGE_TYPE_SET_COLOUR_MAP_ENTRIES:
+        LOGGER_DEBUG("unsupported message_type:%d, SET_COLOUR_MAP_ENTRIES", message_type);
+        return true;
     case RFB_MESSAGE_TYPE_BELL:
         return this->recv_bell();
+    case RFB_MESSAGE_TYPE_SERVER_CUT_TEXT:
+        LOGGER_DEBUG("unsupported message_type:%d, SERVER_CUT_TEXT", message_type);
+        return true;
     default:
         LOGGER_DEBUG("unexpected message_type:%d", message_type);
         return false;

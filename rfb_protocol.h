@@ -30,7 +30,9 @@ const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE_REQUEST = 0x03;
 const uint8_t RFB_MESSAGE_TYPE_KEY_EVENT                   = 0x04;
 const uint8_t RFB_MESSAGE_TYPE_POINTER_EVENT               = 0x05;
 const uint8_t RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE         = 0x00;
+const uint8_t RFB_MESSAGE_TYPE_SET_COLOUR_MAP_ENTRIES      = 0x01;
 const uint8_t RFB_MESSAGE_TYPE_BELL                        = 0x02;
+const uint8_t RFB_MESSAGE_TYPE_SERVER_CUT_TEXT             = 0x03;
 
 const uint32_t RFB_KEY_CODE_BACKSPACE = 0xff08;
 const uint32_t RFB_KEY_CODE_PERIOD    = 0x002e;
