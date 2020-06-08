@@ -17,6 +17,7 @@ APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 
 # Macro
 PROG=mod_mrhc.so
+SRC_DIR=./src
 SRCS=mod_mrhc.cpp vnc_client.cpp d3des.cpp logger.cpp
 MRHC_CONF=mrhc.conf
 MRHC_LOG=/tmp/mrhc.log
