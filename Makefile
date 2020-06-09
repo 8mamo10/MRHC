@@ -18,7 +18,7 @@ APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 # Macro
 PROG=mod_mrhc.so
 SRC_DIR=./src
-SRCS=$(SRC_DIR)/mod_mrhc.cpp $(SRC_DIR)/vnc_client.cpp $(SRC_DIR)/d3des.cpp $(SRC_DIR)/logger.cpp
+SRCS=$(wildcard $(SRC_DIR)/*.cpp)
 MRHC_CONF=mrhc.conf
 MRHC_LOG=/tmp/mrhc.log
 APACHE2_MODS_AVAILEBLE=/etc/apache2/mods-available
