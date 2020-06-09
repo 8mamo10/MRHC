@@ -24,6 +24,8 @@ MRHC_LOG=/tmp/mrhc.log
 APACHE2_MODS_AVAILEBLE=/etc/apache2/mods-available
 APACHE2_MODS_ENABLED=/etc/apache2/mods-enabled
 
+INTERMEDIATE_FILES=mod_mrhc.lo mod_mrhc.slo
+
 OBJS=$(SRCS:%.cpp=%.o)
 DEPS=$(SRCS:%.cpp=%.d)
 
@@ -69,7 +71,7 @@ check_apxs_vars:
 
 #   cleanup
 clean:
-	$(RM) $(PROG) $(OBJS) $(DEPS) $(TEST_TARGET)
+	$(RM) $(PROG) $(OBJS) $(DEPS) $(TEST_TARGET) $(INTERMEDIATE_FILES)
 
 #   install and activate shared object by reloading Apache to
 #   force a reload of the shared object file
