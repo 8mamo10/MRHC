@@ -34,6 +34,8 @@ INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0 `pkg-config --cflags opencv
 CFLAGS=$(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -O2
 LIBS=`pkg-config --libs opencv`
 
+.PHONY: all clean reload start restart stop test
+
 # the default target
 all: $(PROG)
 
