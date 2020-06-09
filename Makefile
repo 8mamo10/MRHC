@@ -17,11 +17,14 @@ APXS_LIBS_SHLIB=`$(APXS) -q LIBS_SHLIB`
 
 # Macro
 PROG=mod_mrhc.so
-SRCS=mod_mrhc.cpp vnc_client.cpp d3des.cpp logger.cpp
+SRC_DIR=./src
+SRCS=$(wildcard $(SRC_DIR)/*.cpp)
 MRHC_CONF=mrhc.conf
 MRHC_LOG=/tmp/mrhc.log
 APACHE2_MODS_AVAILEBLE=/etc/apache2/mods-available
 APACHE2_MODS_ENABLED=/etc/apache2/mods-enabled
+
+INTERMEDIATE_FILES=mod_mrhc.lo mod_mrhc.slo
 
 OBJS=$(SRCS:%.cpp=%.o)
 DEPS=$(SRCS:%.cpp=%.d)
@@ -30,6 +33,8 @@ CC=g++
 INCLUDES=-I$(APXS_INCLUDEDIR) -I/usr/include/apr-1.0 `pkg-config --cflags opencv`
 CFLAGS=$(APXS_CFLAGS) $(APXS_CFLAGS_SHLIB) -Wall -O2
 LIBS=`pkg-config --libs opencv`
+
+.PHONY: all clean reload start restart stop test
 
 # the default target
 all: $(PROG)
@@ -40,7 +45,7 @@ $(PROG): $(OBJS)
 
 %.o: %.cpp
 	$(CC) -std=c++11 $(INCLUDES) $(CFLAGS) $< -MM -MP -MF $*.d
-	$(CC) -std=c++11 -c -fPIC $(INCLUDES) $(CFLAGS) $<
+	$(CC) -std=c++11 -c -fPIC $(INCLUDES) $(CFLAGS) $< -o $@
 
 include $(shell ls $(DEPS) 2>/dev/null)
 
@@ -68,7 +73,7 @@ check_apxs_vars:
 
 #   cleanup
 clean:
-	$(RM) $(PROG) $(OBJS) $(DEPS) $(TEST_TARGET)
+	$(RM) $(PROG) $(OBJS) $(DEPS) $(TEST_TARGET) $(INTERMEDIATE_FILES)
 
 #   install and activate shared object by reloading Apache to
 #   force a reload of the shared object file
@@ -88,10 +93,10 @@ stop:
 # for google test
 TEST_DIR=./test
 TEST_SRCS=$(TEST_DIR)/gtest_mrhc.cpp
-TEST_OBJS=vnc_client.o logger.o d3des.o
+TEST_OBJS=$(SRC_DIR)/vnc_client.o $(SRC_DIR)/logger.o $(SRC_DIR)/d3des.o
 TEST_TARGET=$(TEST_DIR)/gtest_mrhc
 TEST_LIBS=$(LIBS) -lgtest -lgtest_main -lpthread -lX11
-TEST_INCLUDES=$(INCLUDES) -I/usr/local/include/gtest -I./
+TEST_INCLUDES=$(INCLUDES) -I/usr/local/include/gtest -I./src
 
 test: $(TEST_TARGET)
 $(TEST_TARGET): $(TEST_SRCS) $(OBJS)
