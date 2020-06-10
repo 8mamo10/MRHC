@@ -383,6 +383,12 @@ bool vnc_client::recv_bell()
     return true;
 }
 
+bool vnc_client::recv_server_cut_text()
+{
+    LOGGER_DEBUG("recv server_cut_text, do nothing");
+    return true;
+}
+
 bool vnc_client::send_key_event(std::string key)
 {
     key_event_t key_event = {};
@@ -603,8 +609,7 @@ bool vnc_client::recv_server_to_client_message()
     case RFB_MESSAGE_TYPE_BELL:
         return this->recv_bell();
     case RFB_MESSAGE_TYPE_SERVER_CUT_TEXT:
-        LOGGER_DEBUG("unsupported message_type:%d, SERVER_CUT_TEXT", message_type);
-        return true;
+        return this->recv_server_cut_text();
     default:
         LOGGER_DEBUG("unexpected message_type:%d", message_type);
         return false;

@@ -82,6 +82,7 @@ class vnc_client
     bool recv_frame_buffer_update();
     bool recv_set_colour_map_entries();
     bool recv_bell();
+    bool recv_server_cut_text();
     bool send_key_event(std::string key);
     bool send_pointer_event(uint16_t x, uint16_t y, uint8_t button);
     bool draw_image();

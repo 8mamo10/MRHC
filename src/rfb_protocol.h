@@ -165,4 +165,11 @@ typedef struct bell {
     uint8_t message_type = RFB_MESSAGE_TYPE_BELL;
 } bell_t;
 
+typedef struct server_cut_text {
+    uint8_t message_type = RFB_MESSAGE_TYPE_SERVER_CUT_TEXT;
+    uint8_t padding[3];
+    uint32_t length;
+    //uint8_t text[];
+} server_cut_text_t;
+
 #endif
