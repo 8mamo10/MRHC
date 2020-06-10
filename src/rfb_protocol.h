@@ -63,6 +63,12 @@ typedef struct pixel_data {
     //uint8_t pixels[]; // currently only support raw encoding
 } pixel_data_t;
 
+typedef struct colour_data {
+    uint16_t red;
+    uint16_t green;
+    uint16_t blue;
+} colour_data_t;
+
 // handshaking messages
 typedef struct protocol_version {
     uint8_t values[12];
@@ -146,6 +152,14 @@ typedef struct frame_buffer_update {
     uint16_t number_of_rectangles;
     //pixel_data_t pixel_datas[];
 } frame_buffer_update_t;
+
+typedef struct set_colour_map_entries {
+    uint8_t message_type = RFB_MESSAGE_TYPE_SET_COLOUR_MAP_ENTRIES;
+    uint8_t padding;
+    uint16_t first_colour;
+    uint16_t number_of_colours;
+    //colour_data_t colour_datas[];
+} set_colour_map_entries_t;
 
 typedef struct bell {
     uint8_t message_type = RFB_MESSAGE_TYPE_BELL;

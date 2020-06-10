@@ -371,6 +371,12 @@ bool vnc_client::recv_frame_buffer_update()
     return true;
 }
 
+bool vnc_client::recv_set_colour_map_entries()
+{
+    LOGGER_DEBUG("recv set_colour_map_entries, do nothing");
+    return true;
+}
+
 bool vnc_client::recv_bell()
 {
     LOGGER_DEBUG("recv bell, do nothing");
@@ -593,8 +599,7 @@ bool vnc_client::recv_server_to_client_message()
     case RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE:
         return this->recv_frame_buffer_update();
     case RFB_MESSAGE_TYPE_SET_COLOUR_MAP_ENTRIES:
-        LOGGER_DEBUG("unsupported message_type:%d, SET_COLOUR_MAP_ENTRIES", message_type);
-        return true;
+        return this->recv_set_colour_map_entries();
     case RFB_MESSAGE_TYPE_BELL:
         return this->recv_bell();
     case RFB_MESSAGE_TYPE_SERVER_CUT_TEXT:
