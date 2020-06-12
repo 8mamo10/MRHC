@@ -356,11 +356,6 @@ bool vnc_client::recv_frame_buffer_update()
 
     memmove(&frame_buffer_update.padding, buf, length);
 
-    // uint8_t message_type = frame_buffer_update.message_type;
-    // if (message_type != RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE) {
-    //     LOGGER_DEBUG("unexpected message_type:%d", message_type);
-    //     return false;
-    // }
     uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
     LOGGER_DEBUG("number_of_rectangles:%d", number_of_rectangles);
 
