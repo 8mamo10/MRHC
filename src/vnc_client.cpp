@@ -343,6 +343,8 @@ bool vnc_client::send_frame_buffer_update_request()
 
 bool vnc_client::recv_frame_buffer_update()
 {
+    LOGGER_DEBUG("recv frame_buffer_update");
+
     frame_buffer_update_t frame_buffer_update = {};
 
     char buf[BUF_SIZE] = {};
@@ -369,6 +371,27 @@ bool vnc_client::recv_frame_buffer_update()
 bool vnc_client::recv_set_colour_map_entries()
 {
     LOGGER_DEBUG("recv set_colour_map_entries, do nothing");
+
+    set_colour_map_entries_t set_colour_map_entries = {};
+
+    char buf[BUF_SIZE] = {};
+    // size - 1 because message type has already recv
+    int length = recv(this->sockfd, buf, sizeof(set_colour_map_entries) - 1, 0);
+    if (length < 0) {
+        return false;
+    }
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
+
+    memmove(&set_colour_map_entries.padding, buf, length);
+
+    uint16_t number_of_colours = ntohs(set_colour_map_entries.number_of_colours);
+    LOGGER_DEBUG("number_of_colours:%d", number_of_colours);
+
+    if (!this->recv_colours(number_of_colours)) {
+        LOGGER_DEBUG("failed to recv_colours");
+        return false;
+    }
     return true;
 }
 
@@ -381,6 +404,8 @@ bool vnc_client::recv_bell()
 bool vnc_client::recv_server_cut_text()
 {
     LOGGER_DEBUG("recv server_cut_text, do nothing");
+
+
     return true;
 }
 
@@ -684,6 +709,35 @@ bool vnc_client::recv_rectangle()
     LOGGER_DEBUG("total_recv reached total_pixel_bytes:%d", total_recv);
     LOGGER_DEBUG("image_buf size:%d", this->image_buf.size());
 
+    return true;
+}
+
+bool vnc_client::recv_colours(uint16_t number_of_colours)
+{
+    for (int i = 0; i < number_of_colours; i++) {
+        LOGGER_DEBUG("--start recv_colours:%d", i + 1);
+        if (!this->recv_colour()) {
+            LOGGER_DEBUG("failed to recv_colour");
+            return false;
+        }
+        LOGGER_DEBUG("--finish recv_colours:%d", i + 1);
+    }
+    return true;
+}
+
+bool vnc_client::recv_colour()
+{
+    colour_data_t colour_data = {};
+
+    char buf[BUF_SIZE] = {};
+    int length = recv(this->sockfd, buf, sizeof(colour_data), 0);
+    if (length < 0) {
+        return false;
+    }
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
+
+    LOGGER_DEBUG("discarded");
     return true;
 }
 

@@ -39,6 +39,8 @@ class vnc_client
     bool recv_server_to_client_message();
     bool recv_rectangles(uint16_t number_of_rectangles);
     bool recv_rectangle();
+    bool recv_colours(uint16_t number_of_colours);
+    bool recv_colour();
     const uint32_t convert_key_to_code(std::string key);
  public:
     static const std::string KEY_BACKSPACE;
