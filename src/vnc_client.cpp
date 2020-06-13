@@ -110,14 +110,14 @@ bool vnc_client::recv_protocol_version()
     protocol_version_t protocol_version = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(protocol_version), 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(protocol_version), 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_DEBUG("recv:%d", recv_length);
     LOGGER_DEBUG(buf);
 
-    memmove(&protocol_version, buf, length);
+    memmove(&protocol_version, buf, recv_length);
 
     if (memcmp(protocol_version.values, RFB_PROTOCOL_VERSION_3_3, sizeof(RFB_PROTOCOL_VERSION_3_3)) == 0) {
         this->version = std::string(buf);
@@ -140,11 +140,11 @@ bool vnc_client::send_protocol_version()
     protocol_version_t protocol_version = {};
     memmove(protocol_version.values, this->version.c_str(), this->version.length());
     // send back the same version string
-    int length = send(this->sockfd, &protocol_version, sizeof(protocol_version), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &protocol_version, sizeof(protocol_version), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
+    LOGGER_DEBUG("send:%d", send_length);
     LOGGER_DEBUG((char*)&protocol_version);
     return true;
 }
@@ -154,14 +154,14 @@ bool vnc_client::recv_supported_security_types()
     supported_security_types_t supported_security_types = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(supported_security_types), 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(supported_security_types), 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&supported_security_types, buf, length);
+    memmove(&supported_security_types, buf, recv_length);
 
     uint8_t num = supported_security_types.number_of_security_types;
     for (int i = 0; i < num; i++) {
@@ -175,12 +175,12 @@ bool vnc_client::send_security_type()
     security_type_t security_type = {};
     // specify VNC Authentication
     security_type.value = RFB_SECURITY_TYPE_VNC_AUTH;
-    int length = send(this->sockfd, &security_type, sizeof(security_type), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &security_type, sizeof(security_type), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&security_type), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&security_type), send_length);
     return true;
 }
 
@@ -189,15 +189,15 @@ bool vnc_client::recv_vnc_auth_challenge()
     vnc_auth_challenge_t vnc_auth_challenge = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(vnc_auth_challenge), 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(vnc_auth_challenge), 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&vnc_auth_challenge, buf, length);
-    memmove(this->challenge, &vnc_auth_challenge, length);
+    memmove(&vnc_auth_challenge, buf, recv_length);
+    memmove(this->challenge, &vnc_auth_challenge, recv_length);
     return true;
 }
 
@@ -208,12 +208,12 @@ bool vnc_client::send_vnc_auth_response()
     for (int j = 0; j < RFB_VNC_AUTH_CHALLENGE_LENGTH; j += 8) {
         des(this->challenge+j, this->challenge+j);
     }
-    int length = send(this->sockfd, this->challenge, RFB_VNC_AUTH_CHALLENGE_LENGTH, 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, this->challenge, RFB_VNC_AUTH_CHALLENGE_LENGTH, 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(this->challenge, length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(this->challenge, send_length);
     return true;
 }
 
@@ -222,14 +222,14 @@ bool vnc_client::recv_security_result()
     security_result_t security_result = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(security_result), 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(security_result), 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&security_result, buf, length);
+    memmove(&security_result, buf, recv_length);
 
     uint32_t status = ntohl(security_result.status);
     LOGGER_DEBUG("status:%d", status);
@@ -246,12 +246,12 @@ bool vnc_client::send_client_init()
     client_init_t client_init = {};
     client_init.shared_flag = RFB_SHARED_FLAG_ON;
 
-    int length = send(this->sockfd, &client_init, sizeof(client_init), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &client_init, sizeof(client_init), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&client_init), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&client_init), send_length);
     return true;
 }
 
@@ -260,14 +260,14 @@ bool vnc_client::recv_server_init()
     server_init_t server_init = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(server_init), 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(server_init), 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&server_init, buf, length);
+    memmove(&server_init, buf, recv_length);
 
     this->width = ntohs(server_init.frame_buffer_width);
     this->height = ntohs(server_init.frame_buffer_height);
@@ -299,12 +299,12 @@ bool vnc_client::send_set_pixel_format()
     set_pixel_format.pixel_format = pixel_format;
     this->pixel_format = pixel_format;
 
-    int length = send(this->sockfd, &set_pixel_format, sizeof(set_pixel_format), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &set_pixel_format, sizeof(set_pixel_format), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&set_pixel_format), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&set_pixel_format), send_length);
     return true;
 }
 
@@ -314,12 +314,12 @@ bool vnc_client::send_set_encodings()
     set_encodings.number_of_encodings = htons(1);
     set_encodings.encoding_type = htonl(RFB_ENCODING_RAW);
 
-    int length = send(this->sockfd, &set_encodings, sizeof(set_encodings), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &set_encodings, sizeof(set_encodings), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&set_encodings), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&set_encodings), send_length);
     return true;
 }
 
@@ -332,12 +332,12 @@ bool vnc_client::send_frame_buffer_update_request()
     frame_buffer_update_request.width = htons(this->width);
     frame_buffer_update_request.height = htons(this->height);
 
-    int length = send(this->sockfd, &frame_buffer_update_request, sizeof(frame_buffer_update_request), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &frame_buffer_update_request, sizeof(frame_buffer_update_request), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&frame_buffer_update_request), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&frame_buffer_update_request), send_length);
     return true;
 }
 
@@ -349,14 +349,14 @@ bool vnc_client::recv_frame_buffer_update()
 
     char buf[BUF_SIZE] = {};
     // size - 1 because message type has already recv
-    int length = recv(this->sockfd, buf, sizeof(frame_buffer_update) - 1, 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(frame_buffer_update) - 1, 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&frame_buffer_update.padding, buf, length);
+    memmove(&frame_buffer_update.padding, buf, recv_length);
 
     uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
     LOGGER_DEBUG("number_of_rectangles:%d", number_of_rectangles);
@@ -376,14 +376,14 @@ bool vnc_client::recv_set_colour_map_entries()
 
     char buf[BUF_SIZE] = {};
     // size - 1 because message type has already recv
-    int length = recv(this->sockfd, buf, sizeof(set_colour_map_entries) - 1, 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(set_colour_map_entries) - 1, 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&set_colour_map_entries.padding, buf, length);
+    memmove(&set_colour_map_entries.padding, buf, recv_length);
 
     uint16_t number_of_colours = ntohs(set_colour_map_entries.number_of_colours);
     LOGGER_DEBUG("number_of_colours:%d", number_of_colours);
@@ -411,19 +411,19 @@ bool vnc_client::recv_server_cut_text()
 
     char buf[BUF_SIZE] = {};
     // size - 1 because message type has already recv
-    int length = recv(this->sockfd, buf, sizeof(server_cut_text) - 1, 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(server_cut_text) - 1, 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&server_cut_text.padding, buf, length);
+    memmove(&server_cut_text.padding, buf, recv_length);
 
-    uint32_t text_length = ntohl(server_cut_text.length);
-    LOGGER_DEBUG("text_length:%d", text_length);
+    uint32_t length = ntohl(server_cut_text.length);
+    LOGGER_DEBUG("length:%d", length);
 
-    if (!this->recv_text(text_length)) {
+    if (!this->recv_text(length)) {
         LOGGER_DEBUG("failed to recv_text");
         return false;
     }
@@ -444,21 +444,21 @@ bool vnc_client::send_key_event(std::string key)
     key_event.key = htonl(key_code);
 
     // send down
-    int length = send(this->sockfd, &key_event, sizeof(key_event), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &key_event, sizeof(key_event), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&key_event), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&key_event), send_length);
 
     // send up
     key_event.down_flag = RFB_KEY_UP;
-    length = send(this->sockfd, &key_event, sizeof(key_event), 0);
-    if (length < 0) {
+    send_length = send(this->sockfd, &key_event, sizeof(key_event), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&key_event), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&key_event), send_length);
     return true;
 }
 
@@ -473,22 +473,22 @@ bool vnc_client::send_pointer_event(uint16_t x_position, uint16_t y_position, ui
     pointer_event.y_position = htons(y_position);
 
     // send down
-    int length = send(this->sockfd, &pointer_event, sizeof(pointer_event), 0);
-    if (length < 0) {
+    int send_length = send(this->sockfd, &pointer_event, sizeof(pointer_event), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&pointer_event), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&pointer_event), send_length);
 
     // send up
     button_mask = 0;
     pointer_event.button_mask = button_mask;
-    length = send(this->sockfd, &pointer_event, sizeof(pointer_event), 0);
-    if (length < 0) {
+    send_length = send(this->sockfd, &pointer_event, sizeof(pointer_event), 0);
+    if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", length);
-    LOGGER_XDEBUG(((char*)&pointer_event), length);
+    LOGGER_DEBUG("send:%d", send_length);
+    LOGGER_XDEBUG(((char*)&pointer_event), send_length);
     return true;
 }
 
@@ -634,15 +634,15 @@ bool vnc_client::recv_server_to_client_message()
 {
     char buf[BUF_SIZE] = {};
     // recv message type
-    int length = recv(this->sockfd, buf, 1, 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, 1, 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
     uint8_t message_type = 0;
-    memmove(&message_type, buf, length);
+    memmove(&message_type, buf, recv_length);
     switch (message_type) {
     case RFB_MESSAGE_TYPE_FRAME_BUFFER_UPDATE:
         return this->recv_frame_buffer_update();
@@ -677,14 +677,14 @@ bool vnc_client::recv_rectangle()
     pixel_data_t pixel_data = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(pixel_data), 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(pixel_data), 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
 
-    memmove(&pixel_data, buf, length);
+    memmove(&pixel_data, buf, recv_length);
     uint16_t x_position = ntohs(pixel_data.x_position);
     uint16_t y_position = ntohs(pixel_data.y_position);
     uint16_t width = ntohs(pixel_data.width);
@@ -712,16 +712,16 @@ bool vnc_client::recv_rectangle()
     while (total_recv < total_pixel_bytes) {
         memset(buf, 0, sizeof(buf));
         if (total_pixel_bytes - total_recv < sizeof(buf)) {
-            length = recv(this->sockfd, buf, total_pixel_bytes - total_recv, 0);
+            recv_length = recv(this->sockfd, buf, total_pixel_bytes - total_recv, 0);
         } else {
-            length = recv(this->sockfd, buf, sizeof(buf), 0);
+            recv_length = recv(this->sockfd, buf, sizeof(buf), 0);
         }
-        if (length < 0) {
+        if (recv_length < 0) {
             return false;
         }
-        //LOGGER_DEBUG("recv:%d", length);
-        total_recv += length;
-        for (int i = 0; i < length; i+=bytes_per_pixel) {
+        //LOGGER_DEBUG("recv:%d", recv_length);
+        total_recv += recv_length;
+        for (int i = 0; i < recv_length; i+=bytes_per_pixel) {
             // uint32_t here is just for container of 4bytes, no need to ntohl()
             uint32_t pixel = 0;
             memmove(&pixel, &buf[i], sizeof(pixel));
@@ -752,23 +752,23 @@ bool vnc_client::recv_colour()
     colour_data_t colour_data = {};
 
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, sizeof(colour_data), 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, sizeof(colour_data), 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
-    LOGGER_XDEBUG(buf, length);
+    LOGGER_DEBUG("recv:%d", recv_length);
+    LOGGER_XDEBUG(buf, recv_length);
     return true;
 }
 
-bool vnc_client::recv_text(uint32_t text_length)
+bool vnc_client::recv_text(uint32_t length)
 {
     char buf[BUF_SIZE] = {};
-    int length = recv(this->sockfd, buf, text_length, 0);
-    if (length < 0) {
+    int recv_length = recv(this->sockfd, buf, length, 0);
+    if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_DEBUG("recv:%d", recv_length);
     LOGGER_DEBUG(buf);
     return true;
 }
