@@ -406,6 +406,27 @@ bool vnc_client::recv_bell()
 bool vnc_client::recv_server_cut_text()
 {
     LOGGER_DEBUG("recv server_cut_text");
+
+    server_cut_text_t server_cut_text = {};
+
+    char buf[BUF_SIZE] = {};
+    // size - 1 because message type has already recv
+    int length = recv(this->sockfd, buf, sizeof(server_cut_text) - 1, 0);
+    if (length < 0) {
+        return false;
+    }
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_XDEBUG(buf, length);
+
+    memmove(&server_cut_text.padding, buf, length);
+
+    uint32_t text_length = ntohl(server_cut_text.length);
+    LOGGER_DEBUG("text_length:%d", text_length);
+
+    if (!this->recv_text(text_length)) {
+        LOGGER_DEBUG("failed to recv_text");
+        return false;
+    }
     LOGGER_DEBUG("discarded");
     return true;
 }
@@ -737,6 +758,18 @@ bool vnc_client::recv_colour()
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_XDEBUG(buf, length);
+    return true;
+}
+
+bool vnc_client::recv_text(uint32_t text_length)
+{
+    char buf[BUF_SIZE] = {};
+    int length = recv(this->sockfd, buf, text_length, 0);
+    if (length < 0) {
+        return false;
+    }
+    LOGGER_DEBUG("recv:%d", length);
+    LOGGER_DEBUG(buf);
     return true;
 }
 
