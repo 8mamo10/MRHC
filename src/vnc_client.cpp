@@ -370,7 +370,7 @@ bool vnc_client::recv_frame_buffer_update()
 
 bool vnc_client::recv_set_colour_map_entries()
 {
-    LOGGER_DEBUG("recv set_colour_map_entries, do nothing");
+    LOGGER_DEBUG("recv set_colour_map_entries");
 
     set_colour_map_entries_t set_colour_map_entries = {};
 
@@ -392,20 +392,21 @@ bool vnc_client::recv_set_colour_map_entries()
         LOGGER_DEBUG("failed to recv_colours");
         return false;
     }
+    LOGGER_DEBUG("discarded");
     return true;
 }
 
 bool vnc_client::recv_bell()
 {
-    LOGGER_DEBUG("recv bell, do nothing");
+    LOGGER_DEBUG("recv bell");
+    LOGGER_DEBUG("discarded");
     return true;
 }
 
 bool vnc_client::recv_server_cut_text()
 {
-    LOGGER_DEBUG("recv server_cut_text, do nothing");
-
-
+    LOGGER_DEBUG("recv server_cut_text");
+    LOGGER_DEBUG("discarded");
     return true;
 }
 
@@ -736,8 +737,6 @@ bool vnc_client::recv_colour()
     }
     LOGGER_DEBUG("recv:%d", length);
     LOGGER_XDEBUG(buf, length);
-
-    LOGGER_DEBUG("discarded");
     return true;
 }
 
