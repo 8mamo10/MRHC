@@ -232,7 +232,7 @@ bool vnc_client::recv_security_result()
     memmove(&security_result, buf, recv_length);
 
     uint32_t status = ntohl(security_result.status);
-    LOGGER_DEBUG("status:%d", status);
+    LOGGER_DEBUG("status:%lu", status);
     if (status != RFB_SECURITY_RESULT_OK) {
         LOGGER_DEBUG("VNC Authentication failed");
         return false;
