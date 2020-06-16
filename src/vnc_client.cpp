@@ -78,10 +78,10 @@ vnc_client::vnc_client(std::string host, int port, std::string password)
 
 vnc_client::~vnc_client()
 {
-    if (this->recv_thread) {
-        this->recv_thread->join();
-        delete this->recv_thread;
-    }
+    // if (this->recv_thread) {
+    //     this->recv_thread->join();
+    //     delete this->recv_thread;
+    // }
     close(this->sockfd);
 }
 
@@ -567,7 +567,7 @@ bool vnc_client::configure()
         return false;
     }
     // start receiver thread for server to client messages
-    this->recv_thread = new std::thread(&vnc_client::recv_server_to_client_message, this);
+    //this->recv_thread = new std::thread(&vnc_client::recv_server_to_client_message, this);
     return true;
 }
 
@@ -606,12 +606,13 @@ bool vnc_client::capture(vnc_operation_t operation)
         LOGGER_DEBUG("Failed to send_frame_buffer_update_request");
         return false;
     }
-    // if (!this->recv_server_to_client_message()) {
-    //     LOGGER_DEBUG("Failed to recv_server_to_client_message");
-    //     return false;
-    // }
+    if (!this->recv_server_to_client_message()) {
+        LOGGER_DEBUG("Failed to recv_server_to_client_message");
+        return false;
+    }
 
-    std::unique_lock<std::mutex> lk(this->mtx);
+    //std::unique_lock<std::mutex> lk(this->mtx);
+
     // output image
     if (!this->draw_image()) {
         LOGGER_DEBUG("Failed to draw_image");
@@ -649,7 +650,7 @@ bool vnc_client::recv_server_to_client_message()
     LOGGER_DEBUG("recv:%d", recv_length);
     LOGGER_XDEBUG(buf, recv_length);
 
-    std::unique_lock<std::mutex> lk(this->mtx);
+    //std::unique_lock<std::mutex> lk(this->mtx);
 
     uint8_t message_type = 0;
     memmove(&message_type, buf, recv_length);
