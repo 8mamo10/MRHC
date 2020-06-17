@@ -117,6 +117,12 @@ Thread 3 "httpd" hit Breakpoint 1, mrhc_handler (r=0x7ffff7ef70a0) at mod_mrhc.c
 (gdb) set print pretty on
 ```
 
+Deal with coredump.  
+```
+$ sudo apport-unpack /var/crash/_usr_sbin_apache2.33.crash ./tmp/
+$ gdb /usr/sbin/apache2 ./tmp/CoreDump
+```
+
 ## google test
 ```
 $ tar xzvf release-1.10.0.tar.gz
