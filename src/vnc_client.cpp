@@ -594,14 +594,14 @@ void vnc_client::recv_loop()
     LOGGER_DEBUG("thread started!!!");
     std::unique_lock<std::mutex> lk(this->mtx);
     while (this->stop) {
-        lk.unlock();
+        //lk.unlock();
         if (!this->recv_server_to_client_message()) {
             //LOGGER_DEBUG("Failed to recv_server_to_client_message");
             //return false;
         }
-        lk.lock();
+        //lk.lock();
     }
-    lk.unlock();
+    //lk.unlock();
     LOGGER_DEBUG("thread stopped!!!");
 }
 /////
