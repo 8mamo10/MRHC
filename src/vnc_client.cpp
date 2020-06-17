@@ -74,20 +74,14 @@ vnc_client::vnc_client(std::string host, int port, std::string password)
     : sockfd(0), host(host), port(port), password(password), version(""),  width(0), height(0), pixel_format({}), name("")
 {
     memset(this->challenge, 0, sizeof(this->challenge));
-    ///// to be removed
-    this->stop = true;
-    /////
 }
 
 vnc_client::~vnc_client()
 {
-    ///// to be removed
-    this->stop = false;
-    /////
-    if (this->recv_thread) {
-        this->recv_thread->join();
-        delete this->recv_thread;
-    }
+    // if (this->recv_thread) {
+    //     this->recv_thread->join();
+    //     delete this->recv_thread;
+    // }
     close(this->sockfd);
 }
 
@@ -573,21 +567,9 @@ bool vnc_client::configure()
         return false;
     }
     // start receiver thread for server to client messages
-    this->recv_thread = new std::thread(&vnc_client::test_print, this);
+    //this->recv_thread = new std::thread(&vnc_client::recv_server_to_client_message, this);
     return true;
 }
-
-///// to be removed
-void vnc_client::test_print()
-{
-    LOGGER_DEBUG("thread started!!!");
-    while (this->stop) {
-        LOGGER_DEBUG("thread looping!!!");
-        sleep(2);
-    }
-    LOGGER_DEBUG("thread stopped!!!");
-}
-/////
 
 bool vnc_client::operate(vnc_operation_t operation)
 {
@@ -629,7 +611,7 @@ bool vnc_client::capture(vnc_operation_t operation)
         return false;
     }
 
-    std::unique_lock<std::mutex> lk(this->mtx);
+    //std::unique_lock<std::mutex> lk(this->mtx);
 
     // output image
     if (!this->draw_image()) {
@@ -659,8 +641,6 @@ bool vnc_client::write_jpeg_buf(const std::string path)
 
 bool vnc_client::recv_server_to_client_message()
 {
-    std::unique_lock<std::mutex> lk(this->mtx);
-
     char buf[BUF_SIZE] = {};
     // recv message type
     int recv_length = recv(this->sockfd, buf, 1, 0);
@@ -669,6 +649,8 @@ bool vnc_client::recv_server_to_client_message()
     }
     LOGGER_DEBUG("recv:%d", recv_length);
     LOGGER_XDEBUG(buf, recv_length);
+
+    //std::unique_lock<std::mutex> lk(this->mtx);
 
     uint8_t message_type = 0;
     memmove(&message_type, buf, recv_length);
