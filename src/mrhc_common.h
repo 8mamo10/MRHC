@@ -2,7 +2,6 @@
 #define __MRHC_COMMON_H__
 
 #include <bits/stdc++.h>
-#include <mutex>
 
 #include "httpd.h"
 #include "http_config.h"

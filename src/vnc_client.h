@@ -97,7 +97,6 @@ class vnc_client
     ///// to be removed
     bool stop;
     void test_print();
-    void recv_loop();
     /////
 };
 

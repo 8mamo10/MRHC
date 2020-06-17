@@ -2,7 +2,6 @@
 #define __LOGGER_H__
 
 #include <bits/stdc++.h>
-#include <mutex>
 
 #define LOGGER logger::get_logger()
 
@@ -20,7 +19,6 @@ class logger
     static const std::string filename;
     static logger *instance;
     static std::ofstream logfile;
-    static std::mutex mtx;
 };
 
 #endif
