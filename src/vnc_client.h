@@ -1,9 +1,9 @@
 #ifndef __VNC_CLIENT_H__
 #define __VNC_CLIENT_H__
 
-#include <mutex>
-#include <thread>
+
 #include "opencv2/core/core.hpp"
+
 #include "rfb_protocol.h"
 
 typedef struct vnc_operation {
@@ -17,9 +17,6 @@ class vnc_client
 {
  private:
     int sockfd;
-
-    std::thread *recv_thread;
-    std::mutex mtx;
 
     // for connection
     std::string host;
