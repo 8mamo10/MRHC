@@ -346,14 +346,14 @@ bool vnc_client::send_frame_buffer_update_request()
     if (send_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("send:%d", send_length);
-    LOGGER_XDEBUG(((char*)&frame_buffer_update_request), send_length);
+    //LOGGER_DEBUG("send:%d", send_length);
+    //LOGGER_XDEBUG(((char*)&frame_buffer_update_request), send_length);
     return true;
 }
 
 bool vnc_client::recv_frame_buffer_update()
 {
-    LOGGER_DEBUG("recv frame_buffer_update");
+    //LOGGER_DEBUG("recv frame_buffer_update");
 
     frame_buffer_update_t frame_buffer_update = {};
 
@@ -363,13 +363,13 @@ bool vnc_client::recv_frame_buffer_update()
     if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", recv_length);
-    LOGGER_XDEBUG(buf, recv_length);
+    //LOGGER_DEBUG("recv:%d", recv_length);
+    //LOGGER_XDEBUG(buf, recv_length);
 
     memmove(&frame_buffer_update.padding, buf, recv_length);
 
     uint16_t number_of_rectangles = ntohs(frame_buffer_update.number_of_rectangles);
-    LOGGER_DEBUG("number_of_rectangles:%d", number_of_rectangles);
+    //LOGGER_DEBUG("number_of_rectangles:%d", number_of_rectangles);
 
     if (!this->recv_rectangles(number_of_rectangles)) {
         LOGGER_DEBUG("failed to recv_rectangles");
@@ -380,7 +380,7 @@ bool vnc_client::recv_frame_buffer_update()
 
 bool vnc_client::recv_set_colour_map_entries()
 {
-    LOGGER_DEBUG("recv set_colour_map_entries");
+    //LOGGER_DEBUG("recv set_colour_map_entries");
 
     set_colour_map_entries_t set_colour_map_entries = {};
 
@@ -390,32 +390,32 @@ bool vnc_client::recv_set_colour_map_entries()
     if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", recv_length);
-    LOGGER_XDEBUG(buf, recv_length);
+    //LOGGER_DEBUG("recv:%d", recv_length);
+    //LOGGER_XDEBUG(buf, recv_length);
 
     memmove(&set_colour_map_entries.padding, buf, recv_length);
 
     uint16_t number_of_colours = ntohs(set_colour_map_entries.number_of_colours);
-    LOGGER_DEBUG("number_of_colours:%d", number_of_colours);
+    //LOGGER_DEBUG("number_of_colours:%d", number_of_colours);
 
     if (!this->recv_colours(number_of_colours)) {
-        LOGGER_DEBUG("failed to recv_colours");
+        //LOGGER_DEBUG("failed to recv_colours");
         return false;
     }
-    LOGGER_DEBUG("discarded");
+    //LOGGER_DEBUG("discarded");
     return true;
 }
 
 bool vnc_client::recv_bell()
 {
-    LOGGER_DEBUG("recv bell");
-    LOGGER_DEBUG("discarded");
+    //LOGGER_DEBUG("recv bell");
+    //LOGGER_DEBUG("discarded");
     return true;
 }
 
 bool vnc_client::recv_server_cut_text()
 {
-    LOGGER_DEBUG("recv server_cut_text");
+    //LOGGER_DEBUG("recv server_cut_text");
 
     server_cut_text_t server_cut_text = {};
 
@@ -425,19 +425,19 @@ bool vnc_client::recv_server_cut_text()
     if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", recv_length);
-    LOGGER_XDEBUG(buf, recv_length);
+    //LOGGER_DEBUG("recv:%d", recv_length);
+    //LOGGER_XDEBUG(buf, recv_length);
 
     memmove(&server_cut_text.padding, buf, recv_length);
 
     uint32_t length = ntohl(server_cut_text.length);
-    LOGGER_DEBUG("length:%d", length);
+    //LOGGER_DEBUG("length:%d", length);
 
     if (!this->recv_text(length)) {
-        LOGGER_DEBUG("failed to recv_text");
+        //LOGGER_DEBUG("failed to recv_text");
         return false;
     }
-    LOGGER_DEBUG("discarded");
+    //LOGGER_DEBUG("discarded");
     return true;
 }
 
@@ -573,7 +573,8 @@ bool vnc_client::configure()
         return false;
     }
     // start receiver thread for server to client messages
-    this->recv_thread = new std::thread(&vnc_client::test_print, this);
+    //this->recv_thread = new std::thread(&vnc_client::test_print, this);
+    this->recv_thread = new std::thread(&vnc_client::recv_loop, this);
     return true;
 }
 
@@ -585,6 +586,22 @@ void vnc_client::test_print()
         LOGGER_DEBUG("thread looping!!!");
         sleep(2);
     }
+    LOGGER_DEBUG("thread stopped!!!");
+}
+
+void vnc_client::recv_loop()
+{
+    LOGGER_DEBUG("thread started!!!");
+    std::unique_lock<std::mutex> lk(this->mtx);
+    while (this->stop) {
+        lk.unlock();
+        if (!this->recv_server_to_client_message()) {
+            //LOGGER_DEBUG("Failed to recv_server_to_client_message");
+            //return false;
+        }
+        lk.lock();
+    }
+    lk.unlock();
     LOGGER_DEBUG("thread stopped!!!");
 }
 /////
@@ -615,25 +632,25 @@ bool vnc_client::operate(vnc_operation_t operation)
 
 bool vnc_client::capture(vnc_operation_t operation)
 {
+    std::unique_lock<std::mutex> lk(this->mtx);
+
     std::string key = operation.key;
     if (!key.empty()) return true;
 
     this->clear_buf();
 
     if (!this->send_frame_buffer_update_request()) {
-        LOGGER_DEBUG("Failed to send_frame_buffer_update_request");
+        //LOGGER_DEBUG("Failed to send_frame_buffer_update_request");
         return false;
     }
-    if (!this->recv_server_to_client_message()) {
-        LOGGER_DEBUG("Failed to recv_server_to_client_message");
-        return false;
-    }
-
-    std::unique_lock<std::mutex> lk(this->mtx);
+    // if (!this->recv_server_to_client_message()) {
+    //     LOGGER_DEBUG("Failed to recv_server_to_client_message");
+    //     return false;
+    // }
 
     // output image
     if (!this->draw_image()) {
-        LOGGER_DEBUG("Failed to draw_image");
+        //LOGGER_DEBUG("Failed to draw_image");
         return false;
     }
     // pointer image
@@ -644,7 +661,7 @@ bool vnc_client::capture(vnc_operation_t operation)
         return true;
     }
     if (!this->draw_pointer(x, y)) {
-        LOGGER_DEBUG("Failed to draw_pointer");
+        //LOGGER_DEBUG("Failed to draw_pointer");
         return false;
     }
     return true;
@@ -659,16 +676,14 @@ bool vnc_client::write_jpeg_buf(const std::string path)
 
 bool vnc_client::recv_server_to_client_message()
 {
-    std::unique_lock<std::mutex> lk(this->mtx);
-
     char buf[BUF_SIZE] = {};
     // recv message type
     int recv_length = recv(this->sockfd, buf, 1, 0);
     if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", recv_length);
-    LOGGER_XDEBUG(buf, recv_length);
+    //LOGGER_DEBUG("recv:%d", recv_length);
+    //LOGGER_XDEBUG(buf, recv_length);
 
     uint8_t message_type = 0;
     memmove(&message_type, buf, recv_length);
@@ -682,7 +697,7 @@ bool vnc_client::recv_server_to_client_message()
     case RFB_MESSAGE_TYPE_SERVER_CUT_TEXT:
         return this->recv_server_cut_text();
     default:
-        LOGGER_DEBUG("unexpected message_type:%d", message_type);
+        //LOGGER_DEBUG("unexpected message_type:%d", message_type);
         return false;
     }
     return true;
@@ -691,12 +706,12 @@ bool vnc_client::recv_server_to_client_message()
 bool vnc_client::recv_rectangles(uint16_t number_of_rectangles)
 {
     for (int i = 0; i < number_of_rectangles; i++) {
-        LOGGER_DEBUG("--start recv_rectangle:%d", i + 1);
+        //LOGGER_DEBUG("--start recv_rectangle:%d", i + 1);
         if (!this->recv_rectangle()) {
-            LOGGER_DEBUG("failed to recv_rectangle");
+            //LOGGER_DEBUG("failed to recv_rectangle");
             return false;
         }
-        LOGGER_DEBUG("--finish recv_rectangle:%d", i + 1);
+        //LOGGER_DEBUG("--finish recv_rectangle:%d", i + 1);
     }
     return true;
 }
@@ -710,32 +725,32 @@ bool vnc_client::recv_rectangle()
     if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", recv_length);
-    LOGGER_XDEBUG(buf, recv_length);
+    //LOGGER_DEBUG("recv:%d", recv_length);
+    //LOGGER_XDEBUG(buf, recv_length);
 
     memmove(&pixel_data, buf, recv_length);
     uint16_t x_position = ntohs(pixel_data.x_position);
     uint16_t y_position = ntohs(pixel_data.y_position);
     uint16_t width = ntohs(pixel_data.width);
     uint16_t height = ntohs(pixel_data.height);
-    LOGGER_DEBUG("(x_position,y_position,width,height)=(%d,%d,%d,%d)",
-           x_position, y_position, width, height);
+    //LOGGER_DEBUG("(x_position,y_position,width,height)=(%d,%d,%d,%d)",
+    //x_position, y_position, width, height);
     int32_t encoding_type = pixel_data.encoding_type;
     if (encoding_type != RFB_ENCODING_RAW) {
-        LOGGER_DEBUG("unexpected encoding_type:%d", encoding_type);
+        //LOGGER_DEBUG("unexpected encoding_type:%d", encoding_type);
         return false;
     }
     uint8_t bits_per_pixel = this->pixel_format.bits_per_pixel;
     uint8_t bytes_per_pixel = bits_per_pixel / 8;
-    LOGGER_DEBUG("---pixel_format---");
-    LOGGER_DEBUG("bits_per_pixel:%d", bits_per_pixel);
-    LOGGER_DEBUG("bytes_per_pixel:%d", bytes_per_pixel);
-    LOGGER_DEBUG("------------------");
+    //LOGGER_DEBUG("---pixel_format---");
+    //LOGGER_DEBUG("bits_per_pixel:%d", bits_per_pixel);
+    //LOGGER_DEBUG("bytes_per_pixel:%d", bytes_per_pixel);
+    //LOGGER_DEBUG("------------------");
 
     uint32_t total_pixel_count = width * height;
     uint32_t total_pixel_bytes = total_pixel_count * bits_per_pixel / 8;
-    LOGGER_DEBUG("total_pixel_count:%d", total_pixel_count);
-    LOGGER_DEBUG("expected total_pixel_bytes:%d", total_pixel_bytes);
+    //LOGGER_DEBUG("total_pixel_count:%d", total_pixel_count);
+    //LOGGER_DEBUG("expected total_pixel_bytes:%d", total_pixel_bytes);
 
     uint32_t total_recv = 0;
     while (total_recv < total_pixel_bytes) {
@@ -757,8 +772,8 @@ bool vnc_client::recv_rectangle()
             this->image_buf.push_back(pixel);
         }
     }
-    LOGGER_DEBUG("total_recv reached total_pixel_bytes:%d", total_recv);
-    LOGGER_DEBUG("image_buf size:%d", this->image_buf.size());
+    //LOGGER_DEBUG("total_recv reached total_pixel_bytes:%d", total_recv);
+    //LOGGER_DEBUG("image_buf size:%d", this->image_buf.size());
 
     return true;
 }
@@ -766,12 +781,12 @@ bool vnc_client::recv_rectangle()
 bool vnc_client::recv_colours(uint16_t number_of_colours)
 {
     for (int i = 0; i < number_of_colours; i++) {
-        LOGGER_DEBUG("--start recv_colours:%d", i + 1);
+        //LOGGER_DEBUG("--start recv_colours:%d", i + 1);
         if (!this->recv_colour()) {
-            LOGGER_DEBUG("failed to recv_colour");
+            //LOGGER_DEBUG("failed to recv_colour");
             return false;
         }
-        LOGGER_DEBUG("--finish recv_colours:%d", i + 1);
+        //LOGGER_DEBUG("--finish recv_colours:%d", i + 1);
     }
     return true;
 }
@@ -785,8 +800,8 @@ bool vnc_client::recv_colour()
     if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", recv_length);
-    LOGGER_XDEBUG(buf, recv_length);
+    //LOGGER_DEBUG("recv:%d", recv_length);
+    //LOGGER_XDEBUG(buf, recv_length);
     return true;
 }
 
@@ -797,8 +812,8 @@ bool vnc_client::recv_text(uint32_t length)
     if (recv_length < 0) {
         return false;
     }
-    LOGGER_DEBUG("recv:%d", recv_length);
-    LOGGER_DEBUG(buf);
+    //LOGGER_DEBUG("recv:%d", recv_length);
+    //LOGGER_DEBUG(buf);
     return true;
 }
 
@@ -841,21 +856,21 @@ bool vnc_client::draw_image()
     uint8_t green_shift      = this->pixel_format.green_shift;
     uint8_t blue_shift       = this->pixel_format.blue_shift;
 
-    LOGGER_DEBUG("---pixel_format---");
-    LOGGER_DEBUG("bits_per_pixel:%d",   bits_per_pixel);
-    LOGGER_DEBUG("depth:%d",            depth);
-    LOGGER_DEBUG("big_endian_flag:%d",  big_endian_flag);
-    LOGGER_DEBUG("true_colour_flag:%d", true_colour_flag);
-    LOGGER_DEBUG("red_max:%d",          red_max);
-    LOGGER_DEBUG("green_max:%d",        green_max);
-    LOGGER_DEBUG("blue_max:%d",         blue_max);
-    LOGGER_DEBUG("red_shift:%d",        red_shift);
-    LOGGER_DEBUG("green_shift:%d",      green_shift);
-    LOGGER_DEBUG("blue_shift:%d",       blue_shift);
-    LOGGER_DEBUG("------------------");
+    //LOGGER_DEBUG("---pixel_format---");
+    //LOGGER_DEBUG("bits_per_pixel:%d",   bits_per_pixel);
+    //LOGGER_DEBUG("depth:%d",            depth);
+    //LOGGER_DEBUG("big_endian_flag:%d",  big_endian_flag);
+    //LOGGER_DEBUG("true_colour_flag:%d", true_colour_flag);
+    //LOGGER_DEBUG("red_max:%d",          red_max);
+    //LOGGER_DEBUG("green_max:%d",        green_max);
+    //LOGGER_DEBUG("blue_max:%d",         blue_max);
+    //LOGGER_DEBUG("red_shift:%d",        red_shift);
+    //LOGGER_DEBUG("green_shift:%d",      green_shift);
+    //LOGGER_DEBUG("blue_shift:%d",       blue_shift);
+    //LOGGER_DEBUG("------------------");
 
     this->image = cv::Mat(this->height, this->width, CV_8UC3, cv::Scalar(0, 0, 0));
-    LOGGER_DEBUG("%dx%d", this->width, this->height);
+    //LOGGER_DEBUG("%dx%d", this->width, this->height);
     for (int y = 0; y < this->height; y++) {
         for (int x = 0; x < this->width; x++) {
             uint32_t pixel = this->image_buf[this->width * y + x];
