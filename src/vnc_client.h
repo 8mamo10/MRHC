@@ -94,6 +94,10 @@ class vnc_client
     bool draw_image();
     bool draw_pointer(uint16_t x, uint16_t y);
     void clear_buf();
+    ///// to be removed
+    bool stop;
+    void test_print();
+    /////
 };
 
 #endif
