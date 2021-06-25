@@ -19,3 +19,9 @@ g++ -c hello.cpp good_morning.cpp
 ar rvs libgreetings.a hello.o good_morning.o
 g++ main.cpp libgreetings.a
 ```
+
+```
+g++ -fPIC -c hello.cpp good_morning.cpp
+g++ -shared hello.o good_morning.o -o libgreetings.so
+g++ main.cpp -L. -lgreetings -Xlinker -rpath -Xlinker
+```
