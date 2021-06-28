@@ -25,3 +25,8 @@ g++ -fPIC -c hello.cpp good_morning.cpp
 g++ -shared hello.o good_morning.o -o libgreetings.so
 g++ main.cpp -L. -lgreetings -Xlinker -rpath -Xlinker
 ```
+
+```
+cmake -DBUILD_SHARED_LIBS=ON ..
+cmake -DBUILD_SHARED_LIBS=OFF ..
+```
