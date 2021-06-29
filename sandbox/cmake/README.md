@@ -30,3 +30,8 @@ g++ main.cpp -L. -lgreetings -Xlinker -rpath -Xlinker
 cmake -DBUILD_SHARED_LIBS=ON ..
 cmake -DBUILD_SHARED_LIBS=OFF ..
 ```
+
+```
+cmake -DGREETINGS_BUILD_SHARED_LIBS=ON ..
+cmake -DGREETINGS_BUILD_SHARED_LIBS=OFF ..
+```
