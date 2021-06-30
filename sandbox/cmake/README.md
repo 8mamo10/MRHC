@@ -35,3 +35,12 @@ cmake -DBUILD_SHARED_LIBS=OFF ..
 cmake -DGREETINGS_BUILD_SHARED_LIBS=ON ..
 cmake -DGREETINGS_BUILD_SHARED_LIBS=OFF ..
 ```
+
+```
+cd src
+g++ -fPIC -c hello.cpp good_morning.cpp -I../include
+g++ -shared *.o -o libgreetings.so
+cd ../test
+g++ main.cpp -I../include -L../src -lgreetings -Xlinker -rpath -Xlinker ../src
+
+```
