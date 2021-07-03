@@ -44,3 +44,9 @@ cd ../test
 g++ main.cpp -I../include -L../src -lgreetings -Xlinker -rpath -Xlinker ../src
 
 ```
+cmake ..
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=MinSizeRel ..
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+```
