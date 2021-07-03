@@ -11,6 +11,8 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-Og -g")
 add_subdirectory(src)
 add_subdirectory(test)
 
+find_package (Boost REQUIRED)
+
 #add_library(greetings STATIC hello.cpp good_morning.cpp)
 #add_library(greetings SHARED hello.cpp good_morning.cpp)
 
